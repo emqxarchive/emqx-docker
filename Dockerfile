@@ -1,21 +1,20 @@
-FROM devicexx/erlang
+FROM alpine:3.4
 
 MAINTAINER Huang Rui <vowstar@gmail.com>
 
-ENV EMQTTD_VERSION=master
+ENV EMQ_VERSION=v2.0-rc.3
 
 ADD ./start.sh /start.sh
 
-RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories \
-    && apk --no-cache add \
+RUN apk --no-cache add \
+        erlang \
         git \
         make \
         socat \
-    && git clone -b ${EMQTTD_VERSION} https://github.com/emqtt/emqttd.git /emqttd \
+    && git clone -b ${EMQ_VERSION} https://github.com/emqtt/emqttd-relx.git /emqttd \
     && cd /emqttd \
-    && git checkout origin/master rebar.config \
-    && make && make dist \
-    && mkdir /opt && mv /emqttd/rel/emqttd /opt/emqttd \
+    && make \
+    && mkdir /opt && mv /emqttd/_rel/emqttd /opt/emqttd \
     && cd / && rm -rf /emqttd \
     && mv /start.sh /opt/emqttd/start.sh \
     && chmod +x /opt/emqttd/start.sh \
