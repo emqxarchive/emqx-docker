@@ -7,6 +7,10 @@ ENV EMQ_VERSION=v2.0-rc.3
 ADD ./start.sh /start.sh
 
 RUN apk --no-cache add \
+        ncurses-terminfo-base \
+        ncurses-terminfo \
+        ncurses-libs \
+        readline \
         erlang \
         erlang-public-key \
         erlang-syntax-tools \
