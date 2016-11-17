@@ -45,3 +45,8 @@ Use the environment variable to configure the EMQ docker container
 | EMQ_HTTPS_PORT           | 8084               | HTTPS/WSS port                        |
 | EMQ_HTTPS_ACCEPTORS      | 32                 | HTTPS/WSS acceptors                   |
 | EMQ_HTTPS_MAX_CLIENTS    | 500000             | HTTPS/WSS max clients                 |
+
+
+For example, set mqtt tcp port to 1883
+
+``docker run --rm -ti --name emq -e "EMQ_TCP_PORT=1883" -p 18083:18083 -p 1883:1883 emq:latest``
