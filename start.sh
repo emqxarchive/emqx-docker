@@ -26,7 +26,7 @@ sed -i -e "s/^#*\s*node.name\s*=\s*.*@.*/node.name = ${EMQ_NODE_NAME}/g" /opt/em
 
 if [ x"${EMQ_NODE_COOKIE}" = x ]
 then
-EMQ_NODE_COOKIE="emq_docker_cookie"
+EMQ_NODE_COOKIE="emq_dist_cookie"
 echo "EMQ_NODE_COOKIE=${EMQ_NODE_COOKIE}"
 fi
 sed -i -e "s/^#*\s*node.cookie\s*=\s*.*/node.cookie = ${EMQ_NODE_COOKIE}/g" /opt/emqttd/etc/emq.conf
@@ -143,12 +143,12 @@ echo "EMQ_HTTPS_ACCEPTORS=${EMQ_HTTPS_ACCEPTORS}"
 fi
 sed -i -e "s/^#*\s*mqtt.listener.https.acceptors\s*=\s*.*/mqtt.listener.https.acceptors = ${EMQ_HTTPS_ACCEPTORS}/g" /opt/emqttd/etc/emq.conf
 
-if [ x"${EMQ_HTTP_MAX_CLIENTS}" = x ]
+if [ x"${EMQ_HTTPS_MAX_CLIENTS}" = x ]
 then
-EMQ_HTTP_MAX_CLIENTS=1000000
-echo "EMQ_HTTP_MAX_CLIENTS=${EMQ_HTTP_MAX_CLIENTS}"
+EMQ_HTTPS_MAX_CLIENTS=1000000
+echo "EMQ_HTTPS_MAX_CLIENTS=${EMQ_HTTPS_MAX_CLIENTS}"
 fi
-sed -i -e "s/^#*\s*mqtt.listener.https.max_clients\s*=\s*.*/mqtt.listener.https.max_clients = ${EMQ_HTTP_MAX_CLIENTS}/g" /opt/emqttd/etc/emq.conf
+sed -i -e "s/^#*\s*mqtt.listener.https.max_clients\s*=\s*.*/mqtt.listener.https.max_clients = ${EMQ_HTTPS_MAX_CLIENTS}/g" /opt/emqttd/etc/emq.conf
 
 /opt/emqttd/bin/emqttd start
 
