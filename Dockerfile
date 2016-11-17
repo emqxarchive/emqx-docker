@@ -62,6 +62,7 @@ RUN apk --no-cache add \
         erlang-compiler \
         git \
         make \
+        perl \
     && git clone -b ${EMQ_VERSION} https://github.com/emqtt/emqttd-relx.git /emqttd \
     && cd /emqttd \
     && make \
@@ -125,6 +126,7 @@ RUN apk --no-cache add \
         erlang-compiler \
         git \
         make \
+        perl \
     && rm -rf /var/cache/apk/*
 
 WORKDIR /opt/emqttd
