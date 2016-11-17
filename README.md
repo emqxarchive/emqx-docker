@@ -12,8 +12,8 @@ Execute some command under this docker image
 
 Get emqttd
 
+- [] TODO: Add EMQ official docker registry
+
 Run emqttd
 
 ``docker run --rm -ti --name emq -p 18083:18083 -p 1883:1883 emq:latest``
-
-
