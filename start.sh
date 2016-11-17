@@ -1,13 +1,154 @@
 #!/bin/sh
 # Emqttd start script
-echo 'Emqttd docker image for Device++'
-echo 'Vowstar Co.,Ltd. <support@vowstar.com>'
-echo 'This script is under MIT license'
+# EMQ docker image
+# Huang Rui <vowstar@gmail.com>
 
-SELF_HOST=$(hostname)
-SELF_IP=$(cat /etc/hosts | grep ${SELF_HOST} | awk '{print $1}')
+# Get self hostname
 
-sed -i -e "s/^-name\s*.*@.*/-name emqttd@${SELF_IP}/g" /opt/emqttd/etc/vm.args
+if [ x"${EMQ_NAME}" = x ]
+then
+EMQ_NAME=$(hostname)
+echo "EMQ_NAME=${EMQ_NAME}"
+fi
+
+if [ x"${EMQ_HOST}" = x ]
+then
+EMQ_HOST=$(cat /etc/hosts | grep $(hostname) | awk '{print $1}')
+echo "EMQ_HOST=${EMQ_HOST}"
+fi
+
+if [ x"${EMQ_NODE_NAME}" = x ]
+then
+EMQ_NODE_NAME="${EMQ_NAME}@${EMQ_HOST}"
+echo "EMQ_NODE_NAME=${EMQ_NODE_NAME}"
+fi
+sed -i -e "s/^#*\s*node.name\s*=\s*.*@.*/node.name = ${EMQ_NODE_NAME}/g" /opt/emqttd/etc/emq.conf
+
+if [ x"${EMQ_NODE_COOKIE}" = x ]
+then
+EMQ_NODE_COOKIE="emq_docker_cookie"
+echo "EMQ_NODE_COOKIE=${EMQ_NODE_COOKIE}"
+fi
+sed -i -e "s/^#*\s*node.cookie\s*=\s*.*/node.cookie = ${EMQ_NODE_COOKIE}/g" /opt/emqttd/etc/emq.conf
+
+if [ x"${EMQ_PROCESS_LIMIT}" = x ]
+then
+EMQ_PROCESS_LIMIT=2097152
+echo "EMQ_PROCESS_LIMIT=${EMQ_PROCESS_LIMIT}"
+fi
+sed -i -e "s/^#*\s*node.process_limit\s*=\s*.*/node.process_limit = ${EMQ_PROCESS_LIMIT}/g" /opt/emqttd/etc/emq.conf
+
+if [ x"${EMQ_MAX_PORTS}" = x ]
+then
+EMQ_MAX_PORTS=1048576
+echo "EMQ_MAX_PORTS=${EMQ_MAX_PORTS}"
+fi
+sed -i -e "s/^#*\s*node.max_ports\s*=\s*.*/node.max_ports = ${EMQ_MAX_PORTS}/g" /opt/emqttd/etc/emq.conf
+
+if [ x"${EMQ_LOG_CONSOLE}" = x ]
+then
+EMQ_LOG_CONSOLE="file"
+echo "EMQ_LOG_CONSOLE=${EMQ_LOG_CONSOLE}"
+fi
+sed -i -e "s/^#*\s*log.console\s*=\s*.*/log.console = ${EMQ_LOG_CONSOLE}/g" /opt/emqttd/etc/emq.conf
+
+if [ x"${EMQ_LOG_LEVEL}" = x ]
+then
+EMQ_LOG_LEVEL="error"
+echo "EMQ_LOG_LEVEL=${EMQ_LOG_LEVEL}"
+fi
+sed -i -e "s/^#*\s*log.console.level\s*=\s*.*/log.console.level = ${EMQ_LOG_LEVEL}/g" /opt/emqttd/etc/emq.conf
+
+if [ x"${EMQ_ALLOW_ANONYMOUS}" = x ]
+then
+EMQ_ALLOW_ANONYMOUS="true"
+echo "EMQ_ALLOW_ANONYMOUS=${EMQ_ALLOW_ANONYMOUS}"
+fi
+sed -i -e "s/^#*\s*mqtt.allow_anonymous\s*=\s*.*/mqtt.allow_anonymous = ${EMQ_ALLOW_ANONYMOUS}/g" /opt/emqttd/etc/emq.conf
+
+if [ x"${EMQ_TCP_PORT}" = x ]
+then
+EMQ_TCP_PORT=1883
+echo "EMQ_TCP_PORT=${EMQ_TCP_PORT}"
+fi
+sed -i -e "s/^#*\s*mqtt.listener.tcp\s*=\s*.*/mqtt.listener.tcp = ${EMQ_TCP_PORT}/g" /opt/emqttd/etc/emq.conf
+
+if [ x"${EMQ_TCP_ACCEPTORS}" = x ]
+then
+EMQ_TCP_ACCEPTORS=64
+echo "EMQ_TCP_ACCEPTORS=${EMQ_TCP_ACCEPTORS}"
+fi
+sed -i -e "s/^#*\s*mqtt.listener.tcp.acceptors\s*=\s*.*/mqtt.listener.tcp.acceptors = ${EMQ_TCP_ACCEPTORS}/g" /opt/emqttd/etc/emq.conf
+
+if [ x"${EMQ_TCP_MAX_CLIENTS}" = x ]
+then
+EMQ_TCP_MAX_CLIENTS=1000000
+echo "EMQ_TCP_MAX_CLIENTS=${EMQ_TCP_MAX_CLIENTS}"
+fi
+sed -i -e "s/^#*\s*mqtt.listener.tcp.max_clients\s*=\s*.*/mqtt.listener.tcp.max_clients = ${EMQ_TCP_MAX_CLIENTS}/g" /opt/emqttd/etc/emq.conf
+
+if [ x"${EMQ_SSL_PORT}" = x ]
+then
+EMQ_SSL_PORT=8883
+echo "EMQ_SSL_PORT=${EMQ_SSL_PORT}"
+fi
+sed -i -e "s/^#*\s*mqtt.listener.ssl\s*=\s*.*/mqtt.listener.ssl = ${EMQ_SSL_PORT}/g" /opt/emqttd/etc/emq.conf
+
+if [ x"${EMQ_SSL_ACCEPTORS}" = x ]
+then
+EMQ_SSL_ACCEPTORS=32
+echo "EMQ_SSL_ACCEPTORS=${EMQ_SSL_ACCEPTORS}"
+fi
+sed -i -e "s/^#*\s*mqtt.listener.ssl.acceptors\s*=\s*.*/mqtt.listener.ssl.acceptors = ${EMQ_SSL_ACCEPTORS}/g" /opt/emqttd/etc/emq.conf
+
+if [ x"${EMQ_SSL_MAX_CLIENTS}" = x ]
+then
+EMQ_SSL_MAX_CLIENTS=500000
+echo "EMQ_SSL_MAX_CLIENTS=${EMQ_SSL_MAX_CLIENTS}"
+fi
+sed -i -e "s/^#*\s*mqtt.listener.ssl.max_clients\s*=\s*.*/mqtt.listener.ssl.max_clients = ${EMQ_SSL_MAX_CLIENTS}/g" /opt/emqttd/etc/emq.conf
+
+if [ x"${EMQ_HTTP_PORT}" = x ]
+then
+EMQ_HTTP_PORT=8083
+echo "EMQ_HTTP_PORT=${EMQ_HTTP_PORT}"
+fi
+sed -i -e "s/^#*\s*mqtt.listener.http\s*=\s*.*/mqtt.listener.http = ${EMQ_HTTP_PORT}/g" /opt/emqttd/etc/emq.conf
+
+if [ x"${EMQ_HTTP_ACCEPTORS}" = x ]
+then
+EMQ_HTTP_ACCEPTORS=64
+echo "EMQ_HTTP_ACCEPTORS=${EMQ_HTTP_ACCEPTORS}"
+fi
+sed -i -e "s/^#*\s*mqtt.listener.http.acceptors\s*=\s*.*/mqtt.listener.http.acceptors = ${EMQ_HTTP_ACCEPTORS}/g" /opt/emqttd/etc/emq.conf
+
+if [ x"${EMQ_HTTP_MAX_CLIENTS}" = x ]
+then
+EMQ_HTTP_MAX_CLIENTS=1000000
+echo "EMQ_HTTP_MAX_CLIENTS=${EMQ_HTTP_MAX_CLIENTS}"
+fi
+sed -i -e "s/^#*\s*mqtt.listener.http.max_clients\s*=\s*.*/mqtt.listener.http.max_clients = ${EMQ_HTTP_MAX_CLIENTS}/g" /opt/emqttd/etc/emq.conf
+
+if [ x"${EMQ_HTTPS_PORT}" = x ]
+then
+EMQ_HTTPS_PORT=8084
+echo "EMQ_HTTPS_PORT=${EMQ_HTTPS_PORT}"
+fi
+sed -i -e "s/^#*\s*mqtt.listener.https\s*=\s*.*/mqtt.listener.https = ${EMQ_HTTPS_PORT}/g" /opt/emqttd/etc/emq.conf
+
+if [ x"${EMQ_HTTPS_ACCEPTORS}" = x ]
+then
+EMQ_HTTPS_ACCEPTORS=32
+echo "EMQ_HTTPS_ACCEPTORS=${EMQ_HTTPS_ACCEPTORS}"
+fi
+sed -i -e "s/^#*\s*mqtt.listener.https.acceptors\s*=\s*.*/mqtt.listener.https.acceptors = ${EMQ_HTTPS_ACCEPTORS}/g" /opt/emqttd/etc/emq.conf
+
+if [ x"${EMQ_HTTP_MAX_CLIENTS}" = x ]
+then
+EMQ_HTTP_MAX_CLIENTS=1000000
+echo "EMQ_HTTP_MAX_CLIENTS=${EMQ_HTTP_MAX_CLIENTS}"
+fi
+sed -i -e "s/^#*\s*mqtt.listener.https.max_clients\s*=\s*.*/mqtt.listener.https.max_clients = ${EMQ_HTTP_MAX_CLIENTS}/g" /opt/emqttd/etc/emq.conf
 
 /opt/emqttd/bin/emqttd start
 
@@ -27,79 +168,12 @@ done
 
 echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqttd start'
 
-if [ x$EMQTTD_REMOTE_HOST != x ]
-then
-    REMOTE_HOST=$EMQTTD_REMOTE_HOST
-    echo 'use remote host:'${REMOTE_HOST}
-fi
-
-if [ x$1 != x ]
-then
-    REMOTE_HOST=$1
-    echo 'use remote host:'${REMOTE_HOST}
-fi
-
-echo 'emqttd@'${SELF_IP}
-
-if [ x$REMOTE_HOST != x ]
-then
-    REMOTE_IP=$(cat /etc/hosts | grep ${REMOTE_HOST} | awk '{print $1}')
-    if [ x$REMOTE_IP = x ]
-    then
-        REMOTE_IP=$REMOTE_HOST
-        echo 'local network not have remote host:'${REMOTE_HOST}
-    fi
-    echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:join emqttd@'${REMOTE_IP}
-    /opt/emqttd/bin/emqttd_ctl cluster join 'emqttd@'${REMOTE_IP}
-else
-    if [ x$REMOTE_IP != x ] && [ $REMOTE_IP != $SELF_IP ]
-    then
-        echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:join emqttd@'${REMOTE_IP}
-        /opt/emqttd/bin/emqttd_ctl cluster join 'emqttd@'${REMOTE_IP}
-    fi
-fi
-
 IDLE_TIME=0
 while [ x$(/opt/emqttd/bin/emqttd_ctl status |grep 'is running'|awk '{print $1}') != x ]
 do  
     IDLE_TIME=`expr ${IDLE_TIME} + 1`
     echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqttd running'
-    DOCKER_IP_LIST=$(cat /etc/hosts |grep -v -E 'localhost|ip6-localnet|ip6-mcastprefix|ip6-allnodes|ip6-allrouters'|awk '{print $1}')
-    CLUSTER_IP_LIST=$(/opt/emqttd/bin/emqttd_ctl cluster status|grep -E -oh '((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])')
-    for TARGET_IP in $DOCKER_IP_LIST
-    do
-        if [ x$(echo $CLUSTER_IP_LIST|grep -oh $TARGET_IP) = x ]
-        then
-            REMOTE_IP=${TARGET_IP}
-            echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:link server '${REMOTE_IP} 
-            echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:join emqttd@'${REMOTE_IP}
-            /opt/emqttd/bin/emqttd_ctl cluster join 'emqttd@'${REMOTE_IP}
-        fi
-    done
-    CLUSTER_IP_COUNT=$(echo ${CLUSTER_IP_LIST} | grep -E -oh '((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])' | wc -l)       
-    if [ ${IDLE_TIME} -lt 100 ]                                                                                                                                    
-    then                                                                                                                                                                
-        echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:discover emqtt service'  
-        echo ${CLUSTER_IP_LIST} | socat - udp-datagram:255.255.255.255:32491,broadcast                                                                                                 
-    fi
-    sleep 2                                                                                                                                                                  
-    sleep $((RANDOM%${CLUSTER_IP_COUNT}))
-    DOCKER_IP_LIST=$(echo $(timeout -t 9 socat - udp-listen:32491,reuseaddr) | grep -E -oh '((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])')
-    DOCKER_IP_COUNT=$(echo ${DOCKER_IP_LIST} | grep -E -oh '((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])' | wc -l)  
-    if [ ${CLUSTER_IP_COUNT} -le ${DOCKER_IP_COUNT} ]   
-    then
-        for TARGET_IP in $DOCKER_IP_LIST
-        do
-            if [ x$(echo $CLUSTER_IP_LIST|grep -oh $TARGET_IP) = x ]
-            then
-                REMOTE_IP=${TARGET_IP}
-                echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:find server '${REMOTE_IP} 
-                echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:join emqttd@'${REMOTE_IP}
-                /opt/emqttd/bin/emqttd_ctl cluster join 'emqttd@'${REMOTE_IP}
-                IDLE_TIME=0
-            fi
-        done
-    fi
+    sleep 20
 done
 
 tail $(ls /opt/emqttd/log/*)
