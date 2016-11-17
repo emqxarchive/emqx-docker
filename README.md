@@ -6,7 +6,14 @@ Current docker image size: 37.1 MB
 
 ### Get emqttd
 
-- TODO: Add EMQ official docker registry
+You can build this docker image by yourself.
+
+```bash
+git clone -b master https://github.com/emqtt/emq_docker.git
+cd emq_docker
+docker build -t emq:latest . 
+
+```
 
 ### Run emqttd
 
