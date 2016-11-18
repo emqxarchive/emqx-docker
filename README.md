@@ -83,19 +83,19 @@ For example, load ``emq_auth_redis`` plugin, set it into ``EMQ_LOADED_PLUGINS`` 
 You can use comma
 
 ```bash
-EMQ_LOADED_PLUGINS="emq_recon,emq_dashboard,emq_mod_presence,emq_mod_retainer,emq_mod_subscription,emq_auth_redis"
+EMQ_LOADED_PLUGINS="emq_auth_redis,emq_recon,emq_dashboard,emq_mod_presence,emq_mod_retainer,emq_mod_subscription"
 ```
 
 You can use space
 
 ```bash
-EMQ_LOADED_PLUGINS="emq_recon emq_dashboard emq_mod_presence emq_mod_retainer emq_mod_subscription emq_auth_redis"
+EMQ_LOADED_PLUGINS="emq_auth_redis emq_recon emq_dashboard emq_mod_presence emq_mod_retainer emq_mod_subscription"
 ```
 
 You can use other separator that you want
 
 ```bash
-EMQ_LOADED_PLUGINS="emq_recon | emq_dashboard | emq_mod_presence | emq_mod_retainer | emq_mod_subscription | emq_auth_redis"
+EMQ_LOADED_PLUGINS="emq_auth_redis | emq_recon | emq_dashboard | emq_mod_presence | emq_mod_retainer | emq_mod_subscription"
 ```
 
 All the plugin you defined in env ``EMQ_LOADED_PLUGINS`` will be loaded.
