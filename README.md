@@ -29,6 +29,8 @@ For example
 
 Use the environment variable to configure the EMQ docker container
 
+#### EMQ Configuration
+
 | Oprtions                 | Default            | Description                           |
 | ------------------------ | ------------------ | ------------------------------------- |
 | EMQ_NAME                 | container name     | emq node short name                   |
@@ -53,7 +55,47 @@ Use the environment variable to configure the EMQ docker container
 | EMQ_HTTPS_ACCEPTORS      | 32                 | HTTPS/WSS acceptors                   |
 | EMQ_HTTPS_MAX_CLIENTS    | 500000             | HTTPS/WSS max clients                 |
 
-
 For example, set mqtt tcp port to 1883
 
 ``docker run --rm -ti --name emq -e "EMQ_TCP_PORT=1883" -p 18083:18083 -p 1883:1883 emq:latest``
+
+#### EMQ Loaded Plugins Configuration
+
+| Oprtions                 | Default            | Description                           |
+| ------------------------ | ------------------ | ------------------------------------- |
+| EMQ_LOADED_PLUGINS       | see content below  | default plugins emq loaded            |
+
+Default environment variable ``EMQ_LOADED_PLUGINS``, including 
+
+- ``emq_recon``
+- ``emq_dashboard``
+- ``emq_mod_presence``
+- ``emq_mod_retainer``
+- ``emq_mod_subscription``
+
+```bash
+# The default EMQ_LOADED_PLUGINS env
+EMQ_LOADED_PLUGINS="emq_recon,emq_dashboard,emq_mod_presence,emq_mod_retainer,emq_mod_subscription"
+```
+
+For example, load ``emq_auth_redis`` plugin, set it into ``EMQ_LOADED_PLUGINS`` and use any separator to separates it.
+
+You can use comma
+
+```bash
+EMQ_LOADED_PLUGINS="emq_recon,emq_dashboard,emq_mod_presence,emq_mod_retainer,emq_mod_subscription,emq_auth_redis"
+```
+
+You can use space
+
+```bash
+EMQ_LOADED_PLUGINS="emq_recon emq_dashboard emq_mod_presence emq_mod_retainer emq_mod_subscription emq_auth_redis"
+```
+
+You can use other separator that you want
+
+```bash
+EMQ_LOADED_PLUGINS="emq_recon | emq_dashboard | emq_mod_presence | emq_mod_retainer | emq_mod_subscription | emq_auth_redis"
+```
+
+All the plugin you defined in env ``EMQ_LOADED_PLUGINS`` will be loaded.

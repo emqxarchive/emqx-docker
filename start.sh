@@ -1,9 +1,9 @@
 #!/bin/sh
-# Emqttd start script
-# EMQ docker image
+## EMQ docker image start script
 # Huang Rui <vowstar@gmail.com>
 
-# Get self hostname
+## EMQ Base settings
+# Base settings in /opt/emqttd/etc/emq.conf
 
 if [ x"${EMQ_NAME}" = x ]
 then
@@ -149,6 +149,25 @@ EMQ_HTTPS_MAX_CLIENTS=1000000
 echo "EMQ_HTTPS_MAX_CLIENTS=${EMQ_HTTPS_MAX_CLIENTS}"
 fi
 sed -i -e "s/^#*\s*mqtt.listener.https.max_clients\s*=\s*.*/mqtt.listener.https.max_clients = ${EMQ_HTTPS_MAX_CLIENTS}/g" /opt/emqttd/etc/emq.conf
+
+## EMQ Plugin load settings
+# Plugins loaded by default
+
+if [ x"${EMQ_LOADED_PLUGINS}" = x ]
+then
+EMQ_LOADED_PLUGINS="emq_recon,emq_dashboard,emq_mod_presence,emq_mod_retainer,emq_mod_subscription"
+echo "EMQ_LOADED_PLUGINS=${EMQ_LOADED_PLUGINS}"
+fi
+# First, remove special char at header
+# Next, replace special char to ".\n" to fit emq loaded_plugins format
+echo $(echo "${EMQ_LOADED_PLUGINS}."|sed -e "s/^[^A-Za-z0-9_]\{1,\}//g"|sed -e "s/[^A-Za-z0-9_]\{1,\}/\.\n/g") > /opt/emqttd/data/loaded_plugins
+
+## EMQ Plugins setting
+
+## TODO: Add plugins settings
+
+## EMQ Main script
+# Start and run emqttd, and when emqttd crash, this container will stop
 
 /opt/emqttd/bin/emqttd start
 
