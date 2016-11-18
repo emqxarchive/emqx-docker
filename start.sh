@@ -167,12 +167,12 @@ echo $(echo "${EMQ_LOADED_PLUGINS}."|sed -e "s/^[^A-Za-z0-9_]\{1,\}//g"|sed -e "
 ## TODO: Add plugins settings
 
 ## EMQ Main script
-# Start and run emqttd, and when emqttd crash, this container will stop
+# Start and run emqttd, and when emqttd crashed, this container will stop
 
 /opt/emqttd/bin/emqttd start
 
-WAIT_TIME=0
 # wait and ensure emqttd status is running
+WAIT_TIME=0
 while [ x$(/opt/emqttd/bin/emqttd_ctl status |grep 'is running'|awk '{print $1}') = x ]
 do
     sleep 1
@@ -187,6 +187,10 @@ done
 
 echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqttd start'
 
+# monitor emqttd is running, or the docker must stop to let docker PaaS know
+# warning: never use infinite loops such as `` while true; do sleep 1000; done`` here
+#          you must let user know emqtt crashed and stop this container,
+#          and docker dispatching system can known and restart this container.
 IDLE_TIME=0
 while [ x$(/opt/emqttd/bin/emqttd_ctl status |grep 'is running'|awk '{print $1}') != x ]
 do  
