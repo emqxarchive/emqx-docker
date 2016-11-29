@@ -150,6 +150,14 @@ echo "EMQ_HTTPS_MAX_CLIENTS=${EMQ_HTTPS_MAX_CLIENTS}"
 fi
 sed -i -e "s/^#*\s*mqtt.listener.https.max_clients\s*=\s*.*/mqtt.listener.https.max_clients = ${EMQ_HTTPS_MAX_CLIENTS}/g" /opt/emqttd/etc/emq.conf
 
+
+if [ x"${EMQ_MAX_PACKET_SIZE}" = x ]
+then
+EMQ_MAX_PACKET_SIZE="64KB"
+echo "EMQ_MAX_PACKET_SIZE=${EMQ_MAX_PACKET_SIZE}"
+fi
+sed -i -e "s/^#*\s*mqtt.max_packet_size\s*=\s*.*/mqtt.max_packet_size = ${EMQ_MAX_PACKET_SIZE}/g" /opt/emqttd/etc/emq.conf
+
 ## EMQ Plugin load settings
 # Plugins loaded by default
 
