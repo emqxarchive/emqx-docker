@@ -54,6 +54,7 @@ Use the environment variable to configure the EMQ docker container
 | EMQ_HTTPS_PORT           | 8084               | HTTPS/WSS port                        |
 | EMQ_HTTPS_ACCEPTORS      | 32                 | HTTPS/WSS acceptors                   |
 | EMQ_HTTPS_MAX_CLIENTS    | 500000             | HTTPS/WSS max clients                 |
+| EMQ_MAX_PACKET_SIZE      | 64KB               | Max Packet Size Allowed               |
 
 For example, set mqtt tcp port to 1883
 
