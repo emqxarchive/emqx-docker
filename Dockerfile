@@ -2,7 +2,7 @@ FROM alpine:3.4
 
 MAINTAINER Huang Rui <vowstar@gmail.com>
 
-ENV EMQ_VERSION=v2.0.5
+ENV EMQ_VERSION=v2.0.6
 
 ADD ./start.sh /start.sh
 
