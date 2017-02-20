@@ -7,6 +7,8 @@ ENV EMQ_VERSION=v2.1
 ADD ./start.sh /start.sh
 
 RUN apk --no-cache add \
+        gcc \
+        build-base \
         ncurses-terminfo-base \
         ncurses-terminfo \
         ncurses-libs \
