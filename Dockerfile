@@ -77,6 +77,8 @@ RUN apk --no-cache add \
     && mv /start.sh /opt/emqttd/start.sh \
     && chmod +x /opt/emqttd/start.sh \
     && apk --purge del \
+        gcc \
+        build-base \
         erlang \
         erlang-public-key \
         erlang-syntax-tools \
