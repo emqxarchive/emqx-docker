@@ -1,4 +1,4 @@
-FROM alpine:3.4
+FROM alpine:3.5
 
 MAINTAINER Huang Rui <vowstar@gmail.com>
 
@@ -20,7 +20,7 @@ RUN apk --no-cache add \
         erlang-gs \
         erlang-observer \
         erlang-ssh \
-        erlang-ose \
+        #erlang-ose \
         erlang-cosfiletransfer \
         erlang-runtime-tools \
         erlang-os-mon \
@@ -47,10 +47,10 @@ RUN apk --no-cache add \
         erlang-hipe \
         erlang-ic \
         erlang-eunit \
-        erlang-webtool \
+        #erlang-webtool \
         erlang-mnesia \
         erlang-erl-interface \
-        erlang-test-server \
+        #erlang-test-server \
         erlang-sasl \
         erlang-jinterface \
         erlang-kernel \
@@ -69,6 +69,10 @@ RUN apk --no-cache add \
         git \
         make \
         perl \
+        wget \
+    && wget https://github.com/rebar/rebar/wiki/rebar -O /rebar \
+    && chmod +x rebar \
+    && cp /rebar /bin/ \
     && git clone -b ${EMQ_VERSION} https://github.com/emqtt/emq-relx.git /emqttd \
     && cd /emqttd \
     && make \
@@ -86,7 +90,7 @@ RUN apk --no-cache add \
         erlang-gs \
         erlang-observer \
         erlang-ssh \
-        erlang-ose \
+        #erlang-ose \
         erlang-cosfiletransfer \
         erlang-runtime-tools \
         erlang-os-mon \
@@ -113,10 +117,10 @@ RUN apk --no-cache add \
         erlang-hipe \
         erlang-ic \
         erlang-eunit \
-        erlang-webtool \
+        #erlang-webtool \
         erlang-mnesia \
         erlang-erl-interface \
-        erlang-test-server \
+        #erlang-test-server \
         erlang-sasl \
         erlang-jinterface \
         erlang-kernel \
@@ -135,6 +139,7 @@ RUN apk --no-cache add \
         git \
         make \
         perl \
+        wget \
     && rm -rf /var/cache/apk/*
 
 WORKDIR /opt/emqttd
