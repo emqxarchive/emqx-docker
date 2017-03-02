@@ -2,8 +2,10 @@
 ## EMQ docker image start script
 # Huang Rui <vowstar@gmail.com>
 
-## Script setting
-set -ex
+## Shell setting
+if [[ ! -z "DEBUG" ]]; then
+    set -ex
+fi
 
 ## Local IP address setting
 
@@ -14,8 +16,8 @@ LOCAL_IP=$(hostname -i |grep -E -oh '((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.
 
 _EMQ_HOME="/opt/emqtt"
 
-if [[ -z "${PLATFORM_ETC_DIR}" ]]; then
-    export PLATFORM_ETC_DIR="${_EMQ_HOME}/etc"
+if [[ -z "$PLATFORM_ETC_DIR" ]]; then
+    export PLATFORM_ETC_DIR="$_EMQ_HOME/etc"
 fi
 
 if [[ -z "${PLATFORM_LOG_DIR}" ]]; then
@@ -71,20 +73,20 @@ CONFIG=/opt/emqttd/etc/emq.conf
 for VAR in $(env)
 do
     # Config normal keys such like node.name = emqttd@127.0.0.1
-    if [[ ! -z "$(echo $VAR | grep EMQ_)" ]]; then
-        VAR_NAME=$(echo "$VAR" | sed -r "s/EMQ_(.*)=.*/\1/g" | tr '[:upper:]' '[:lower:]' | tr '__' '.')
+    if [[ ! -z "$(echo $VAR | grep -E '^EMQ_')" ]]; then
+        VAR_NAME=$(echo "$VAR" | sed -r "s/EMQ_(.*)=.*/\1/g" | tr '[:upper:]' '[:lower:]' | sed -r "s/__/\./g")
         VAR_FULL_NAME=$(echo "$VAR" | sed -r "s/(.*)=.*/\1/g")
 
-        if [[ ! -z $(cat $CONFIG |grep -E "^(^|^#*|^#*s*)$VAR_NAME") ]]; then
-            echo "VAR_NAME=${!VAR_FULL_NAME}"
-            sed -r -i "s/^(^|^#*|^#*s*)($VAR_NAME)\s*=\s*(.*)/\2 = ${!VAR_FULL_NAME}/g" $CONFIG
+        if [[ ! -z "$(cat $CONFIG |grep -E "^(^|^#*|^#*s*)$VAR_NAME")" ]]; then
+            echo "${VAR_NAME}=$(eval echo \$$VAR_FULL_NAME)"
+            sed -r -i "s/^(^|^#*|^#*s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME)/g" $CONFIG
         fi
     fi
     # Config template such like {{ platform_etc_dir }}
-    if [[ ! -z "$(echo $VAR | grep PLATFORM_)" ]]; then
+    if [[ ! -z "$(echo $VAR | grep -E '^PLATFORM_')" ]]; then
         VAR_NAME=$(echo "$VAR" | sed -r "s/(.*)=.*/\1/g"| tr '[:upper:]' '[:lower:]')
         VAR_FULL_NAME=$(echo "$VAR" | sed -r "s/(.*)=.*/\1/g")
-        sed -r -i "s/\{\{\s*$VAR_NAME\s*\}\}/${!VAR_FULL_NAME}/g" $CONFIG
+        sed -r -i "s@\{\{\s*$VAR_NAME\s*\}\}@$(eval echo \$$VAR_FULL_NAME)@g" $CONFIG
     fi
 done
 
