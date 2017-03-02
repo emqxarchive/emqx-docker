@@ -109,7 +109,7 @@ echo $(echo "${EMQ_LOADED_PLUGINS}."|sed -e "s/^[^A-Za-z0-9_]\{1,\}//g"|sed -e "
 ## EMQ Main script
 # Start and run emqttd, and when emqttd crashed, this container will stop
 
-/opt/emqttd/bin/emqttd start
+/opt/emqttd/bin/emqttd start &
 
 # wait and ensure emqttd status is running
 WAIT_TIME=0
