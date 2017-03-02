@@ -3,7 +3,7 @@
 # Huang Rui <vowstar@gmail.com>
 
 ## Shell setting
-if [[ ! -z "DEBUG" ]]; then
+if [[ ! -z "$DEBUG" ]]; then
     set -ex
 fi
 
