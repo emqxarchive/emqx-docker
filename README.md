@@ -95,6 +95,37 @@ EMQ_LOADED_PLUGINS="emq_auth_redis emq_recon emq_dashboard emq_mod_presence emq_
 EMQ_LOADED_PLUGINS="emq_auth_redis | emq_recon | emq_dashboard | emq_mod_presence | emq_mod_retainer | emq_mod_subscription"
 ```
 
+#### EMQ Plugin Configuration
+
+The environment variables which with ``EMQ_`` prefix are mapped to all emq plugins' configuration file, ``.`` get replaced by ``__``.
+
+Example:
+
+```bash
+EMQ_AUTH__REDIS__SERVER   <--> auth.redis.server
+EMQ_AUTH__REDIS__PASSWORD <--> auth.redis.password
+```
+
+Don't worry about where to find the configuration file of emq plugins, this docker images will find and config them automatically using some magic.
+
+All plugin of emq project could config in this way, following the environment variables mapping rule above.
+
+Assume you are using redis auth plugin, for example:
+
+```bash
+#EMQ_AUTH__REDIS__SERVER="redis.at.yourserver"
+#EMQ_AUTH__REDIS__PASSWORD="password_for_redis"
+
+docker run --rm -ti --name emq -p 18083:18083 -p 1883:1883 \
+    -e "EMQ_TCP_PORT=1883" \
+    -e EMQ_LOADED_PLUGINS="emq_auth_redis,emq_recon,emq_dashboard,emq_mod_presence,emq_mod_retainer,emq_mod_subscription" \
+    -e EMQ_AUTH__REDIS__SERVER="redis.at.yourserver" \
+    -e EMQ_AUTH__REDIS__PASSWORD="password_for_redis"
+    emq:latest``
+
+```
+
+
 
 ### Thanks
 
