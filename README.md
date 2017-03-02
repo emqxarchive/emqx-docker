@@ -28,32 +28,37 @@ For example
 
 Use the environment variable to configure the EMQ docker container
 
+The environment variables which with ``EMQ_`` prefix are mapped to configuration file, ``.`` get replaced by ``__``.
+
+Example:
+
+```bash
+EMQ_MQTT__LISTENER__SSL__ACCEPTORS <--> mqtt.listener.ssl.acceptors
+```
+
+Also the environment variables which with ``PLATFORM_`` prefix are mapped to template string in configuration file.
+
+```bash
+PLATFORM_ETC_DIR                   <--> {{ platform_etc_dir }}
+```
+
 #### EMQ Configuration
 
-| Oprtions                 | Default            | Description                           |
-| ------------------------ | ------------------ | ------------------------------------- |
-| EMQ_NAME                 | container name     | emq node short name                   |
-| EMQ_HOST                 | container IP       | emq node host, IP or FQDN             |
-| EMQ_NODE_NAME            | EMQ_NAME@EMQ_HOST  | like email address                    |
-| EMQ_NODE_COOKIE          | emq_dist_cookie    | cookie for cluster                    |
-| EMQ_PROCESS_LIMIT        | 2097152            | erlang vm process limit               |
-| EMQ_MAX_PORTS            | 1048576            | erlang vm max ports                   |
-| EMQ_LOG_CONSOLE          | file               | log console output method             |
-| EMQ_LOG_LEVEL            | error              | log console level                     |
-| EMQ_ALLOW_ANONYMOUS      | true               | allow mqtt anonymous login            |
-| EMQ_TCP_PORT             | 1883               | MQTT TCP port                         |
-| EMQ_TCP_ACCEPTORS        | 64                 | MQTT TCP acceptors                    |
-| EMQ_TCP_MAX_CLIENTS      | 1000000            | MQTT TCP max clients                  |
-| EMQ_SSL_PORT             | 8883               | MQTTS TCP/SSL port                    |
-| EMQ_SSL_ACCEPTORS        | 32                 | MQTTS TCP/SSL acceptors               |
-| EMQ_SSL_MAX_CLIENTS      | 500000             | MQTTS TCP/SSL max clients             |
-| EMQ_HTTP_PORT            | 8083               | HTTP/WS port                          |
-| EMQ_HTTP_ACCEPTORS       | 64                 | HTTP/WS acceptors                     |
-| EMQ_HTTP_MAX_CLIENTS     | 1000000            | HTTP/WS max clients                   |
-| EMQ_HTTPS_PORT           | 8084               | HTTPS/WSS port                        |
-| EMQ_HTTPS_ACCEPTORS      | 32                 | HTTPS/WSS acceptors                   |
-| EMQ_HTTPS_MAX_CLIENTS    | 500000             | HTTPS/WSS max clients                 |
-| EMQ_MAX_PACKET_SIZE      | 64KB               | Max Packet Size Allowed               |
+> NOTE: All EMQ Configuration in [etc/emq.conf](https://github.com/emqtt/emqttd/blob/master/etc/emq.conf) could config by environment. The following list is just an example, not a complete configuration.
+
+| Oprtions                  | Default            | Mapped                    | Description                           |
+| ------------------------- | ------------------ | ------------------------- | ------------------------------------- |
+| PLATFORM_ETC_DIR          | /opt/emqtt/etc     | {{ platform_etc_dir }}    | The etc directory                     |
+| PLATFORM_LOG_DIR          | /opt/emqtt/log     | {{ platform_log_dir }}    | The log directory                     |
+| EMQ_NODE__NAME            | EMQ_NAME@EMQ_HOST  | node.name                 | Erlang node name, name@ipaddress/host |
+| EMQ_NODE__COOKIE          | emq_dist_cookie    | node.cookie               | cookie for cluster                    |
+| EMQ_LOG__CONSOLE          | console            | log.console               | log console output method             |
+| EMQ_MQTT__ALLOW_ANONYMOUS | true               | mqtt.allow_anonymous      | allow mqtt anonymous login            |
+| EMQ_MQTT__LISTENER__TCP   | 1883               | mqtt.listener.tcp         | MQTT TCP port                         |
+| EMQ_MQTT__LISTENER__SSL   | 8883               | mqtt.listener.ssl         | MQTT TCP TLS/SSL port                 |
+| EMQ_MQTT__LISTENER__HTTP  | 8083               | mqtt.listener.http        | HTTP and WebSocket port               |
+| EMQ_MQTT__LISTENER__HTTPS | 8084               |mqtt.listener.https         | HTTPS and WSS port                    |
+
 
 For example, set mqtt tcp port to 1883
 
@@ -80,22 +85,17 @@ EMQ_LOADED_PLUGINS="emq_recon,emq_dashboard,emq_mod_presence,emq_mod_retainer,em
 
 For example, load ``emq_auth_redis`` plugin, set it into ``EMQ_LOADED_PLUGINS`` and use any separator to separates it.
 
-You can use comma
+You can use comma, space or other separator that you want.
+
+All the plugin you defined in env ``EMQ_LOADED_PLUGINS`` will be loaded.
 
 ```bash
 EMQ_LOADED_PLUGINS="emq_auth_redis,emq_recon,emq_dashboard,emq_mod_presence,emq_mod_retainer,emq_mod_subscription"
-```
-
-You can use space
-
-```bash
 EMQ_LOADED_PLUGINS="emq_auth_redis emq_recon emq_dashboard emq_mod_presence emq_mod_retainer emq_mod_subscription"
-```
-
-You can use other separator that you want
-
-```bash
 EMQ_LOADED_PLUGINS="emq_auth_redis | emq_recon | emq_dashboard | emq_mod_presence | emq_mod_retainer | emq_mod_subscription"
 ```
 
-All the plugin you defined in env ``EMQ_LOADED_PLUGINS`` will be loaded.
+
+### Thanks
+
+@je-al https://github.com/emqtt/emq-docker/issues/2 The idea of variable names get mapped, dots get replaced by __.
