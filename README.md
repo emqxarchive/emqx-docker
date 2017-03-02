@@ -62,7 +62,7 @@ PLATFORM_ETC_DIR                   <--> {{ platform_etc_dir }}
 
 For example, set mqtt tcp port to 1883
 
-``docker run --rm -ti --name emq -e "EMQ_TCP_PORT=1883" -p 18083:18083 -p 1883:1883 emq:latest``
+``docker run --rm -ti --name emq -e EMQ_MQTT__LISTENER__TCP=1883 -p 18083:18083 -p 1883:1883 emq:latest``
 
 #### EMQ Loaded Plugins Configuration
 
@@ -117,10 +117,11 @@ Assume you are using redis auth plugin, for example:
 #EMQ_AUTH__REDIS__PASSWORD="password_for_redis"
 
 docker run --rm -ti --name emq -p 18083:18083 -p 1883:1883 \
-    -e "EMQ_TCP_PORT=1883" \
+    -e EMQ_MQTT__LISTENER__TCP=1883 \
     -e EMQ_LOADED_PLUGINS="emq_auth_redis,emq_recon,emq_dashboard,emq_mod_presence,emq_mod_retainer,emq_mod_subscription" \
-    -e EMQ_AUTH__REDIS__SERVER="redis.at.yourserver" \
-    -e EMQ_AUTH__REDIS__PASSWORD="password_for_redis"
+    -e EMQ_AUTH__REDIS__SERVER="your.redis.server:6379" \
+    -e EMQ_AUTH__REDIS__PASSWORD="password_for_redis" \
+    -e EMQ_AUTH__REDIS__PASSWD__HASH=plain \
     emq:latest
 
 ```
