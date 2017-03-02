@@ -87,7 +87,7 @@ RUN set -ex \
     && mv /start.sh /opt/emqttd/start.sh \
     && chmod +x /opt/emqttd/start.sh \
     # remove rebar
-    rm -rf /usr/bin/rebar \
+    && rm -rf /usr/bin/rebar \
     # removing fetch deps and build deps
     && apk --purge del .build-deps .fetch-deps \
     && rm -rf /var/cache/apk/*
