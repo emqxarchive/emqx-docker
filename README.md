@@ -106,7 +106,7 @@ EMQ_AUTH__REDIS__SERVER   <--> auth.redis.server
 EMQ_AUTH__REDIS__PASSWORD <--> auth.redis.password
 ```
 
-Don't worry about where to find the configuration file of emq plugins, this docker images will find and config them automatically using some magic.
+Don't worry about where to find the configuration file of emq plugins, this docker image will find and config them automatically using some magic.
 
 All plugin of emq project could config in this way, following the environment variables mapping rule above.
 
@@ -121,7 +121,7 @@ docker run --rm -ti --name emq -p 18083:18083 -p 1883:1883 \
     -e EMQ_LOADED_PLUGINS="emq_auth_redis,emq_recon,emq_dashboard,emq_mod_presence,emq_mod_retainer,emq_mod_subscription" \
     -e EMQ_AUTH__REDIS__SERVER="redis.at.yourserver" \
     -e EMQ_AUTH__REDIS__PASSWORD="password_for_redis"
-    emq:latest``
+    emq:latest
 
 ```
 
