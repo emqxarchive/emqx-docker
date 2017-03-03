@@ -143,9 +143,11 @@ You can specify a initial cluster and join.
 
 > Note: You must publsh port 4369 and range of port 6000-6999 for EMQ Clustered.
 
+For example, using 6000-6100 for cluster.
+
 ```bash
 
-docker run --rm -ti --name emq -p 18083:18083 -p 1883:1883 -p 4369:4369 -p 6000-6999:6000-6999 \
+docker run --rm -ti --name emq -p 18083:18083 -p 1883:1883 -p 4369:4369 -p 6000-6100:6000-6100 \
     -e EMQ_NAME="emqtt" \
     -e EMQ_HOST="emqtt@s2.emqtt.io" \
     -e EMQ_MQTT__LISTENER__TCP=1883 \

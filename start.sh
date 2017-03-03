@@ -142,7 +142,7 @@ echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqttd start"
 
 # Join an exist cluster
 
-if [[ -z "$EMQ_JOIN_CLUSTER" ]]; then
+if [[ ! -z "$EMQ_JOIN_CLUSTER" ]]; then
     echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqttd try join $EMQ_JOIN_CLUSTER"
     /opt/emqttd/bin/emqttd_ctl cluster join $EMQ_JOIN_CLUSTER &
 fi
