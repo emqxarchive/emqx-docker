@@ -42,12 +42,23 @@ Also the environment variables which with ``PLATFORM_`` prefix are mapped to tem
 PLATFORM_ETC_DIR                   <--> {{ platform_etc_dir }}
 ```
 
+Non mapped environment variables:
+
+```bash
+EMQ_NAME
+EMQ_HOST
+```
+
+These environment variables will ignore for configuration file.
+
 #### EMQ Configuration
 
 > NOTE: All EMQ Configuration in [etc/emq.conf](https://github.com/emqtt/emqttd/blob/master/etc/emq.conf) could config by environment. The following list is just an example, not a complete configuration.
 
 | Oprtions                  | Default            | Mapped                    | Description                           |
 | ------------------------- | ------------------ | ------------------------- | ------------------------------------- |
+| EMQ_NAME                  | container name     | none                      | emq node short name                   |
+| EMQ_HOST                  | container IP       | none                      | emq node host, IP or FQDN             |
 | PLATFORM_ETC_DIR          | /opt/emqtt/etc     | {{ platform_etc_dir }}    | The etc directory                     |
 | PLATFORM_LOG_DIR          | /opt/emqtt/log     | {{ platform_log_dir }}    | The log directory                     |
 | EMQ_NODE__NAME            | EMQ_NAME@EMQ_HOST  | node.name                 | Erlang node name, name@ipaddress/host |
@@ -57,8 +68,9 @@ PLATFORM_ETC_DIR                   <--> {{ platform_etc_dir }}
 | EMQ_MQTT__LISTENER__TCP   | 1883               | mqtt.listener.tcp         | MQTT TCP port                         |
 | EMQ_MQTT__LISTENER__SSL   | 8883               | mqtt.listener.ssl         | MQTT TCP TLS/SSL port                 |
 | EMQ_MQTT__LISTENER__HTTP  | 8083               | mqtt.listener.http        | HTTP and WebSocket port               |
-| EMQ_MQTT__LISTENER__HTTPS | 8084               |mqtt.listener.https         | HTTPS and WSS port                    |
+| EMQ_MQTT__LISTENER__HTTPS | 8084               | mqtt.listener.https       | HTTPS and WSS port                    |
 
+If set ``EMQ_NAME`` and ``EMQ_HOST``, and unset ``EMQ_NODE__NAME``, ``EMQ_NODE__NAME=$EMQ_NAME@$EMQ_HOST``.
 
 For example, set mqtt tcp port to 1883
 
@@ -115,7 +127,7 @@ Assume you are using redis auth plugin, for example:
 #EMQ_AUTH__REDIS__SERVER="redis.at.yourserver"
 #EMQ_AUTH__REDIS__PASSWORD="password_for_redis"
 
-docker run --rm -ti --name emq -p 18083:18083 -p 1883:1883 \
+docker run --rm -ti --name emq -p 18083:18083 -p 1883:1883 -p 4369:4369 \
     -e EMQ_MQTT__LISTENER__TCP=1883 \
     -e EMQ_LOADED_PLUGINS="emq_auth_redis,emq_recon,emq_modules,emq_retainer,emq_dashboard" \
     -e EMQ_AUTH__REDIS__SERVER="your.redis.server:6379" \
@@ -125,6 +137,22 @@ docker run --rm -ti --name emq -p 18083:18083 -p 1883:1883 \
 
 ```
 
+### Cluster
+
+You can specify a initial cluster and join. 
+
+> Note: You must publsh port 4369 and range of port 6000-6999 for EMQ Clustered.
+
+```bash
+
+docker run --rm -ti --name emq -p 18083:18083 -p 1883:1883 -p 4369:4369 -p 6000-6999:6000-6999 \
+    -e EMQ_NAME="emqtt" \
+    -e EMQ_HOST="emqtt@s2.emqtt.io" \
+    -e EMQ_MQTT__LISTENER__TCP=1883 \
+    -e EMQ_JOIN_CLUSTER="emqtt@s1.emqtt.io" \
+    emq:latest
+
+```
 
 
 ### Thanks

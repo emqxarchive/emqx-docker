@@ -25,9 +25,20 @@ if [[ -z "$PLATFORM_LOG_DIR" ]]; then
     export PLATFORM_LOG_DIR="$_EMQ_HOME/log"
 fi
 
-if [[ -z "$EMQ_NODE__NAME" ]]; then
-    export EMQ_NODE__NAME="$(hostname)@$LOCAL_IP"
+if [[ -z "$EMQ_NAME" ]]; then
+    export EMQ_NAME="$(hostname)"
 fi
+
+if [[ -z "$EMQ_HOST" ]]; then
+    export EMQ_HOST="$LOCAL_IP"
+fi
+
+if [[ -z "$EMQ_NODE__NAME" ]]; then
+    export EMQ_NODE__NAME="$EMQ_NAME@$EMQ_HOST"
+fi
+
+unset EMQ_NAME
+unset EMQ_HOST
 
 if [[ -z "$EMQ_NODE__PROCESS_LIMIT" ]]; then
     export EMQ_NODE__PROCESS_LIMIT=2097152
@@ -119,15 +130,22 @@ WAIT_TIME=0
 while [[ -z "$(/opt/emqttd/bin/emqttd_ctl status |grep 'is running'|awk '{print $1}')" ]]
 do
     sleep 1
-    echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:waiting emqttd'
-    WAIT_TIME=`expr $WAIT_TIME + 1`
+    echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:waiting emqttd"
+    WAIT_TIME=$((WAIT_TIME+1))
     if [[ $WAIT_TIME -gt 5 ]]; then
-        echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:timeout error'
+        echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:timeout error"
         exit 1
     fi
 done
 
-echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqttd start'
+echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqttd start"
+
+# Join an exist cluster
+
+if [[ -z "$EMQ_JOIN_CLUSTER" ]]; then
+    echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqttd try join $EMQ_JOIN_CLUSTER"
+    /opt/emqttd/bin/emqttd_ctl cluster join $EMQ_JOIN_CLUSTER &
+fi
 
 # monitor emqttd is running, or the docker must stop to let docker PaaS know
 # warning: never use infinite loops such as `` while true; do sleep 1000; done`` here
@@ -143,4 +161,4 @@ done
 
 # tail $(ls /opt/emqttd/log/*)
 
-echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqttd stop'
+echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqttd stop"
