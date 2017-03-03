@@ -118,7 +118,7 @@ fi
 echo "EMQ_LOADED_PLUGINS=$EMQ_LOADED_PLUGINS"
 # First, remove special char at header
 # Next, replace special char to ".\n" to fit emq loaded_plugins format
-echo $(echo "$EMQ_LOADED_PLUGINS."|sed -e "s/^[^A-Za-z0-9_]\{1,\}//g"|sed -e "s/[^A-Za-z0-9_]\{1,\}/\.\n/g") > /opt/emqttd/data/loaded_plugins
+echo $(echo "$EMQ_LOADED_PLUGINS."|sed -e "s/^[^A-Za-z0-9_]\{1,\}//g"|sed -e "s/[^A-Za-z0-9_]\{1,\}/\. /g")|tr ' ' '\n' > /opt/emqttd/data/loaded_plugins
 
 ## EMQ Main script
 # Start and run emqttd, and when emqttd crashed, this container will stop
