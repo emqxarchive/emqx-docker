@@ -98,7 +98,7 @@ WORKDIR /opt/emqttd
 # start emqttd and initial environments
 CMD ["/opt/emqttd/start.sh"]
 
-VOLUME ["/opt/emqttd/log", "/opt/emqttd/data", "/opt/emqttd/plugins", "/opt/emqttd/etc"]
+VOLUME ["/opt/emqttd/log", "/opt/emqttd/data", "/opt/emqttd/lib", "/opt/emqttd/etc"]
 
 # emqttd will occupy these port:
 # - 1883 port for MQTT
