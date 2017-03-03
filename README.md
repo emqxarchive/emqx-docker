@@ -34,6 +34,7 @@ Example:
 
 ```bash
 EMQ_MQTT__LISTENER__SSL__ACCEPTORS <--> mqtt.listener.ssl.acceptors
+EMQ_MQTT__MAX_PACKET_SIZE          <--> mqtt.max_packet_size
 ```
 
 Also the environment variables which with ``PLATFORM_`` prefix are mapped to template string in configuration file.
@@ -69,6 +70,9 @@ These environment variables will ignore for configuration file.
 | EMQ_MQTT__LISTENER__SSL   | 8883               | mqtt.listener.ssl         | MQTT TCP TLS/SSL port                 |
 | EMQ_MQTT__LISTENER__HTTP  | 8083               | mqtt.listener.http        | HTTP and WebSocket port               |
 | EMQ_MQTT__LISTENER__HTTPS | 8084               | mqtt.listener.https       | HTTPS and WSS port                    |
+| EMQ_MQTT__MAX_PACKET_SIZE | 64KB               | mqtt.max_packet_size      | Max Packet Size Allowed               |
+
+The list is incomplete and may changed with [etc/emq.conf](https://github.com/emqtt/emqttd/blob/master/etc/emq.conf) and plugin configuration files. But the mapping rule is similar.
 
 If set ``EMQ_NAME`` and ``EMQ_HOST``, and unset ``EMQ_NODE__NAME``, ``EMQ_NODE__NAME=$EMQ_NAME@$EMQ_HOST``.
 
