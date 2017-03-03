@@ -60,6 +60,8 @@ These environment variables will ignore for configuration file.
 | ------------------------- | ------------------ | ------------------------- | ------------------------------------- |
 | EMQ_NAME                  | container name     | none                      | emq node short name                   |
 | EMQ_HOST                  | container IP       | none                      | emq node host, IP or FQDN             |
+| EMQ_JOIN_CLUSTER          | none               | none                      | Initial cluster to join               |
+| EMQ_ADMIN_PASSWORD        | public             | none                      | emq admin password                    |
 | PLATFORM_ETC_DIR          | /opt/emqtt/etc     | {{ platform_etc_dir }}    | The etc directory                     |
 | PLATFORM_LOG_DIR          | /opt/emqtt/log     | {{ platform_log_dir }}    | The log directory                     |
 | EMQ_NODE__NAME            | EMQ_NAME@EMQ_HOST  | node.name                 | Erlang node name, name@ipaddress/host |

@@ -147,6 +147,13 @@ if [[ ! -z "$EMQ_JOIN_CLUSTER" ]]; then
     /opt/emqttd/bin/emqttd_ctl cluster join $EMQ_JOIN_CLUSTER &
 fi
 
+# Change admin password
+
+if [[ ! -z "$EMQ_ADMIN_PASSWORD" ]]; then
+    echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:admin password changed to $EMQ_ADMIN_PASSWORD"
+    /opt/emqttd/bin/emqttd_ctl admins passwd admin $EMQ_ADMIN_PASSWORD &
+fi
+
 # monitor emqttd is running, or the docker must stop to let docker PaaS know
 # warning: never use infinite loops such as `` while true; do sleep 1000; done`` here
 #          you must let user know emqtt crashed and stop this container,
