@@ -21,51 +21,51 @@ if [[ -z "$PLATFORM_ETC_DIR" ]]; then
     export PLATFORM_ETC_DIR="$_EMQ_HOME/etc"
 fi
 
-if [[ -z "${PLATFORM_LOG_DIR}" ]]; then
-    export PLATFORM_LOG_DIR="${_EMQ_HOME}/log"
+if [[ -z "$PLATFORM_LOG_DIR" ]]; then
+    export PLATFORM_LOG_DIR="$_EMQ_HOME/log"
 fi
 
-if [[ -z "${EMQ_NODE__NAME}" ]]; then
-    export EMQ_NODE__NAME="$(hostname)@${LOCAL_IP}"
+if [[ -z "$EMQ_NODE__NAME" ]]; then
+    export EMQ_NODE__NAME="$(hostname)@$LOCAL_IP"
 fi
 
-if [[ -z "${EMQ_NODE__PROCESS_LIMIT}" ]]; then
+if [[ -z "$EMQ_NODE__PROCESS_LIMIT" ]]; then
     export EMQ_NODE__PROCESS_LIMIT=2097152
 fi
 
-if [[ -z "${EMQ_NODE__MAX_PORTS}" ]]; then
+if [[ -z "$EMQ_NODE__MAX_PORTS" ]]; then
     export EMQ_NODE__MAX_PORTS=1048576
 fi
 
-if [[ -z "${EMQ_NODE__MAX_ETS_TABLES}" ]]; then
+if [[ -z "$EMQ_NODE__MAX_ETS_TABLES" ]]; then
     export EMQ_NODE__MAX_ETS_TABLES=2097152
 fi
 
-if [[ -z "${EMQ_LOG__CONSOLE}" ]]; then
+if [[ -z "$EMQ_LOG__CONSOLE" ]]; then
     export EMQ_LOG__CONSOLE="console"
 fi
 
-if [[ -z "${EMQ_MQTT__LISTENER__TCP__ACCEPTORS}" ]]; then
+if [[ -z "$EMQ_MQTT__LISTENER__TCP__ACCEPTORS" ]]; then
     export EMQ_MQTT__LISTENER__TCP__ACCEPTORS=64
 fi
 
-if [[ -z "${EMQ_MQTT__LISTENER__TCP__MAX_CLIENTS}" ]]; then
+if [[ -z "$EMQ_MQTT__LISTENER__TCP__MAX_CLIENTS" ]]; then
     export EMQ_MQTT__LISTENER__TCP__MAX_CLIENTS=1000000
 fi
 
-if [[ -z "${EMQ_MQTT__LISTENER__SSL__ACCEPTORS}" ]]; then
+if [[ -z "$EMQ_MQTT__LISTENER__SSL__ACCEPTORS" ]]; then
     export EMQ_MQTT__LISTENER__SSL__ACCEPTORS=32
 fi
 
-if [[ -z "${EMQ_MQTT__LISTENER__SSL__MAX_CLIENTS}" ]]; then
+if [[ -z "$EMQ_MQTT__LISTENER__SSL__MAX_CLIENTS" ]]; then
     export EMQ_MQTT__LISTENER__SSL__MAX_CLIENTS=500000
 fi
 
-if [[ -z "${EMQ_MQTT__LISTENER__HTTP__ACCEPTORS}" ]]; then
+if [[ -z "$EMQ_MQTT__LISTENER__HTTP__ACCEPTORS" ]]; then
     export EMQ_MQTT__LISTENER__HTTP__ACCEPTORS=16
 fi
 
-if [[ -z "${EMQ_MQTT__LISTENER__HTTP__MAX_CLIENTS}" ]]; then
+if [[ -z "$EMQ_MQTT__LISTENER__HTTP__MAX_CLIENTS" ]]; then
     export EMQ_MQTT__LISTENER__HTTP__MAX_CLIENTS=250000
 fi
 
@@ -80,12 +80,12 @@ do
         VAR_FULL_NAME=$(echo "$VAR" | sed -r "s/(.*)=.*/\1/g")
         # Config in emq.conf
         if [[ ! -z "$(cat $CONFIG |grep -E "^(^|^#*|^#*s*)$VAR_NAME")" ]]; then
-            echo "${VAR_NAME}=$(eval echo \$$VAR_FULL_NAME)"
+            echo "$VAR_NAME=$(eval echo \$$VAR_FULL_NAME)"
             sed -r -i "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME)/g" $CONFIG
         fi
         # Config in plugins/*
         if [[ ! -z "$(cat $CONFIG_PLUGINS/* |grep -E "^(^|^#*|^#*s*)$VAR_NAME")" ]]; then
-            echo "${VAR_NAME}=$(eval echo \$$VAR_FULL_NAME)"
+            echo "$VAR_NAME=$(eval echo \$$VAR_FULL_NAME)"
             sed -r -i "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME)/g" $(ls $CONFIG_PLUGINS/*)
         fi        
     fi
@@ -100,14 +100,14 @@ done
 ## EMQ Plugin load settings
 # Plugins loaded by default
 
-if [ x"${EMQ_LOADED_PLUGINS}" = x ]
+if [ x"$EMQ_LOADED_PLUGINS" = x ]
 then
 EMQ_LOADED_PLUGINS="emq_recon,emq_dashboard,emq_mod_presence,emq_mod_retainer,emq_mod_subscription"
-echo "EMQ_LOADED_PLUGINS=${EMQ_LOADED_PLUGINS}"
+echo "EMQ_LOADED_PLUGINS=$EMQ_LOADED_PLUGINS"
 fi
 # First, remove special char at header
 # Next, replace special char to ".\n" to fit emq loaded_plugins format
-echo $(echo "${EMQ_LOADED_PLUGINS}."|sed -e "s/^[^A-Za-z0-9_]\{1,\}//g"|sed -e "s/[^A-Za-z0-9_]\{1,\}/\.\n/g") > /opt/emqttd/data/loaded_plugins
+echo $(echo "$EMQ_LOADED_PLUGINS."|sed -e "s/^[^A-Za-z0-9_]\{1,\}//g"|sed -e "s/[^A-Za-z0-9_]\{1,\}/\.\n/g") > /opt/emqttd/data/loaded_plugins
 
 ## EMQ Main script
 # Start and run emqttd, and when emqttd crashed, this container will stop
@@ -120,8 +120,8 @@ while [ x$(/opt/emqttd/bin/emqttd_ctl status |grep 'is running'|awk '{print $1}'
 do
     sleep 1
     echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:waiting emqttd'
-    WAIT_TIME=`expr ${WAIT_TIME} + 1`
-    if [ ${WAIT_TIME} -gt 5 ]
+    WAIT_TIME=`expr $WAIT_TIME + 1`
+    if [ $WAIT_TIME -gt 5 ]
     then
         echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:timeout error'
         exit 1
@@ -137,7 +137,7 @@ echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqttd start'
 IDLE_TIME=0
 while [ x$(/opt/emqttd/bin/emqttd_ctl status |grep 'is running'|awk '{print $1}') != x ]
 do  
-    IDLE_TIME=`expr ${IDLE_TIME} + 1`
+    IDLE_TIME=`expr $IDLE_TIME + 1`
     echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqttd running'
     sleep 20
 done
