@@ -86,6 +86,7 @@ RUN set -ex \
     && cd / && rm -rf /emqttd \
     && mv /start.sh /opt/emqttd/start.sh \
     && chmod +x /opt/emqttd/start.sh \
+    && ln -s /opt/emqttd/bin/* /usr/local/bin/ \
     # remove rebar
     && rm -rf /usr/bin/rebar \
     # removing fetch deps and build deps

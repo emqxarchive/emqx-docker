@@ -100,11 +100,11 @@ done
 ## EMQ Plugin load settings
 # Plugins loaded by default
 
-if [ x"$EMQ_LOADED_PLUGINS" = x ]
-then
-EMQ_LOADED_PLUGINS="emq_recon,emq_dashboard,emq_mod_presence,emq_mod_retainer,emq_mod_subscription"
-echo "EMQ_LOADED_PLUGINS=$EMQ_LOADED_PLUGINS"
+if [[ -z "$EMQ_LOADED_PLUGINS" ]]; then
+    EMQ_LOADED_PLUGINS="emq_recon,emq_dashboard,emq_mod_presence,emq_mod_retainer,emq_mod_subscription"
 fi
+
+echo "EMQ_LOADED_PLUGINS=$EMQ_LOADED_PLUGINS"
 # First, remove special char at header
 # Next, replace special char to ".\n" to fit emq loaded_plugins format
 echo $(echo "$EMQ_LOADED_PLUGINS."|sed -e "s/^[^A-Za-z0-9_]\{1,\}//g"|sed -e "s/[^A-Za-z0-9_]\{1,\}/\.\n/g") > /opt/emqttd/data/loaded_plugins
@@ -112,17 +112,16 @@ echo $(echo "$EMQ_LOADED_PLUGINS."|sed -e "s/^[^A-Za-z0-9_]\{1,\}//g"|sed -e "s/
 ## EMQ Main script
 # Start and run emqttd, and when emqttd crashed, this container will stop
 
-/opt/emqttd/bin/emqttd start &
+/opt/emqttd/bin/emqttd foreground &
 
 # wait and ensure emqttd status is running
 WAIT_TIME=0
-while [ x$(/opt/emqttd/bin/emqttd_ctl status |grep 'is running'|awk '{print $1}') = x ]
+while [[ -z "$(/opt/emqttd/bin/emqttd_ctl status |grep 'is running'|awk '{print $1}')" ]]
 do
     sleep 1
     echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:waiting emqttd'
     WAIT_TIME=`expr $WAIT_TIME + 1`
-    if [ $WAIT_TIME -gt 5 ]
-    then
+    if [[ $WAIT_TIME -gt 5 ]]; then
         echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:timeout error'
         exit 1
     fi
@@ -135,13 +134,13 @@ echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqttd start'
 #          you must let user know emqtt crashed and stop this container,
 #          and docker dispatching system can known and restart this container.
 IDLE_TIME=0
-while [ x$(/opt/emqttd/bin/emqttd_ctl status |grep 'is running'|awk '{print $1}') != x ]
+while [[ ! -z "$(/opt/emqttd/bin/emqttd_ctl status |grep 'is running'|awk '{print $1}')" ]]
 do  
     IDLE_TIME=`expr $IDLE_TIME + 1`
-    echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqttd running'
-    sleep 20
+    # echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqttd running'
+    sleep 5
 done
 
-tail $(ls /opt/emqttd/log/*)
+# tail $(ls /opt/emqttd/log/*)
 
 echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqttd stop'
