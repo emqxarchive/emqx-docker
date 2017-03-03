@@ -73,14 +73,13 @@ For example, set mqtt tcp port to 1883
 Default environment variable ``EMQ_LOADED_PLUGINS``, including 
 
 - ``emq_recon``
+- ``emq_modules``
+- ``emq_retainer``
 - ``emq_dashboard``
-- ``emq_mod_presence``
-- ``emq_mod_retainer``
-- ``emq_mod_subscription``
 
 ```bash
 # The default EMQ_LOADED_PLUGINS env
-EMQ_LOADED_PLUGINS="emq_recon,emq_dashboard,emq_mod_presence,emq_mod_retainer,emq_mod_subscription"
+EMQ_LOADED_PLUGINS="emq_recon,emq_modules,emq_retainer,emq_dashboard"
 ```
 
 For example, load ``emq_auth_redis`` plugin, set it into ``EMQ_LOADED_PLUGINS`` and use any separator to separates it.
@@ -90,9 +89,9 @@ You can use comma, space or other separator that you want.
 All the plugin you defined in env ``EMQ_LOADED_PLUGINS`` will be loaded.
 
 ```bash
-EMQ_LOADED_PLUGINS="emq_auth_redis,emq_recon,emq_dashboard,emq_mod_presence,emq_mod_retainer,emq_mod_subscription"
-EMQ_LOADED_PLUGINS="emq_auth_redis emq_recon emq_dashboard emq_mod_presence emq_mod_retainer emq_mod_subscription"
-EMQ_LOADED_PLUGINS="emq_auth_redis | emq_recon | emq_dashboard | emq_mod_presence | emq_mod_retainer | emq_mod_subscription"
+EMQ_LOADED_PLUGINS="emq_auth_redis,emq_recon,emq_modules,emq_retainer,emq_dashboard"
+EMQ_LOADED_PLUGINS="emq_auth_redis emq_recon emq_modules emq_retainer emq_dashboard"
+EMQ_LOADED_PLUGINS="emq_auth_redis | emq_recon | emq_modules | emq_retainer | emq_dashboard"
 ```
 
 #### EMQ Plugin Configuration
@@ -118,7 +117,7 @@ Assume you are using redis auth plugin, for example:
 
 docker run --rm -ti --name emq -p 18083:18083 -p 1883:1883 \
     -e EMQ_MQTT__LISTENER__TCP=1883 \
-    -e EMQ_LOADED_PLUGINS="emq_auth_redis,emq_recon,emq_dashboard,emq_mod_presence,emq_mod_retainer,emq_mod_subscription" \
+    -e EMQ_LOADED_PLUGINS="emq_auth_redis,emq_recon,emq_modules,emq_retainer,emq_dashboard" \
     -e EMQ_AUTH__REDIS__SERVER="your.redis.server:6379" \
     -e EMQ_AUTH__REDIS__PASSWORD="password_for_redis" \
     -e EMQ_AUTH__REDIS__PASSWORD_HASH=plain \
