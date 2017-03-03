@@ -152,13 +152,18 @@ fi
 #          you must let user know emqtt crashed and stop this container,
 #          and docker dispatching system can known and restart this container.
 IDLE_TIME=0
-while [[ ! -z "$(/opt/emqttd/bin/emqttd_ctl status |grep 'is running'|awk '{print $1}')" ]]
+while [[ $WAIT_TIME -lt 5 ]]
 do  
-    IDLE_TIME=`expr $IDLE_TIME + 1`
+    IDLE_TIME=$((WAIT_TIME+1))
     # echo '['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqttd running'
+    if [[ ! -z "$(/opt/emqttd/bin/emqttd_ctl status |grep 'is running'|awk '{print $1}')" ]]; then
+        IDLE_TIME=0
+    fi
     sleep 5
 done
+# If running to here (the result 5 times not is running, thus in 25s emq is not running), exit docker image
+# Then the high level PaaS, e.g. docker swarm mode, will know and alert, rebanlance this service
 
 # tail $(ls /opt/emqttd/log/*)
 
-echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqttd stop"
+echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqttd exit abnormally"
