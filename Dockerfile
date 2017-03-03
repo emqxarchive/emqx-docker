@@ -4,7 +4,7 @@ MAINTAINER Huang Rui <vowstar@gmail.com>, Turtle <turtled@emqtt.io>
 
 ENV EMQ_VERSION=v2.1.0-beta.1
 
-ADD ./start.sh /start.sh
+COPY ./start.sh /start.sh
 
 RUN set -ex \
     # add build deps, remove after build
@@ -82,7 +82,7 @@ RUN set -ex \
     && git clone -b ${EMQ_VERSION} https://github.com/emqtt/emq-relx.git /emqttd \
     && cd /emqttd \
     && make \
-    && mkdir /opt && mv /emqttd/_rel/emqttd /opt/emqttd \
+    && mkdir -p /opt && mv /emqttd/_rel/emqttd /opt/emqttd \
     && cd / && rm -rf /emqttd \
     && mv /start.sh /opt/emqttd/start.sh \
     && chmod +x /opt/emqttd/start.sh \
