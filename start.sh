@@ -43,8 +43,8 @@ if [[ ! -z "$LOCAL_IP" && ! -z "$EMQ_HOST" ]]; then
     echo "$LOCAL_IP        $EMQ_HOST" >> /etc/hosts
 fi
 
-unset EMQ_NAME
-unset EMQ_HOST
+# unset EMQ_NAME
+# unset EMQ_HOST
 
 if [[ -z "$EMQ_NODE__PROCESS_LIMIT" ]]; then
     export EMQ_NODE__PROCESS_LIMIT=2097152
