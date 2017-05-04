@@ -34,7 +34,7 @@ Example:
 
 ```bash
 EMQ_LISTENER__SSL__EXTERNAL__ACCEPTORS <--> listener.ssl.external.acceptors
-EMQ_MQTT__MAX_PACKET_SIZE          <--> mqtt.max_packet_size
+EMQ_MQTT__MAX_PACKET_SIZE              <--> mqtt.max_packet_size
 ```
 
 Also the environment variables which with ``PLATFORM_`` prefix are mapped to template string in configuration file.
