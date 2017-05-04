@@ -12,6 +12,7 @@ RUN set -ex \
         build-base \
         # gcc \
         # make \
+        bsd-compat-headers \
         perl \
         erlang \
         erlang-public-key \
