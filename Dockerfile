@@ -78,8 +78,6 @@ RUN set -ex \
         ncurses-libs \
         readline \
     # add latest rebar
-    && wget https://github.com/rebar/rebar/wiki/rebar -O /usr/bin/rebar \
-    && chmod +x /usr/bin/rebar \
     && git clone -b ${EMQ_VERSION} https://github.com/emqtt/emq-relx.git /emqttd \
     && cd /emqttd \
     && make \
@@ -88,8 +86,6 @@ RUN set -ex \
     && mv /start.sh /opt/emqttd/start.sh \
     && chmod +x /opt/emqttd/start.sh \
     && ln -s /opt/emqttd/bin/* /usr/local/bin/ \
-    # remove rebar
-    && rm -rf /usr/bin/rebar \
     # removing fetch deps and build deps
     && apk --purge del .build-deps .fetch-deps \
     && rm -rf /var/cache/apk/*
