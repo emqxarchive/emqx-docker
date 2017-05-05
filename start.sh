@@ -62,28 +62,28 @@ if [[ -z "$EMQ_LOG__CONSOLE" ]]; then
     export EMQ_LOG__CONSOLE="console"
 fi
 
-if [[ -z "$EMQ_MQTT__LISTENER__TCP__ACCEPTORS" ]]; then
-    export EMQ_MQTT__LISTENER__TCP__ACCEPTORS=64
+if [[ -z "$EMQ_LISTENER__TCP__EXTERNAL__ACCEPTORS" ]]; then
+    export EMQ_LISTENER__TCP__EXTERNAL__ACCEPTORS=64
 fi
 
-if [[ -z "$EMQ_MQTT__LISTENER__TCP__MAX_CLIENTS" ]]; then
-    export EMQ_MQTT__LISTENER__TCP__MAX_CLIENTS=1000000
+if [[ -z "$EMQ_LISTENER__TCP__EXTERNAL__MAX_CLIENTS" ]]; then
+    export EMQ_LISTENER__TCP__EXTERNAL__MAX_CLIENTS=1000000
 fi
 
-if [[ -z "$EMQ_MQTT__LISTENER__SSL__ACCEPTORS" ]]; then
-    export EMQ_MQTT__LISTENER__SSL__ACCEPTORS=32
+if [[ -z "$EMQ_LISTENER__SSL__EXTERNAL__ACCEPTORS" ]]; then
+    export EMQ_LISTENER__SSL__EXTERNAL__ACCEPTORS=32
 fi
 
-if [[ -z "$EMQ_MQTT__LISTENER__SSL__MAX_CLIENTS" ]]; then
-    export EMQ_MQTT__LISTENER__SSL__MAX_CLIENTS=500000
+if [[ -z "$EMQ_LISTENER__SSL__EXTERNAL__MAX_CLIENTS" ]]; then
+    export EMQ_LISTENER__SSL__EXTERNAL__MAX_CLIENTS=500000
 fi
 
-if [[ -z "$EMQ_MQTT__LISTENER__HTTP__ACCEPTORS" ]]; then
-    export EMQ_MQTT__LISTENER__HTTP__ACCEPTORS=16
+if [[ -z "$EMQ_LISTENER__WS__EXTERNAL__ACCEPTORS" ]]; then
+    export EMQ_LISTENER__WS__EXTERNAL__ACCEPTORS=16
 fi
 
-if [[ -z "$EMQ_MQTT__LISTENER__HTTP__MAX_CLIENTS" ]]; then
-    export EMQ_MQTT__LISTENER__HTTP__MAX_CLIENTS=250000
+if [[ -z "$EMQ_LISTENER__WS__EXTERNAL__MAX_CLIENTS" ]]; then
+    export EMQ_LISTENER__WS__EXTERNAL__MAX_CLIENTS=250000
 fi
 
 # Catch all EMQ_ prefix environment variable and match it in configure file
