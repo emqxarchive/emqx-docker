@@ -72,6 +72,7 @@ These environment variables will ignore for configuration file.
 | EMQ_LISTENER__SSL__EXTERNAL| 8883               | listener.ssl.external     | MQTT TCP TLS/SSL port                 |
 | EMQ_LISTENER__WS__EXTERNAL | 8083               | listener.ws.external      | HTTP and WebSocket port               |
 | EMQ_LISTENER__WSS__EXTERNAL| 8084               | listener.wss.external     | HTTPS and WSS port                    |
+| EMQ_LISTENER__API__MGMT    | 8080               | listener.api.mgmt         | mgmt API  port                        |
 | EMQ_MQTT__MAX_PACKET_SIZE  | 64KB               | mqtt.max_packet_size      | Max Packet Size Allowed               |
 
 The list is incomplete and may changed with [etc/emq.conf](https://github.com/emqtt/emqttd/blob/master/etc/emq.conf) and plugin configuration files. But the mapping rule is similar.
