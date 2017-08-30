@@ -95,6 +95,13 @@ WORKDIR /opt/emqttd
 # start emqttd and initial environments
 CMD ["/opt/emqttd/start.sh"]
 
+RUN adduser -D -u 1000 emqtt
+
+RUN chgrp -Rf root /opt/emqttd && chmod -Rf g+w /opt/emqttd \
+      && chown -Rf emqtt /opt/emqttd
+
+USER emqtt
+
 VOLUME ["/opt/emqttd/log", "/opt/emqttd/data", "/opt/emqttd/lib", "/opt/emqttd/etc"]
 
 # emqttd will occupy these port:
