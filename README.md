@@ -62,6 +62,7 @@ These environment variables will ignore for configuration file.
 | ---------------------------| ------------------ | ------------------------- | ------------------------------------- |
 | EMQ_NAME                   | container name     | none                      | emq node short name                   |
 | EMQ_HOST                   | container IP       | none                      | emq node host, IP or FQDN             |
+| EMQ_WAIT_TIME              | 5                  | none                      | wait time in sec before timeout       |
 | EMQ_JOIN_CLUSTER           | none               | none                      | Initial cluster to join               |
 | EMQ_ADMIN_PASSWORD         | public             | none                      | emq admin password                    |
 | PLATFORM_ETC_DIR           | /opt/emqtt/etc     | {{ platform_etc_dir }}    | The etc directory                     |
