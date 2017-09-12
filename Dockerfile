@@ -4,8 +4,6 @@ MAINTAINER Huang Rui <vowstar@gmail.com>, Turtle <turtled@emqtt.io>
 
 ENV EMQ_VERSION=v2.3-beta.3
 
-COPY ./start.sh /start.sh
-
 RUN set -ex \
     # add build deps, remove after build
     && apk --no-cache add --virtual .build-deps \
@@ -91,6 +89,8 @@ RUN set -ex \
     && rm -rf /var/cache/apk/*
 
 WORKDIR /opt/emqttd
+
+COPY ./start.sh /start.sh
 
 # start emqttd and initial environments
 CMD ["/opt/emqttd/start.sh"]
