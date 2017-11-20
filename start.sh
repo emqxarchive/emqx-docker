@@ -43,9 +43,9 @@ fi
 
 # Set hosts to prevent cluster mode failed
 
-if [[ ! -z "$LOCAL_IP" && ! -z "$EMQ_HOST" ]]; then
-    echo "$LOCAL_IP        $EMQ_HOST" >> /etc/hosts
-fi
+# if [[ ! -z "$LOCAL_IP" && ! -z "$EMQ_HOST" ]]; then
+#     echo "$LOCAL_IP        $EMQ_HOST" >> /etc/hosts
+# fi
 
 # unset EMQ_NAME
 # unset EMQ_HOST
