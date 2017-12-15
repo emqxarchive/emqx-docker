@@ -58,7 +58,7 @@ These environment variables will ignore for configuration file.
 
 > NOTE: All EMQ Configuration in [etc/emq.conf](https://github.com/emqtt/emqttd/blob/master/etc/emq.conf) could config by environment. The following list is just an example, not a complete configuration.
 
-| Oprtions                   | Default            | Mapped                    | Description                           |
+| Options                    | Default            | Mapped                    | Description                           |
 | ---------------------------| ------------------ | ------------------------- | ------------------------------------- |
 | EMQ_NAME                   | container name     | none                      | emq node short name                   |
 | EMQ_HOST                   | container IP       | none                      | emq node host, IP or FQDN             |
