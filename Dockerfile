@@ -1,4 +1,4 @@
-FROM alpine:3.5
+FROM alpine:3.7
 
 MAINTAINER Huang Rui <vowstar@gmail.com>, Turtle <turtled@emqtt.io>
 
@@ -18,7 +18,7 @@ RUN set -ex \
         erlang-public-key \
         erlang-syntax-tools \
         erlang-erl-docgen \
-        erlang-gs \
+        #erlang-gs \
         erlang-observer \
         erlang-ssh \
         #erlang-ose \
@@ -41,7 +41,7 @@ RUN set -ex \
         erlang-et \
         erlang-cosnotification \
         erlang-xmerl \
-        erlang-typer \
+        #erlang-typer \
         erlang-coseventdomain \
         erlang-stdlib \
         erlang-diameter \
@@ -57,7 +57,7 @@ RUN set -ex \
         erlang-kernel \
         erlang-orber \
         erlang-costime \
-        erlang-percept \
+        #erlang-percept \
         erlang-dev \
         erlang-eldap \
         erlang-reltool \
