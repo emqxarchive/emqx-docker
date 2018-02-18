@@ -90,6 +90,12 @@ if [[ -z "$EMQ_LISTENER__WS__EXTERNAL__MAX_CLIENTS" ]]; then
     export EMQ_LISTENER__WS__EXTERNAL__MAX_CLIENTS=250000
 fi
 
+# Fix issue #42 - export env EMQ_DASHBOARD__DEFAULT_USER__PASSWORD to configure
+# 'dashboard.default_user.password' in etc/plugins/emq_dashboard.conf
+if [[ ! -z "$EMQ_ADMIN_PASSWORD" ]]; then
+    export EMQ_DASHBOARD__DEFAULT_USER__PASSWORD=$EMQ_ADMIN_PASSWORD
+fi
+
 # Catch all EMQ_ prefix environment variable and match it in configure file
 CONFIG=/opt/emqttd/etc/emq.conf
 CONFIG_PLUGINS=/opt/emqttd/etc/plugins
@@ -134,7 +140,7 @@ fi
 
 /opt/emqttd/bin/emqttd foreground &
 
-# wait and ensure emqttd status is running
+# Wait and ensure emqttd status is running
 WAIT_TIME=0
 while [[ -z "$(/opt/emqttd/bin/emqttd_ctl status |grep 'is running'|awk '{print $1}')" ]]
 do
@@ -146,6 +152,9 @@ do
         exit 1
     fi
 done
+
+# Sleep 5 seconds to wait for the loaded plugins catch up.
+sleep 5
 
 echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqttd start"
 
@@ -184,6 +193,7 @@ do
     fi
     sleep 5
 done
+
 # If running to here (the result 5 times not is running, thus in 25s emq is not running), exit docker image
 # Then the high level PaaS, e.g. docker swarm mode, will know and alert, rebanlance this service
 
