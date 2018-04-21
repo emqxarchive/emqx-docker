@@ -139,7 +139,7 @@ fi
 # Start and run emqttd, and when emqttd crashed, this container will stop
 
 /opt/emqttd/bin/emqttd start
-tail -f /opt/emqttd/log/erlang.log.1
+tail -f /opt/emqttd/log/erlang.log.1 &
 
 # Wait and ensure emqttd status is running
 WAIT_TIME=0
