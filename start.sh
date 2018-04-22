@@ -103,24 +103,24 @@ for VAR in $(env)
 do
     # Config normal keys such like node.name = emqttd@127.0.0.1
     if [[ ! -z "$(echo $VAR | grep -E '^EMQ_')" ]]; then
-        VAR_NAME=$(echo "$VAR" | sed -r "s/EMQ_(.*)=.*/\1/g" | tr '[:upper:]' '[:lower:]' | sed -r "s/__/\./g")
-        VAR_FULL_NAME=$(echo "$VAR" | sed -r "s/(.*)=.*/\1/g")
+        VAR_NAME=$(echo "$VAR" | sed -r "s/EMQ_([^=]*)=.*/\1/g" | tr '[:upper:]' '[:lower:]' | sed -r "s/__/\./g")
+        VAR_FULL_NAME=$(echo "$VAR" | sed -r "s/([^=]*)=.*/\1/g")
         # Config in emq.conf
         if [[ ! -z "$(cat $CONFIG |grep -E "^(^|^#*|^#*\s*)$VAR_NAME")" ]]; then
             echo "$VAR_NAME=$(eval echo \$$VAR_FULL_NAME)"
-            sed -r -i "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME)/g" $CONFIG
+            sed -r -i "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $CONFIG
         fi
         # Config in plugins/*
         if [[ ! -z "$(cat $CONFIG_PLUGINS/* |grep -E "^(^|^#*|^#*\s*)$VAR_NAME")" ]]; then
             echo "$VAR_NAME=$(eval echo \$$VAR_FULL_NAME)"
-            sed -r -i "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME)/g" $(ls $CONFIG_PLUGINS/*)
+            sed -r -i "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $(ls $CONFIG_PLUGINS/*)
         fi        
     fi
     # Config template such like {{ platform_etc_dir }}
     if [[ ! -z "$(echo $VAR | grep -E '^PLATFORM_')" ]]; then
-        VAR_NAME=$(echo "$VAR" | sed -r "s/(.*)=.*/\1/g"| tr '[:upper:]' '[:lower:]')
-        VAR_FULL_NAME=$(echo "$VAR" | sed -r "s/(.*)=.*/\1/g")
-        sed -r -i "s@\{\{\s*$VAR_NAME\s*\}\}@$(eval echo \$$VAR_FULL_NAME)@g" $CONFIG
+        VAR_NAME=$(echo "$VAR" | sed -r "s/([^=]*)=.*/\1/g"| tr '[:upper:]' '[:lower:]')
+        VAR_FULL_NAME=$(echo "$VAR" | sed -r "s/([^=]*)=.*/\1/g")
+        sed -r -i "s@\{\{\s*$VAR_NAME\s*\}\}@$(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')@g" $CONFIG
     fi
 done
 
@@ -138,7 +138,8 @@ fi
 
 # Start and run emqttd, and when emqttd crashed, this container will stop
 
-/opt/emqttd/bin/emqttd foreground &
+/opt/emqttd/bin/emqttd start
+tail -f /opt/emqttd/log/erlang.log.1 &
 
 # Wait and ensure emqttd status is running
 WAIT_TIME=0
