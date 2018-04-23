@@ -2,7 +2,10 @@ FROM alpine:3.7
 
 MAINTAINER Huang Rui <vowstar@gmail.com>, Turtle <turtled@emqtt.io>
 
-ENV EMQ_VERSION=v2.3.7
+# Arrange to be able to build all available tagged versions, but also pass the
+# version built into the container.
+ARG EMQ_VERSION=v2.3.7
+ENV EMQ_VERSION ${EMQ_VERSION}
 
 COPY ./start.sh /start.sh
 
