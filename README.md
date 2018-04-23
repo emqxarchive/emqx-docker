@@ -18,7 +18,7 @@ Would you want to select another version of EMQ, you could use the `--build-arg`
 option, as exemplified below:
 
 ```bash
-docker build --build-arg=EMQ_VERSION=v2.3.6 -t emq:v2.3.6 .
+docker build --build-arg EMQ_VERSION=v2.3.6 -t emq:v2.3.6 .
 ```
 
 ### Run emqttd
