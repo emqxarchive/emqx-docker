@@ -1,8 +1,7 @@
+ARG EMQ_VERSION=v2.3.7
 FROM alpine:3.7
 
 MAINTAINER Huang Rui <vowstar@gmail.com>, Turtle <turtled@emqtt.io>
-
-ENV EMQ_VERSION=v2.3.7
 
 COPY ./start.sh /start.sh
 

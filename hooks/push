@@ -1,0 +1,12 @@
+#!/bin/bash
+
+EMQ_REPO="emqtt/emqttd"
+RELEASES=$(curl -qsL https://api.github.com/repos/${EMQ_REPO}/tags | grep \"name\"|grep -v "rc"|grep -v "beta"|grep -v "alpha"|sed "s/^\s*\"name\"\s*:\s*\"\(v\([0-9]\+\.\)\+[0-9]\+\\)\"\s*,/\1/g")
+
+IMG=$(basename $DOCKER_REPO)
+for tag in ${RELEASES}; do
+    echo "============== Pushing ${IMG}:$tag"
+    docker push ${DOCKER_REPO}:$tag
+done
+echo "============== Pushing ${IMG}:latest"
+docker push ${DOCKER_REPO}:latest

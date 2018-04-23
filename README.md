@@ -14,6 +14,13 @@ cd emq_docker
 docker build -t emq:latest .
 ```
 
+Would you want to select another version of EMQ, you could use the `--build-arg`
+option, as exemplified below:
+
+```bash
+docker build --build-arg=EMQ_VERSION=v2.3.6 -t emq:v2.3.6 .
+```
+
 ### Run emqttd
 
 Execute some command under this docker image
@@ -194,6 +201,11 @@ docker run --rm -ti --name emq -p 18083:18083 -p 1883:1883 -p 4369:4369 \
 ```
 
 > REMEMBER: DO NOT RUN EMQ DOCKER PRIVILEGED OR MOUNT SYSTEM PROC IN CONTAINER TO TUNE LINUX KERNEL, IT IS UNSAFE.
+
+### Automated Builds
+
+The scripts in the [hooks](/hooks) directory arrange for the Docker hub to
+automatically (re)build images for all official releases of EMQ.
 
 ### Thanks
 
