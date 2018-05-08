@@ -103,24 +103,24 @@ for VAR in $(env)
 do
     # Config normal keys such like node.name = emqttd@127.0.0.1
     if [[ ! -z "$(echo $VAR | grep -E '^EMQ_')" ]]; then
-        VAR_NAME=$(echo "$VAR" | sed -r "s/EMQ_([^=]*)=.*/\1/g" | tr '[:upper:]' '[:lower:]' | sed -r "s/__/\./g")
-        VAR_FULL_NAME=$(echo "$VAR" | sed -r "s/([^=]*)=.*/\1/g")
+        VAR_NAME=$(echo "$VAR" | sed -r "s@EMQ_(.*)=.*@\1@g" | tr '[:upper:]' '[:lower:]' | sed -r "s/__/\./g")
+        VAR_FULL_NAME=$(echo "$VAR" | sed -r "s@(.*)=.*@\1@g")
         # Config in emq.conf
         if [[ ! -z "$(cat $CONFIG |grep -E "^(^|^#*|^#*\s*)$VAR_NAME")" ]]; then
             echo "$VAR_NAME=$(eval echo \$$VAR_FULL_NAME)"
-            sed -r -i "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $CONFIG
+            sed -r -i "s@(^#*\s*)($VAR_NAME)\s*=\s*(.*)@\2 = $(eval echo \$$VAR_FULL_NAME)@g" $CONFIG
         fi
         # Config in plugins/*
         if [[ ! -z "$(cat $CONFIG_PLUGINS/* |grep -E "^(^|^#*|^#*\s*)$VAR_NAME")" ]]; then
             echo "$VAR_NAME=$(eval echo \$$VAR_FULL_NAME)"
-            sed -r -i "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $(ls $CONFIG_PLUGINS/*)
-        fi        
+            sed -r -i "s@(^#*\s*)($VAR_NAME)\s*=\s*(.*)@\2 = $(eval echo \$$VAR_FULL_NAME)@g" $(ls $CONFIG_PLUGINS/*)
+        fi
     fi
     # Config template such like {{ platform_etc_dir }}
     if [[ ! -z "$(echo $VAR | grep -E '^PLATFORM_')" ]]; then
-        VAR_NAME=$(echo "$VAR" | sed -r "s/([^=]*)=.*/\1/g"| tr '[:upper:]' '[:lower:]')
-        VAR_FULL_NAME=$(echo "$VAR" | sed -r "s/([^=]*)=.*/\1/g")
-        sed -r -i "s@\{\{\s*$VAR_NAME\s*\}\}@$(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')@g" $CONFIG
+        VAR_NAME=$(echo "$VAR" | sed -r "s/(.*)=.*/\1/g"| tr '[:upper:]' '[:lower:]')
+        VAR_FULL_NAME=$(echo "$VAR" | sed -r "s/(.*)=.*/\1/g")
+        sed -r -i "s@\{\{\s*$VAR_NAME\s*\}\}@$(eval echo \$$VAR_FULL_NAME)@g" $CONFIG
     fi
 done
 
@@ -131,7 +131,7 @@ if [[ ! -z "$EMQ_LOADED_PLUGINS" ]]; then
     echo "EMQ_LOADED_PLUGINS=$EMQ_LOADED_PLUGINS"
     # First, remove special char at header
     # Next, replace special char to ".\n" to fit emq loaded_plugins format
-    echo $(echo "$EMQ_LOADED_PLUGINS."|sed -e "s/^[^A-Za-z0-9_]\{1,\}//g"|sed -e "s/[^A-Za-z0-9_]\{1,\}/\. /g")|tr ' ' '\n' > /opt/emqttd/data/loaded_plugins
+    echo $(echo "$EMQ_LOADED_PLUGINS."|sed -e "s@^[^A-Za-z0-9_]\{1,\}@@g"|sed -e "s@[^A-Za-z0-9_]\{1,\}@\. @g")|tr ' ' '\n' > /opt/emqttd/data/loaded_plugins
 fi
 
 ## EMQ Main script
