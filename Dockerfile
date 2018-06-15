@@ -4,8 +4,6 @@ MAINTAINER Huang Rui <vowstar@gmail.com>, Turtle <turtled@emqtt.io>
 
 ENV EMQ_VERSION=v2.3.9
 
-COPY ./start.sh /start.sh
-
 RUN set -ex \
     # add build deps, remove after build
     && apk --no-cache add --virtual .build-deps \
@@ -83,26 +81,30 @@ RUN set -ex \
     && make \
     && mkdir -p /opt && mv /emqttd/_rel/emqttd /opt/emqttd \
     && cd / && rm -rf /emqttd \
-    && mv /start.sh /opt/emqttd/start.sh \
-    && chmod +x /opt/emqttd/start.sh \
     && ln -s /opt/emqttd/bin/* /usr/local/bin/ \
     # removing fetch deps and build deps
     && apk --purge del .build-deps .fetch-deps \
     && rm -rf /var/cache/apk/*
 
-WORKDIR /opt/emqttd
+# set home so that any `--user` knows where to put the erlang cookie
+ENV HOME /opt/emqttd
+WORKDIR ${HOME}
+
+COPY ./start.sh ./
+RUN chmod +x ./start.sh
 
 # start emqttd and initial environments
-CMD ["/opt/emqttd/start.sh"]
+CMD ["./start.sh"]
 
-RUN adduser -D -u 1000 emqtt
+RUN adduser -D -u 10001 emqtt
 
-RUN chgrp -Rf root /opt/emqttd && chmod -Rf g+w /opt/emqttd \
-      && chown -Rf emqtt /opt/emqttd
+RUN chgrp -Rf root ${HOME} && chmod -Rf g+w ${HOME} \
+      && chown -Rf emqtt ${HOME}
+RUN chmod g=u /etc/passwd
 
-USER emqtt
+USER 10001
 
-VOLUME ["/opt/emqttd/log", "/opt/emqttd/data", "/opt/emqttd/lib", "/opt/emqttd/etc"]
+VOLUME ["${HOME}/log", "${HOME}/data", "${HOME}/lib", "${HOME}/etc"]
 
 # emqttd will occupy these port:
 # - 1883 port for MQTT
