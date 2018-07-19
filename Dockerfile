@@ -1,8 +1,8 @@
 FROM alpine:3.7
 
-MAINTAINER Huang Rui <vowstar@gmail.com>, Turtle <turtled@emqtt.io>
+MAINTAINER Huang Rui <vowstar@gmail.com>, EMQ X Team <support@emqx.io>
 
-ENV EMQ_VERSION=v2.3.10
+ENV EMQX_VERSION=v3.0-beta.1
 
 COPY ./start.sh /start.sh
 
@@ -78,33 +78,33 @@ RUN set -ex \
         ncurses-libs \
         readline \
     # add latest rebar
-    && git clone -b ${EMQ_VERSION} https://github.com/emqtt/emq-relx.git /emqttd \
-    && cd /emqttd \
+    && git clone -b ${EMQ_VERSION} https://github.com/emqx/emqx-rel.git /emqx \
+    && cd /emqx \
     && make \
-    && mkdir -p /opt && mv /emqttd/_rel/emqttd /opt/emqttd \
-    && cd / && rm -rf /emqttd \
-    && mv /start.sh /opt/emqttd/start.sh \
-    && chmod +x /opt/emqttd/start.sh \
-    && ln -s /opt/emqttd/bin/* /usr/local/bin/ \
+    && mkdir -p /opt && mv /emqx/_rel/emqx /opt/emqx \
+    && cd / && rm -rf /emqx \
+    && mv /start.sh /opt/emqx/start.sh \
+    && chmod +x /opt/emqx/start.sh \
+    && ln -s /opt/emqx/bin/* /usr/local/bin/ \
     # removing fetch deps and build deps
     && apk --purge del .build-deps .fetch-deps \
     && rm -rf /var/cache/apk/*
 
-WORKDIR /opt/emqttd
+WORKDIR /opt/emqx
 
-# start emqttd and initial environments
-CMD ["/opt/emqttd/start.sh"]
+# start emqx and initial environments
+CMD ["/opt/emqx/start.sh"]
 
-RUN adduser -D -u 1000 emqtt
+RUN adduser -D -u 1000 emqx
 
-RUN chgrp -Rf root /opt/emqttd && chmod -Rf g+w /opt/emqttd \
-      && chown -Rf emqtt /opt/emqttd
+RUN chgrp -Rf emqx /opt/emqx && chmod -Rf g+w /opt/emqx \
+      && chown -Rf emqx /opt/emqx
 
-USER emqtt
+USER emqx
 
-VOLUME ["/opt/emqttd/log", "/opt/emqttd/data", "/opt/emqttd/lib", "/opt/emqttd/etc"]
+VOLUME ["/opt/emqx/log", "/opt/emqx/data", "/opt/emqx/lib", "/opt/emqx/etc"]
 
-# emqttd will occupy these port:
+# emqx will occupy these port:
 # - 1883 port for MQTT
 # - 8883 port for MQTT(SSL)
 # - 8083 for WebSocket/HTTP
@@ -112,5 +112,6 @@ VOLUME ["/opt/emqttd/log", "/opt/emqttd/data", "/opt/emqttd/lib", "/opt/emqttd/e
 # - 8080 for mgmt API
 # - 18083 for dashboard
 # - 4369 for port mapping
-# - 6000-6999 for distributed node
-EXPOSE 1883 8883 8083 8084 8080 18083 4369 6000-6999
+# - 5369 for gen_rpc port mapping
+# - 6369 for distributed node
+EXPOSE 1883 8883 8083 8084 8080 18083 4369 5369 6369 6000-6999
