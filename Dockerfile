@@ -64,6 +64,7 @@ RUN set -xe \
         && chmod +x /opt/emqx/start.sh \
         && ln -s /opt/emqx/bin/* /usr/local/bin/ \
         # removing fetch deps and build deps
+		&& apk --purge del .build-deps .fetch-deps \
         && rm -rf /var/cache/apk/* \
         && rm -rf /usr/local/lib/erlang
 
