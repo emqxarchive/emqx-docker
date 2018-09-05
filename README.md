@@ -72,7 +72,7 @@ These environment variables will ignore for configuration file.
 | EMQX_NODE__NAME             | EMQX_NAME@EMQX_HOST| node.name                 | Erlang node name, name@ipaddress/host |
 | EMQX_NODE__COOKIE           | emqx_dist_cookie    | node.cookie               | cookie for cluster                    |
 | EMQX_LOG__CONSOLE           | console            | log.console               | log console output method             |
-| EMQX_MQTT__ALLOW_ANONYMOUS  | true               | mqtt.allow_anonymous      | allow mqtt anonymous login            |
+| EMQX_ALLOW_ANONYMOUS        | true               | allow_anonymous           | allow mqtt anonymous login            |
 | EMQX_LISTENER__TCP__EXTERNAL| 1883               | listener.tcp.external     | MQTT TCP port                         |
 | EMQX_LISTENER__SSL__EXTERNAL| 8883               | listener.ssl.external     | MQTT TCP TLS/SSL port                 |
 | EMQX_LISTENER__WS__EXTERNAL | 8083               | listener.ws.external      | HTTP and WebSocket port               |

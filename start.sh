@@ -99,8 +99,8 @@ CONFIG_PLUGINS=/opt/emqx/etc/plugins
 for VAR in $(env)
 do
     # Config normal keys such like node.name = emqx@127.0.0.1
-    if [[ ! -z "$(echo $VAR | grep -E '^EMQ_')" ]]; then
-        VAR_NAME=$(echo "$VAR" | sed -r "s/EMQ_([^=]*)=.*/\1/g" | tr '[:upper:]' '[:lower:]' | sed -r "s/__/\./g")
+    if [[ ! -z "$(echo $VAR | grep -E '^EMQX_')" ]]; then
+        VAR_NAME=$(echo "$VAR" | sed -r "s/EMQX_([^=]*)=.*/\1/g" | tr '[:upper:]' '[:lower:]' | sed -r "s/__/\./g")
         VAR_FULL_NAME=$(echo "$VAR" | sed -r "s/([^=]*)=.*/\1/g")
         # Config in emq.conf
         if [[ ! -z "$(cat $CONFIG |grep -E "^(^|^#*|^#*\s*)$VAR_NAME")" ]]; then
@@ -146,7 +146,7 @@ do
     sleep 1
     echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:waiting emqx"
     WAIT_TIME=$((WAIT_TIME+1))
-    if [[ $WAIT_TIME -gt $EMQ_WAIT_TIME ]]; then
+    if [[ $WAIT_TIME -gt $EMQX_WAIT_TIME ]]; then
         echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:timeout error"
         exit 1
     fi
