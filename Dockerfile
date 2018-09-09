@@ -2,7 +2,7 @@ FROM alpine:3.8
 
 MAINTAINER Huang Rui <vowstar@gmail.com>, EMQ X Team <support@emqx.io>
 
-ENV EMQX_VERSION=v3.0-beta.1
+ENV EMQX_VERSION=v3.0-beta.2
 
 ENV OTP_VERSION="21.0.7"
 
