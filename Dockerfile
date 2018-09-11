@@ -2,8 +2,6 @@ FROM alpine:3.8
 
 MAINTAINER Huang Rui <vowstar@gmail.com>, EMQ X Team <support@emqx.io>
 
-ENV EMQX_VERSION=v3.0-beta.2
-
 ENV OTP_VERSION="21.0.7"
 
 COPY ./start.sh /start.sh
@@ -54,8 +52,12 @@ RUN set -xe \
                         | sort -u \
                         | awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
         )" \
-        && apk add --virtual .erlang-rundeps $runDeps lksctp-tools \
-        && cd / && git clone -b ${EMQX_VERSION} https://github.com/emqx/emqx-rel /emqx \
+        && apk add --virtual .erlang-rundeps $runDeps lksctp-tools
+
+ENV EMQX_VERSION=v3.0-beta.2
+
+RUN set -ex \
+        cd / && git clone -b ${EMQX_VERSION} https://github.com/emqx/emqx-rel /emqx \
         && cd /emqx \
         && make \
         && mkdir -p /opt && mv /emqx/_rel/emqx /opt/emqx \
@@ -67,7 +69,6 @@ RUN set -xe \
 		&& apk --purge del .build-deps .fetch-deps \
         && rm -rf /var/cache/apk/* \
         && rm -rf /usr/local/lib/erlang
-
 
 WORKDIR /opt/emqx
 
