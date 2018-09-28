@@ -77,6 +77,7 @@ RUN set -ex \
         ncurses-terminfo \
         ncurses-libs \
         readline \
+        tzdata \
     # add latest rebar
     && git clone -b ${EMQ_VERSION} https://github.com/emqtt/emq-relx.git /emqttd \
     && cd /emqttd \
