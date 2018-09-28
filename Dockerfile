@@ -54,7 +54,7 @@ RUN set -xe \
                         | sort -u \
                         | awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
         )" \
-        && apk add --virtual .erlang-rundeps $runDeps lksctp-tools \
+        && apk add --virtual .erlang-rundeps $runDeps lksctp-tools tzdata \
         && cd / && git clone -b ${EMQX_VERSION} https://github.com/emqx/emqx-rel /emqx \
         && cd /emqx \
         && make \
