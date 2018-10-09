@@ -4,6 +4,8 @@ MAINTAINER Huang Rui <vowstar@gmail.com>, EMQ X Team <support@emqx.io>
 
 ENV OTP_VERSION="21.0.7"
 
+ENV EMQX_VERSION=v3.0-beta.3
+
 COPY ./start.sh /start.sh
 
 RUN set -xe \
@@ -52,12 +54,8 @@ RUN set -xe \
                         | sort -u \
                         | awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
         )" \
-        && apk add --virtual .erlang-rundeps $runDeps lksctp-tools
-
-ENV EMQX_VERSION=v3.0-beta.3
-
-RUN set -ex \
-        cd / && git clone -b ${EMQX_VERSION} https://github.com/emqx/emqx-rel /emqx \
+        && apk add --virtual .erlang-rundeps $runDeps lksctp-tools \
+        && cd / && git clone -b ${EMQX_VERSION} https://github.com/emqx/emqx-rel /emqx \
         && cd /emqx \
         && make \
         && mkdir -p /opt && mv /emqx/_rel/emqx /opt/emqx \
