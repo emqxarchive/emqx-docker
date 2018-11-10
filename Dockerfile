@@ -88,10 +88,13 @@ RUN set -ex \
     && ln -s /opt/emqttd/bin/* /usr/local/bin/ \
     # removing fetch deps and build deps
     && apk --purge del .build-deps .fetch-deps \
-    && rm -rf /var/cache/apk/*
+    && rm -rf /var/cache/apk/* \
+    && wget https://github.com/krallin/tini/releases/download/v0.18.0/tini-muslc-amd64 -O /usr/local/bin/tini \
+    && chmod +x /usr/local/bin/tini
 
 WORKDIR /opt/emqttd
 
+ENTRYPOINT ["/usr/local/bin/tini", "--"]
 # start emqttd and initial environments
 CMD ["/opt/emqttd/start.sh"]
 
