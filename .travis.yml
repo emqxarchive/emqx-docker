@@ -1,10 +1,69 @@
-language: bash
-
-sudo: required
+sudo: 'required'
 
 services:
-  - docker
+  - 'docker'
+
+language:
+  - 'bash'
+
+env:
+  global:
+    - EMQX_VERSION=v3.0-rc.4
+    - OTP_VERSION="21.1.3"
+    - TARGET=emqx/emqx
+    - QEMU_VERSION=v3.0.0
+  matrix:
+    - DOCKER_FILE=Dockerfile.alpine-tmpl BUILD_FROM=amd64/alpine:3.8 OS=alpine QEMU_ARCH=x86_64 ARCH=amd64
+    - DOCKER_FILE=Dockerfile.alpine-tmpl BUILD_FROM=arm32v6/alpine:3.8 OS=alpine QEMU_ARCH=arm ARCH=arm32v6
+    - DOCKER_FILE=Dockerfile.alpine-tmpl BUILD_FROM=arm64v8/alpine:3.8 OS=alpine QEMU_ARCH=aarch64 ARCH=arm64v8
+
+before_install:
+  - ./.docker/docker.sh prepare
+
+install: true
+
+before_script:
+    # Set BUILD_VERSION
+    - if [ ! -z "${TRAVIS_TAG}" ]; then export BUILD_VERSION=${TRAVIS_TAG:1}; else export BUILD_VERSION=beta; fi
 
 script:
-  - sudo docker build -t emqx:latest .
+  # Build Docker image
+  - ./.docker/docker.sh build
 
+  # Test Docker image
+  - ./.docker/docker.sh test
+
+  # Push Docker image
+  - >
+    if [ ! -z "${TRAVIS_TAG}" ]; then
+      # Tag Docker image
+      ./.docker/docker.sh tag
+
+      # Docker Login
+      echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+
+      # Push Docker image
+      ./.docker/docker.sh push
+
+      # Docker Logout
+      docker logout
+    fi
+
+jobs:
+    include:
+        - stage: manifest
+          if: tag =~ ^v
+          script:
+              # Docker Login
+              - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+              # Create and Push Docker Manifest Lists to Docker Hub
+              - echo "Create manifest list for all docker images."
+              - ./.docker/docker.sh manifest-list
+
+              # Docker Logout
+              - docker logout
+
+# notify me when things fail
+notifications:
+    email: true
