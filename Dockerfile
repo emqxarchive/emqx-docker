@@ -3,8 +3,8 @@ FROM alpine:3.8
 MAINTAINER Huang Rui <vowstar@gmail.com>, EMQ X Team <support@emqx.io>
 
 ENV OTP_VERSION="21.0.7"
-
-ENV EMQX_DEPS_DEFAULT_VSN=emqx30
+ENV EMQX_VERSION=emqx30
+ENV EMQX_DEPS_DEFAULT_VSN=${EMQX_VERSION}
 
 COPY ./start.sh /start.sh
 
@@ -55,7 +55,7 @@ RUN set -xe \
                         | awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
         )" \
         && apk add --virtual .erlang-rundeps $runDeps lksctp-tools \
-        && cd / && git clone -b ${EMQX_DEPS_DEFAULT_VSN} https://github.com/emqx/emqx-rel /emqx \
+        && cd / && git clone -b ${EMQX_VERSION} https://github.com/emqx/emqx-rel /emqx \
         && cd /emqx \
         && make \
         && mkdir -p /opt && mv /emqx/_rel/emqx /opt/emqx \
