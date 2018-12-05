@@ -16,8 +16,14 @@ main() {
         "tag")
             docker_tag
             ;;
+        "save")
+            docker_save
+            ;;
         "push")
             docker_push
+            ;;
+        "clear")
+            docker_clear
             ;;
         "manifest-list")
             docker_manifest_list
@@ -60,7 +66,7 @@ docker_build() {
     --build-arg QEMU_ARCH=${QEMU_ARCH} \
     --build-arg OTP_VERSION=${OTP_VERSION} \
     --build-arg EMQX_VERSION=${EMQX_VERSION} \
-    --file ./docker/${DOCKER_FILE} \
+    --file ./.docker/${DOCKER_FILE} \
     --tag ${TARGET}:build-${OS}-${ARCH} .
 }
 
@@ -73,7 +79,19 @@ docker_test() {
      echo "DOCKER TEST: FAILED - Docker container test-${OS}-${ARCH} failed to start."
      exit 1
   else
+     while [[  -z "$(sudo docker exec test-${OS}-${ARCH} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $1}')" ]]
+     do
+      IDLE_TIME=0
+     	if [[ $IDLE_TIME -gt 5 ]]
+         then
+         	  echo "DOCKER TEST: FAILED - Docker container test-${OS}-${ARCH} failed to start."
+            exit 1
+         fi
+         sleep 5
+         IDLE_TIME=IDLE_TIME+1 
+     done
      echo "DOCKER TEST: PASSED - Docker container test-${OS}-${ARCH} succeeded to start."
+     docker rm -f test-${OS}-${ARCH}
   fi
 }
 
@@ -83,10 +101,29 @@ docker_tag() {
     docker tag ${TARGET}:build-${OS}-${ARCH} ${TARGET}:${BUILD_VERSION}-${OS}-${ARCH}
 }
 
+docker_save() {
+    echo "DOCKER SAVE: Save Docker image."  
+    echo "DOCKER SAVE: saveing - ${TARGET}:${BUILD_VERSION}-${OS}-${ARCH}." 
+    if [[ -z $(sudo docker images| grep ${BUILD_VERSION}-${OS}-${ARCH})]]
+    then
+      echo "DOCKER TEST: FAILED - Docker no search images"
+      exit 1
+    fi
+    docker save ${TARGET}:${BUILD_VERSION}-${OS}-${ARCH} > emqx-${BUILD_VERSION}-${OS}-${ARCH}
+    zip -r -m emqx-${BUILD_VERSION}-${OS}-${ARCH}.zip emqx-${BUILD_VERSION}-${OS}-${ARCH} 
+}
+
 docker_push() {
   echo "DOCKER PUSH: Push Docker image."
   echo "DOCKER PUSH: pushing - ${TARGET}:${BUILD_VERSION}-${OS}-${ARCH}."
   docker push ${TARGET}:${BUILD_VERSION}-${OS}-${ARCH}
+}
+
+docker_clear() {
+  echo "DOCKER CLEAR: Clear Docker image."
+  echo "DOCKER CLEAR: Clear - ${TARGET}:${BUILD_VERSION}-${OS}-${ARCH}."
+  docker rmi ${TARGET}:build-${OS}-${ARCH} 
+  docker rmi ${TARGET}:${BUILD_VERSION}-${OS}-${ARCH}
 }
 
 docker_manifest_list() {
@@ -219,12 +256,12 @@ setup_dependencies() {
 update_docker_configuration() {
   echo "PREPARE: Updating docker configuration"
 
-  mkdir $HOME/docker
+  mkdir -p $HOME/.docker
 
   # enable experimental to use docker manifest command
   echo '{
     "experimental": "enabled"
-  }' | tee $HOME/docker/config.json
+  }' | tee $HOME/.docker/config.json
 
   # enable experimental
   echo '{
@@ -241,7 +278,7 @@ prepare_qemu(){
     echo "PREPARE: Qemu"
     # Prepare qemu to build non amd64 / x86_64 images
     docker run --rm --privileged multiarch/qemu-user-static:register --reset
-    mkdir tmp
+    mkdir -p tmp
     pushd tmp &&
     curl -L -o qemu-x86_64-static.tar.gz https://github.com/multiarch/qemu-user-static/releases/download/$QEMU_VERSION/qemu-x86_64-static.tar.gz && tar xzf qemu-x86_64-static.tar.gz &&
     curl -L -o qemu-arm-static.tar.gz https://github.com/multiarch/qemu-user-static/releases/download/$QEMU_VERSION/qemu-arm-static.tar.gz && tar xzf qemu-arm-static.tar.gz &&
