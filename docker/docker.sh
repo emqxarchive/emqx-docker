@@ -104,7 +104,7 @@ docker_tag() {
 docker_save() {
     echo "DOCKER SAVE: Save Docker image."  
     echo "DOCKER SAVE: saveing - ${TARGET}:${BUILD_VERSION}-${OS}-${ARCH}." 
-    if [[ -z $(sudo docker images| grep ${BUILD_VERSION}-${OS}-${ARCH})]]
+    if [[ -z $(sudo docker images| grep ${BUILD_VERSION}-${OS}-${ARCH}) ]]
     then
       echo "DOCKER TEST: FAILED - Docker no search images"
       exit 1
