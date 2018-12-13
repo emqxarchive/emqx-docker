@@ -71,9 +71,6 @@ RUN set -xe \
 
 WORKDIR /opt/emqx
 
-# start emqx and initial environments
-CMD ["/opt/emqx/start.sh"]
-
 RUN adduser -D -u 1000 emqx
 
 RUN chgrp -Rf emqx /opt/emqx && chmod -Rf g+w /opt/emqx \
@@ -94,3 +91,6 @@ VOLUME ["/opt/emqx/log", "/opt/emqx/data", "/opt/emqx/lib", "/opt/emqx/etc"]
 # - 5369 for gen_rpc port mapping
 # - 6369 for distributed node
 EXPOSE 1883 8883 8083 8084 8080 18083 4369 5369 6369 6000-6999
+
+# start emqx and initial environments
+CMD ["/opt/emqx/start.sh"]
