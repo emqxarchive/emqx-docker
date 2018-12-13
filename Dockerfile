@@ -2,15 +2,15 @@ FROM alpine:3.8
 
 MAINTAINER Huang Rui <vowstar@gmail.com>, EMQ X Team <support@emqx.io>
 
-ENV OTP_VERSION="21.0.7"
+ENV OTP_VERSION="21.2"
 ENV EMQX_VERSION=emqx30
 ENV EMQX_DEPS_DEFAULT_VSN=${EMQX_VERSION}
 
 COPY ./start.sh /start.sh
 
 RUN set -xe \
-        && OTP_DOWNLOAD_URL="https://github.com/erlang/otp/archive/OTP-${OTP_VERSION}.tar.gz" \
-        && OTP_DOWNLOAD_SHA256="4e9c98b5f29918d0896b21ce28b13c7928d4c9bd6a0c7d23b4f19b27f6e3b6f7" \
+	&& OTP_DOWNLOAD_URL="https://github.com/erlang/otp/archive/OTP-${OTP_VERSION}.tar.gz" \
+	&& OTP_DOWNLOAD_SHA256="5d2cb28232a60ce88c6478fcf5d6aa5be353555e02f3cf96ed93c9bae7522448" \
         && apk add --no-cache --virtual .fetch-deps \
                 curl \
                 bsd-compat-headers \
@@ -32,6 +32,7 @@ RUN set -xe \
                 tar \
                 git \
                 wget \
+                coreutils \
         && export ERL_TOP="/usr/src/otp_src_${OTP_VERSION%%@*}" \
         && mkdir -vp $ERL_TOP \
         && tar -xzf otp-src.tar.gz -C $ERL_TOP --strip-components=1 \
