@@ -37,7 +37,6 @@ COPY ./files/start.sh /start.sh
 COPY ./files/config /root/.ssh/
 
 RUN chmod 600 /root/.ssh/config \
-        && echo -e "\n\n\n" | ssh-keygen -t rsa \
         && apk add --no-cache --virtual .build-deps \
                 dpkg-dev dpkg \
                 gcc \
@@ -57,6 +56,8 @@ RUN chmod 600 /root/.ssh/config \
                 bsd-compat-headers \
                 coreutils \
                 openssh-client \
+                openssh-keygen \
+        && echo -e "\n\n\n" | ssh-keygen -t rsa \
         && cd / && git clone -b ${EMQX_VERSION} https://github.com/emqx/emqx-rel /emqx \
         && cd /emqx \
         && make \
