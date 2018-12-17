@@ -10,7 +10,6 @@ ARG BUILD_REF
 ARG OS
 ARG ARCH
 ARG QEMU_ARCH
-ARG OTP_VERSION
 ARG EMQX_VERSION
 
 # Basic build-time metadata as defined at http://label-schema.org
@@ -31,22 +30,12 @@ COPY tmp/qemu-$QEMU_ARCH-static /usr/bin/qemu-$QEMU_ARCH-static
 # Copy ARCHs to ENVs to make them available at runtime
 ENV OS=$OS
 ENV ARCH=$ARCH
-ENV OTP_VERSION=$OTP_VERSION
 ENV EMQX_VERSION=$EMQX_VERSION
 ENV EMQX_DEPS_DEFAULT_VSN=$EMQX_VERSION
 
 COPY ./start.sh /start.sh
 
-RUN set -xe \
-        && OTP_DOWNLOAD_URL="https://github.com/erlang/otp/archive/OTP-${OTP_VERSION}.tar.gz" \
-        && OTP_DOWNLOAD_SHA256="9a447e1debed355ff78f5d502dc8259139d5aed2362037e7cca9dc9919245eca" \
-        && apk add --no-cache --virtual .fetch-deps \
-                curl \
-                bsd-compat-headers \
-                ca-certificates \
-        && curl -fSL -o otp-src.tar.gz "$OTP_DOWNLOAD_URL" \
-        && echo "$OTP_DOWNLOAD_SHA256  otp-src.tar.gz" | sha256sum -c - \
-        && apk add --no-cache --virtual .build-deps \
+RUN apk add --no-cache --virtual .build-deps \
                 dpkg-dev dpkg \
                 gcc \
                 g++ \
@@ -61,29 +50,9 @@ RUN set -xe \
                 tar \
                 git \
                 wget \
-        && export ERL_TOP="/usr/src/otp_src_${OTP_VERSION%%@*}" \
-        && mkdir -vp $ERL_TOP \
-        && tar -xzf otp-src.tar.gz -C $ERL_TOP --strip-components=1 \
-        && rm otp-src.tar.gz \
-        && ( cd $ERL_TOP \
-          && ./otp_build autoconf \
-          && gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
-          && ./configure --build="$gnuArch" \
-          && make -j$(getconf _NPROCESSORS_ONLN) \
-          && make install ) \
-        && rm -rf $ERL_TOP \
-        && find /usr/local -regex '/usr/local/lib/erlang/\(lib/\|erts-\).*/\(man\|doc\|obj\|c_src\|emacs\|info\|examples\)' | xargs rm -rf \
-        && find /usr/local -name src | xargs -r find | grep -v '\.hrl$' | xargs rm -v || true \
-        && find /usr/local -name src | xargs -r find | xargs rmdir -vp || true \
-        && scanelf --nobanner -E ET_EXEC -BF '%F' --recursive /usr/local | xargs -r strip --strip-all \
-        && scanelf --nobanner -E ET_DYN -BF '%F' --recursive /usr/local | xargs -r strip --strip-unneeded \
-        && runDeps="$( \
-                scanelf --needed --nobanner --format '%n#p' --recursive /usr/local \
-                        | tr ',' '\n' \
-                        | sort -u \
-                        | awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
-        )" \
-        && apk add --virtual .erlang-rundeps $runDeps lksctp-tools tzdata \
+                curl \
+                bsd-compat-headers \
+                coreutils \
         && cd / && git clone -b ${EMQX_VERSION} https://github.com/emqx/emqx-rel /emqx \
         && cd /emqx \
         && make \
@@ -93,14 +62,12 @@ RUN set -xe \
         && chmod +x /opt/emqx/start.sh \
         && ln -s /opt/emqx/bin/* /usr/local/bin/ \
         # removing fetch deps and build deps
-		&& apk --purge del .build-deps .fetch-deps \
+		&& apk --purge del .build-deps \
         && rm -rf /var/cache/apk/* \
         && rm -rf /usr/local/lib/erlang
 
-WORKDIR /opt/emqx
 
-# start emqx and initial environments
-CMD ["/opt/emqx/start.sh"]
+WORKDIR /opt/emqx
 
 RUN adduser -D -u 1000 emqx
 
@@ -122,3 +89,6 @@ VOLUME ["/opt/emqx/log", "/opt/emqx/data", "/opt/emqx/lib", "/opt/emqx/etc"]
 # - 5369 for gen_rpc port mapping
 # - 6369 for distributed node
 EXPOSE 1883 8883 8083 8084 8080 18083 4369 5369 6369 6000-6999
+
+# start emqx and initial environments
+CMD ["/opt/emqx/start.sh"]

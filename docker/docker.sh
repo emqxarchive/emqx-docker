@@ -52,7 +52,6 @@ docker_build() {
   echo "DOCKER BUILD: os -> ${OS}."
   echo "DOCKER BUILD: arch - ${ARCH}."
   echo "DOCKER BUILD: qemu arch - ${QEMU_ARCH}."
-  echo "DOCKER BUILD: otp version - ${OTP_VERSION}."
   echo "DOCKER BUILD: emqx version - ${EMQX_VERSION}."
   echo "DOCKER BUILD: docker file - ${DOCKER_FILE}."
 
@@ -64,7 +63,6 @@ docker_build() {
     --build-arg OS=${OS} \
     --build-arg ARCH=${ARCH} \
     --build-arg QEMU_ARCH=${QEMU_ARCH} \
-    --build-arg OTP_VERSION=${OTP_VERSION} \
     --build-arg EMQX_VERSION=${EMQX_VERSION} \
     --file ./docker/${DOCKER_FILE} \
     --tag ${TARGET}:build-${OS}-${ARCH} .
@@ -79,7 +77,8 @@ docker_test() {
      echo "DOCKER TEST: FAILED - Docker container test-${OS}-${ARCH} failed to start."
      exit 1
   else
-     while [[  -z "$(sudo docker exec test-${OS}-${ARCH} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $1}')" ]]
+     emqx_ver=$(sudo docker exec test-${OS}-${ARCH} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $1}')
+     while [[  -z $emqx_ver ]]
      do
       IDLE_TIME=0
      	if [[ $IDLE_TIME -gt 5 ]]
@@ -89,7 +88,13 @@ docker_test() {
          fi
          sleep 5
          IDLE_TIME=IDLE_TIME+1 
+         emqx_ver=$(sudo docker exec test-${OS}-${ARCH} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $1}')
      done
+     if [[ ! -z $(echo $EMQX_VERSION | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?") && $EMQX_VERSION != $emqx_ver ]]
+     then
+         echo "DOCKER TEST: FAILED - Docker container test-${OS}-${ARCH} version error."
+         exit 1 
+     fi
      echo "DOCKER TEST: PASSED - Docker container test-${OS}-${ARCH} succeeded to start."
      docker rm -f test-${OS}-${ARCH}
   fi
