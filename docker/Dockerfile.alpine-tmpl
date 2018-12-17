@@ -53,6 +53,7 @@ RUN apk add --no-cache --virtual .build-deps \
                 curl \
                 bsd-compat-headers \
                 coreutils \
+                openssh-client \
         && cd / && git clone -b ${EMQX_VERSION} https://github.com/emqx/emqx-rel /emqx \
         && cd /emqx \
         && make \
