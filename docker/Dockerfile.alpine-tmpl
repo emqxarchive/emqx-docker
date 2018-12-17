@@ -36,8 +36,7 @@ ENV EMQX_DEPS_DEFAULT_VSN=$EMQX_VERSION
 COPY ./files/start.sh /start.sh
 COPY ./files/config /root/.ssh/
 
-RUN chmod 600 /root/.ssh/config \
-        && apk add --no-cache --virtual .build-deps \
+RUN  apk add --no-cache --virtual .build-deps \
                 dpkg-dev dpkg \
                 gcc \
                 g++ \
