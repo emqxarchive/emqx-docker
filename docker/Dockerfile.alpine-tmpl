@@ -33,7 +33,8 @@ ENV ARCH=$ARCH
 ENV EMQX_VERSION=$EMQX_VERSION
 ENV EMQX_DEPS_DEFAULT_VSN=$EMQX_VERSION
 
-COPY ./start.sh /start.sh
+COPY ./files/start.sh /start.sh
+COPY ./files/config /root/.ssh/
 
 RUN apk add --no-cache --virtual .build-deps \
                 dpkg-dev dpkg \
