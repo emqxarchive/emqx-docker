@@ -8,23 +8,21 @@ Current docker image size: 37.1 MB
 
 ### Get emqx
 
-You can build this docker image by yourself.
+You can pull the image on the [docker hub](https://hub.docker.com/r/emqx/emqx).
 
 ```bash
-git clone -b master https://github.com/emqx/emqx-docker.git
-cd emqx-docker
-docker build -t emqx:latest .
+docker pull emqx/emqx:latest
 ```
 
 ### Run emqx
 
 Execute some command under this docker image
 
-``docker run --rm -ti -v `pwd`:$(somewhere) emqx/$(image) $(somecommand)``
+``docker run --rm -ti -v `pwd`:$(somewhere) emqx/emqx:$(tag) $(somecommand)``
 
 For example
 
-``docker run --rm -ti --name emqx -p 18083:18083 -p 1883:1883 emqx:latest``
+``docker run --rm -ti --name emqx -p 18083:18083 -p 1883:1883 emqx/emqx:latest``
 
 The emqx broker runs as linux user `emqx` in the docker container.
 
@@ -86,7 +84,7 @@ If set ``EMQX_NAME`` and ``EMQX_HOST``, and unset ``EMQX_NODE__NAME``, ``EMQX_NO
 
 For example, set mqtt tcp port to 1883
 
-``docker run --rm -ti --name emqx -e EMQX_LISTENER__TCP__EXTERNAL=1883 -p 18083:18083 -p 1883:1883 emqx:latest``
+``docker run --rm -ti --name emqx -e EMQX_LISTENER__TCP__EXTERNAL=1883 -p 18083:18083 -p 1883:1883 emqx/emqx:latest``
 
 #### EMQ Loaded Plugins Configuration
 
@@ -145,7 +143,7 @@ docker run --rm -ti --name emqx -p 18083:18083 -p 1883:1883 -p 4369:4369 \
     -e EMQX_AUTH__REDIS__SERVER="your.redis.server:6379" \
     -e EMQX_AUTH__REDIS__PASSWORD="password_for_redis" \
     -e EMQX_AUTH__REDIS__PASSWORD_HASH=plain \
-    emqx:latest
+    emqx/emqx:latest
 
 ```
 
@@ -164,7 +162,7 @@ docker run --rm -ti --name emqx -p 18083:18083 -p 1883:1883 -p 4369:4369 -p 6000
     -e EMQX_HOST="t.emqx.io" \
     -e EMQX_LISTENER__TCP__EXTERNAL=1883 \
     -e EMQX_JOIN_CLUSTER="emqx@t.emqx.io" \
-    emqx:latest
+    emqx/emqx:latest
 
 ```
 
@@ -192,7 +190,7 @@ docker run --rm -ti --name emqx -p 18083:18083 -p 1883:1883 -p 4369:4369 \
     --sysctl net.ipv4.tcp_wmem=1024 4096 16777216 \
     --sysctl net.ipv4.tcp_max_tw_buckets=1048576 \
     --sysctl net.ipv4.tcp_fin_timeout=15 \
-    emqx:latest
+    emqx/emqx:latest
 
 ```
 
