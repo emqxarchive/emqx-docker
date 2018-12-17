@@ -77,7 +77,7 @@ docker_test() {
      echo "DOCKER TEST: FAILED - Docker container test-${OS}-${ARCH} failed to start."
      exit 1
   else
-     emqx_ver=$(sudo docker exec test-${OS}-${ARCH} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $1}')
+     emqx_ver=$(sudo docker exec test-${OS}-${ARCH} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
      while [[  -z $emqx_ver ]]
      do
       IDLE_TIME=0
@@ -88,7 +88,7 @@ docker_test() {
          fi
          sleep 5
          IDLE_TIME=IDLE_TIME+1 
-         emqx_ver=$(sudo docker exec test-${OS}-${ARCH} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $1}')
+         emqx_ver=$(sudo docker exec test-${OS}-${ARCH} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
      done
      if [[ ! -z $(echo $EMQX_VERSION | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?") && $EMQX_VERSION != $emqx_ver ]]
      then
