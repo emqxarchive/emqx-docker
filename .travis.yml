@@ -8,7 +8,7 @@ language:
 
 env:
   global:
-    - EMQX_VERSION=v3.0-rc.5
+    - EMQX_VERSION=emqx30
     - TARGET=emqx/emqx
     - QEMU_VERSION=v3.0.0
   matrix:
@@ -17,7 +17,7 @@ env:
     - DOCKER_FILE=Dockerfile.alpine-tmpl BUILD_FROM=arm64v8/erlang:21-alpine OS=alpine QEMU_ARCH=aarch64 ARCH=arm64v8
 
 before_install:
-  - ./docker/docker.sh prepare
+  - ./docker.sh prepare
 
 install: true
 
@@ -27,22 +27,22 @@ before_script:
 
 script:
   # Build Docker image
-  - ./docker/docker.sh build
+  - ./docker.sh build
 
   # Test Docker image
-  - ./docker/docker.sh test
+  - ./docker.sh test
 
   # Push Docker image
   - >
     if [ ! -z "${TRAVIS_TAG}" ]; then
       # Tag Docker image
-      ./docker/docker.sh tag
+      ./docker.sh tag
 
       # Docker Login
       echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
 
       # Push Docker image
-      ./docker/docker.sh push
+      ./docker.sh push
 
       # Docker Logout
       docker logout
@@ -58,7 +58,7 @@ jobs:
 
               # Create and Push Docker Manifest Lists to Docker Hub
               - echo "Create manifest list for all docker images."
-              - ./docker/docker.sh manifest-list
+              - ./docker.sh manifest-list
 
               # Docker Logout
               - docker logout

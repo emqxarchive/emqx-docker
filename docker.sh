@@ -64,7 +64,7 @@ docker_build() {
     --build-arg ARCH=${ARCH} \
     --build-arg QEMU_ARCH=${QEMU_ARCH} \
     --build-arg EMQX_VERSION=${EMQX_VERSION} \
-    --file ./docker/${DOCKER_FILE} \
+    --file ./${DOCKER_FILE} \
     --tag ${TARGET}:build-${OS}-${ARCH} .
 }
 

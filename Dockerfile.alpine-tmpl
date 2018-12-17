@@ -33,10 +33,9 @@ ENV ARCH=$ARCH
 ENV EMQX_VERSION=$EMQX_VERSION
 ENV EMQX_DEPS_DEFAULT_VSN=$EMQX_VERSION
 
-COPY ./files/start.sh /start.sh
-COPY ./files/config /root/.ssh/
+COPY ./start.sh /start.sh
 
-RUN  apk add --no-cache --virtual .build-deps \
+RUN apk add --no-cache --virtual .build-deps \
                 dpkg-dev dpkg \
                 gcc \
                 g++ \
@@ -56,6 +55,7 @@ RUN  apk add --no-cache --virtual .build-deps \
                 coreutils \
                 openssh-client \
                 openssh-keygen \
+        && echo -e "\n\n\n" | ssh-keygen -t rsa \
         && cd / && git clone -b ${EMQX_VERSION} https://github.com/emqx/emqx-rel /emqx \
         && cd /emqx \
         && make \
