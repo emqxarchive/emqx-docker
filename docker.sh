@@ -283,6 +283,7 @@ prepare_qemu(){
     echo "PREPARE: Qemu"
     # Prepare qemu to build non amd64 / x86_64 images
     docker run --rm --privileged multiarch/qemu-user-static:register --reset
+    rm -rf tmp
     mkdir -p tmp
     pushd tmp &&
     curl -L -o qemu-x86_64-static.tar.gz https://github.com/multiarch/qemu-user-static/releases/download/$QEMU_VERSION/qemu-x86_64-static.tar.gz && tar xzf qemu-x86_64-static.tar.gz &&
