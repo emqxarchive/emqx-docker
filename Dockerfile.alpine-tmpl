@@ -65,8 +65,8 @@ RUN apk add --no-cache --virtual .build-deps \
         && ln -s /opt/emqx/bin/* /usr/local/bin/ \
         # removing fetch deps and build deps
 		&& apk --purge del .build-deps \
-        && rm -rf /var/cache/apk/* \
-        && rm -rf /usr/local/lib/erlang
+        && rm -rf /var/cache/apk/* root/.cache /tmp/* /tmp/.??* \
+        && rm -rf /usr/local/lib/erlang /usr/local/bin/rebar3
 
 
 WORKDIR /opt/emqx
