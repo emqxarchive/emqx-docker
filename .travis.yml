@@ -8,13 +8,12 @@ language:
 
 env:
   global:
-    - EMQX_VERSION=emqx30
-    - TARGET=emqx/emqx
+    - TARGET=emqx/emqx-multi-platform
     - QEMU_VERSION=v3.0.0
   matrix:
-    - DOCKER_FILE=Dockerfile.alpine-tmpl BUILD_FROM=erlang:21-alpine OS=alpine QEMU_ARCH=x86_64 ARCH=amd64
-    - DOCKER_FILE=Dockerfile.alpine-tmpl BUILD_FROM=emqx/erlang:21.2-arm32v6-alpine OS=alpine QEMU_ARCH=arm ARCH=arm32v6
-    - DOCKER_FILE=Dockerfile.alpine-tmpl BUILD_FROM=arm64v8/erlang:21-alpine OS=alpine QEMU_ARCH=aarch64 ARCH=arm64v8
+    - DOCKER_FILE=Dockerfile.alpine-tmpl BUILD_FROM=amd64/erlang:21-alpine QEMU_ARCH=x86_64 ARCH=amd64
+    - DOCKER_FILE=Dockerfile.alpine-tmpl BUILD_FROM=emqx/erlang:21.2-arm32v6-alpine QEMU_ARCH=arm ARCH=arm32v6
+    - DOCKER_FILE=Dockerfile.alpine-tmpl BUILD_FROM=arm64v8/erlang:21-alpine QEMU_ARCH=aarch64 ARCH=arm64v8
 
 before_install:
   - ./docker.sh prepare
@@ -24,6 +23,7 @@ install: true
 before_script:
     # Set BUILD_VERSION
     - if [ ! -z "${TRAVIS_TAG}" ]; then export BUILD_VERSION=${TRAVIS_TAG:1}; else export BUILD_VERSION=beta; fi
+    - if [ -z "${EMQX_VERSION}" ]; then export EMQX_VERSION=emqx30; fi
 
 script:
   # Build Docker image
@@ -34,7 +34,7 @@ script:
 
   # Push Docker image
   - >
-    if [ ! -z "${TRAVIS_TAG}" ]; then
+    if [[ ! -z $(echo $EMQX_VERSION | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?") ]]; then
       # Tag Docker image
       ./docker.sh tag
 
