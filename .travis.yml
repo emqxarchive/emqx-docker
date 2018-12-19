@@ -8,7 +8,7 @@ language:
 
 env:
   global:
-    - TARGET=emqx/emqx-multi-platform
+    - TARGET=emqx/emqx
     - QEMU_VERSION=v3.0.0
   matrix:
     - DOCKER_FILE=Dockerfile.alpine-tmpl BUILD_FROM=amd64/erlang:21-alpine QEMU_ARCH=x86_64 ARCH=amd64
