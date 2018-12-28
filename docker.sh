@@ -70,7 +70,12 @@ docker_test() {
   echo "DOCKER TEST: Test Docker image."
   echo "DOCKER TEST: testing image -> ${TARGET}:build-${ARCH}."
 
-  docker run -d --rm --name=test-${ARCH} ${TARGET}:build-${ARCH}
+  docker run -d --rm \
+    -e EMQX_ZONE__EXTERNAL__SERVER_KEEPALIVE=60 \
+    -e EMQX_MQTT__MAX_TOPIC_ALIAS=10 \
+    --network=host \
+    --name=test-${ARCH} \
+    ${TARGET}:build-${ARCH}
   if [ $? -ne 0 ]; then
      echo "DOCKER TEST: FAILED - Docker container test-${ARCH} failed to start."
      exit 1
@@ -94,6 +99,12 @@ docker_test() {
          exit 1 
      fi
      echo "DOCKER TEST: PASSED - Docker container test-${ARCH} succeeded to start."
+     # Paho test
+     docker run -it --rm --network=host  python:3.7.2-alpine3.8 \
+     sh -c 'apk add git \
+     && git clone -b master https://github.com/emqx/paho.mqtt.testing.git \
+     && cd paho.mqtt.testing/ \
+     && python interoperability/client_test5.py'
      docker rm -f test-${ARCH}
   fi
 }
