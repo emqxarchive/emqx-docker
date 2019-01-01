@@ -100,7 +100,7 @@ docker_test() {
      fi
      echo "DOCKER TEST: PASSED - Docker container test-${ARCH} succeeded to start."
      # Paho test
-     docker run -it --rm --network=host  python:3.7.2-alpine3.8 \
+     docker run -i --rm --network=host  python:3.7.2-alpine3.8 \
      sh -c 'apk add git \
      && git clone -b master https://github.com/emqx/paho.mqtt.testing.git \
      && cd paho.mqtt.testing/ \
