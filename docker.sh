@@ -125,8 +125,8 @@ docker_save() {
       echo "DOCKER TEST: FAILED - Docker no search images"
       exit 1
     fi
-    docker save ${TARGET}:${BUILD_VERSION}-${ARCH} > emqx-docker-${BUILD_VERSION}-${ARCH}
-    zip -r -m emqx-docker-${BUILD_VERSION}-${ARCH}.zip emqx-docker-${BUILD_VERSION}-${ARCH} 
+    docker save ${TARGET}:${BUILD_VERSION}-${ARCH} > emqx-edge-docker-${BUILD_VERSION}-${ARCH}
+    zip -r -m emqx-edge-docker-${BUILD_VERSION}-${ARCH}.zip emqx-edge-docker-${BUILD_VERSION}-${ARCH} 
 }
 
 docker_push() {
