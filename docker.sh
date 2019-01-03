@@ -51,6 +51,7 @@ docker_build() {
   echo "DOCKER BUILD: build from -> ${BUILD_FROM}."
   echo "DOCKER BUILD: arch - ${ARCH}."
   echo "DOCKER BUILD: qemu arch - ${QEMU_ARCH}."
+  echo "DOCKER BUILD: emqx delopy - ${EMQX_DELOPY}."
   echo "DOCKER BUILD: emqx version - ${EMQX_VERSION}."
   echo "DOCKER BUILD: docker file - ${DOCKER_FILE}."
 
@@ -61,6 +62,7 @@ docker_build() {
     --build-arg BUILD_FROM=${BUILD_FROM} \
     --build-arg ARCH=${ARCH} \
     --build-arg QEMU_ARCH=${QEMU_ARCH} \
+    --build-arg EMQX_DELOPY=${EMQX_DELOPY}
     --build-arg EMQX_VERSION=${EMQX_VERSION} \
     --file ./${DOCKER_FILE} \
     --tag ${TARGET}:build-${ARCH} .

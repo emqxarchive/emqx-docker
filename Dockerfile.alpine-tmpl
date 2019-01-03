@@ -9,6 +9,7 @@ ARG BUILD_REF
 ARG ARCH
 ARG QEMU_ARCH
 ARG EMQX_VERSION
+ARG EMQX_DELOPY
 
 # Basic build-time metadata as defined at http://label-schema.org
 LABEL org.label-schema.build-date=${BUILD_DATE} \
@@ -27,6 +28,7 @@ COPY tmp/qemu-$QEMU_ARCH-static /usr/bin/qemu-$QEMU_ARCH-static
 
 # Copy ARCHs to ENVs to make them available at runtime
 ENV ARCH=$ARCH
+ENV DELOPY=$EMQX_DELOPY
 ENV EMQX_VERSION=$EMQX_VERSION
 ENV EMQX_DEPS_DEFAULT_VSN=$EMQX_VERSION
 
