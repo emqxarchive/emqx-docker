@@ -62,7 +62,7 @@ docker_build() {
     --build-arg BUILD_FROM=${BUILD_FROM} \
     --build-arg ARCH=${ARCH} \
     --build-arg QEMU_ARCH=${QEMU_ARCH} \
-    --build-arg EMQX_DELOPY=${EMQX_DELOPY}
+    --build-arg EMQX_DELOPY=${EMQX_DELOPY} \
     --build-arg EMQX_VERSION=${EMQX_VERSION} \
     --file ./${DOCKER_FILE} \
     --tag ${TARGET}:build-${ARCH} .
