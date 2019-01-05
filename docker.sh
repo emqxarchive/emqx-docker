@@ -65,81 +65,84 @@ docker_build() {
     --build-arg EMQX_DELOPY=${EMQX_DELOPY} \
     --build-arg EMQX_VERSION=${EMQX_VERSION} \
     --file ./${DOCKER_FILE} \
-    --tag ${TARGET}:build-${ARCH} .
+    --tag ${TARGET}:build-${OS}-${ARCH} .
 }
 
 docker_test() {
   echo "DOCKER TEST: Test Docker image."
-  echo "DOCKER TEST: testing image -> ${TARGET}:build-${ARCH}."
+  echo "DOCKER TEST: testing image -> ${TARGET}:build-${OS}-${ARCH}."
 
   docker run -d --rm \
     -e EMQX_ZONE__EXTERNAL__SERVER_KEEPALIVE=60 \
     -e EMQX_MQTT__MAX_TOPIC_ALIAS=10 \
     --network=host \
-    --name=test-${ARCH} \
-    ${TARGET}:build-${ARCH}
+    --name=test-${OS}-${ARCH} \
+    ${TARGET}:build-${OS}-${ARCH}
   if [ $? -ne 0 ]; then
-     echo "DOCKER TEST: FAILED - Docker container test-${ARCH} failed to start."
+     echo "DOCKER TEST: FAILED - Docker container test-${OS}-${ARCH} failed to start."
      exit 1
   else
-     emqx_ver=$(sudo docker exec test-${ARCH} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
+     emqx_ver=$(sudo docker exec test-${OS}-${ARCH} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
      while [[  -z $emqx_ver ]]
      do
       IDLE_TIME=0
      	if [[ $IDLE_TIME -gt 5 ]]
          then
-         	  echo "DOCKER TEST: FAILED - Docker container test-${ARCH} failed to start."
+         	  echo "DOCKER TEST: FAILED - Docker container test-${OS}-${ARCH} failed to start."
             exit 1
          fi
          sleep 5
          IDLE_TIME=IDLE_TIME+1 
-         emqx_ver=$(sudo docker exec test-${ARCH} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
+         emqx_ver=$(sudo docker exec test-${OS}-${ARCH} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
      done
      if [[ ! -z $(echo $EMQX_VERSION | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?") && $EMQX_VERSION != $emqx_ver ]]
      then
-         echo "DOCKER TEST: FAILED - Docker container test-${ARCH} version error."
+         echo "DOCKER TEST: FAILED - Docker container test-${OS}-${ARCH} version error."
          exit 1 
      fi
-     echo "DOCKER TEST: PASSED - Docker container test-${ARCH} succeeded to start."
+     echo "DOCKER TEST: PASSED - Docker container test-${OS}-${ARCH} succeeded to start."
      # Paho test
      docker run -i --rm --network=host  python:3.7.2-alpine3.8 \
      sh -c 'apk add git \
      && git clone -b master https://github.com/emqx/paho.mqtt.testing.git \
      && cd paho.mqtt.testing/ \
      && python interoperability/client_test5.py'
-     docker rm -f test-${ARCH}
+     docker rm -f test-${OS}-${ARCH}
   fi
 }
 
 docker_tag() {
     echo "DOCKER TAG: Tag Docker image."
-    echo "DOCKER TAG: tagging image - ${TARGET}:${BUILD_VERSION}-${ARCH}."
-    docker tag ${TARGET}:build-${ARCH} ${TARGET}:${BUILD_VERSION}-${ARCH}
+    echo "DOCKER TAG: tagging image - ${TARGET}:${BUILD_VERSION}-${OS}-${ARCH}."
+    docker tag ${TARGET}:build-${OS}-${ARCH} ${TARGET}:${BUILD_VERSION}-${OS}-${ARCH}
 }
 
 docker_save() {
     echo "DOCKER SAVE: Save Docker image."  
-    echo "DOCKER SAVE: saveing - ${TARGET}:${BUILD_VERSION}-${ARCH}." 
-    if [[ -z $(sudo docker images| grep ${BUILD_VERSION}-${ARCH}) ]]
+    echo "DOCKER SAVE: saveing - ${TARGET}:${BUILD_VERSION}-${OS}-${ARCH}." 
+    if [[ -z $(sudo docker images| grep ${BUILD_VERSION}-${OS}-${ARCH}) ]]
     then
       echo "DOCKER TEST: FAILED - Docker no search images"
       exit 1
     fi
-    docker save ${TARGET}:${BUILD_VERSION}-${ARCH} > emqx-edge-docker-${BUILD_VERSION}-${ARCH}
-    zip -r -m emqx-edge-docker-${BUILD_VERSION}-${ARCH}.zip emqx-edge-docker-${BUILD_VERSION}-${ARCH} 
+    docker save ${TARGET}:${BUILD_VERSION}-${OS}-${ARCH} > emqx-edge-docker-${BUILD_VERSION}-${OS}-${ARCH}
+    zip -r -m emqx-edge-docker-${BUILD_VERSION}-${OS}-${ARCH}.zip emqx-edge-docker-${BUILD_VERSION}-${OS}-${ARCH} 
 }
 
 docker_push() {
   echo "DOCKER PUSH: Push Docker image."
-  echo "DOCKER PUSH: pushing - ${TARGET}:${BUILD_VERSION}-${ARCH}."
-  docker push ${TARGET}:${BUILD_VERSION}-${ARCH}
+  echo "DOCKER PUSH: pushing - ${TARGET}:${BUILD_VERSION}-${OS}-${ARCH}."
+  docker push ${TARGET}:${BUILD_VERSION}-${OS}-${ARCH}
 }
 
 docker_clear() {
   echo "DOCKER CLEAR: Clear Docker image."
-  echo "DOCKER CLEAR: Clear - ${TARGET}:${BUILD_VERSION}-${ARCH}."
-  docker rmi ${TARGET}:build-${ARCH} 
-  docker rmi ${TARGET}:${BUILD_VERSION}-${ARCH}
+  docker rmi ${TARGET}:build-alpine-amd64 
+  docker rmi ${TARGET}:build-alpine-arm32v6
+  docker rmi ${TARGET}:build-alpine-arm64v8 
+  docker rmi ${TARGET}:${BUILD_VERSION}-alpine-amd64 
+  docker rmi ${TARGET}:${BUILD_VERSION}-alpine-arm32v6 
+  docker rmi ${TARGET}:${BUILD_VERSION}-alpine-arm64v8 
 }
 
 docker_manifest_list() {
