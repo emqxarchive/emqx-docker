@@ -55,8 +55,9 @@ docker_build() {
   echo "DOCKER BUILD: emqx version - ${EMQX_VERSION}."
   echo "DOCKER BUILD: docker file - ${DOCKER_FILE}."
 
+  GIT_DESCRIBE="$(git describe --tags --always)"
   docker build --no-cache \
-    --build-arg BUILD_REF=${TRAVIS_COMMIT} \
+    --build-arg BUILD_REF=${TRAVIS_COMMIT:-${GIT_DESCRIBE}} \
     --build-arg BUILD_DATE=$(date +"%Y-%m-%dT%H:%M:%SZ") \
     --build-arg BUILD_VERSION=${BUILD_VERSION} \
     --build-arg BUILD_FROM=${BUILD_FROM} \
