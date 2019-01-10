@@ -2,13 +2,15 @@ FROM alpine:3.8
 
 MAINTAINER Huang Rui <vowstar@gmail.com>, EMQ X Team <support@emqx.io>
 
-ENV OTP_VERSION="21.0.7"
+ENV OTP_VERSION="21.2"
+ENV EMQX_VERSION=emqx30
+ENV EMQX_DEPS_DEFAULT_VSN=${EMQX_VERSION}
 
 COPY ./start.sh /start.sh
 
 RUN set -xe \
-        && OTP_DOWNLOAD_URL="https://github.com/erlang/otp/archive/OTP-${OTP_VERSION}.tar.gz" \
-        && OTP_DOWNLOAD_SHA256="4e9c98b5f29918d0896b21ce28b13c7928d4c9bd6a0c7d23b4f19b27f6e3b6f7" \
+	&& OTP_DOWNLOAD_URL="https://github.com/erlang/otp/archive/OTP-${OTP_VERSION}.tar.gz" \
+	&& OTP_DOWNLOAD_SHA256="5d2cb28232a60ce88c6478fcf5d6aa5be353555e02f3cf96ed93c9bae7522448" \
         && apk add --no-cache --virtual .fetch-deps \
                 curl \
                 bsd-compat-headers \
@@ -30,6 +32,7 @@ RUN set -xe \
                 tar \
                 git \
                 wget \
+                coreutils \
         && export ERL_TOP="/usr/src/otp_src_${OTP_VERSION%%@*}" \
         && mkdir -vp $ERL_TOP \
         && tar -xzf otp-src.tar.gz -C $ERL_TOP --strip-components=1 \
@@ -52,12 +55,9 @@ RUN set -xe \
                         | sort -u \
                         | awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
         )" \
-        && apk add --virtual .erlang-rundeps $runDeps lksctp-tools tzdata
+        && apk add --virtual .erlang-rundeps $runDeps lksctp-tools tzdata \
+        && cd / && git clone -b ${EMQX_VERSION} https://github.com/emqx/emqx-rel /emqx \
 
-ENV EMQX_VERSION=v3.0-beta.3
-
-RUN set -ex \
-        cd / && git clone -b ${EMQX_VERSION} https://github.com/emqx/emqx-rel /emqx \
         && cd /emqx \
         && make \
         && mkdir -p /opt && mv /emqx/_rel/emqx /opt/emqx \
@@ -71,9 +71,6 @@ RUN set -ex \
         && rm -rf /usr/local/lib/erlang
 
 WORKDIR /opt/emqx
-
-# start emqx and initial environments
-CMD ["/opt/emqx/start.sh"]
 
 RUN adduser -D -u 1000 emqx
 
@@ -95,3 +92,6 @@ VOLUME ["/opt/emqx/log", "/opt/emqx/data", "/opt/emqx/lib", "/opt/emqx/etc"]
 # - 5369 for gen_rpc port mapping
 # - 6369 for distributed node
 EXPOSE 1883 8883 8083 8084 8080 18083 4369 5369 6369 6000-6999
+
+# start emqx and initial environments
+CMD ["/opt/emqx/start.sh"]
