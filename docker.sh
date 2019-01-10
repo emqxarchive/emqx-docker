@@ -73,6 +73,7 @@ docker_build() {
   echo "DOCKER BUILD: build from -> ${BUILD_FROM}."
   echo "DOCKER BUILD: arch - ${ARCH}."
   echo "DOCKER BUILD: qemu arch - ${QEMU_ARCH}."
+  echo "DOCKER BUILD: docker repo - ${TARGET}. "
   echo "DOCKER BUILD: emqx delopy - ${EMQX_DELOPY}."
   echo "DOCKER BUILD: emqx version - ${EMQX_VERSION}."
 
@@ -145,8 +146,9 @@ docker_save() {
       echo "DOCKER TEST: FAILED - Docker no search images"
       exit 1
     fi
-    docker save ${TARGET}:${BUILD_VERSION}-${OS}-${ARCH} > emqx-edge-docker-${BUILD_VERSION}-${OS}-${ARCH}
-    zip -r -m emqx-edge-docker-${BUILD_VERSION}-${OS}-${ARCH}.zip emqx-edge-docker-${BUILD_VERSION}-${OS}-${ARCH} 
+    filename=${TARGET#"emqx/"}
+    docker save ${TARGET}:${BUILD_VERSION}-${OS}-${ARCH} > ${filename}-docker-${BUILD_VERSION}-${OS}-${ARCH}
+    zip -r -m ${filename}-docker-${BUILD_VERSION}-${OS}-${ARCH}.zip ${filename}-docker-${BUILD_VERSION}-${OS}-${ARCH} 
 }
 
 docker_push() {
