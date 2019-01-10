@@ -24,7 +24,7 @@ LABEL org.label-schema.build-date=${BUILD_DATE} \
     org.label-schema.vcs-url="https://github.com/emqx/emqx-docker" \
     maintainer="Raymond M Mouthaan <raymondmmouthaan@gmail.com>, Huang Rui <vowstar@gmail.com>, EMQ X Team <support@emqx.io>"
 
-# tmp/qemu... is ignored if doesn't exist (valid for amd64 builds)
+# tmp/qemu... is ignored if doesn't exist (i.e. for native builds)
 COPY ./start.sh tmp/qemu-$QEMU_ARCH-stati* /usr/bin/
 
 # Copy ARCHs to ENVs to make them available at runtime

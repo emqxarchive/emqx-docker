@@ -320,10 +320,8 @@ prepare_qemu(){
     docker run --rm --privileged multiarch/qemu-user-static:register --reset
     rm -rf tmp
     mkdir -p tmp
-    pushd tmp &&
-    curl -L -o qemu-x86_64-static.tar.gz https://github.com/multiarch/qemu-user-static/releases/download/$QEMU_VERSION/qemu-x86_64-static.tar.gz && tar xzf qemu-x86_64-static.tar.gz &&
-    curl -L -o qemu-arm-static.tar.gz https://github.com/multiarch/qemu-user-static/releases/download/$QEMU_VERSION/qemu-arm-static.tar.gz && tar xzf qemu-arm-static.tar.gz &&
-    curl -L -o qemu-aarch64-static.tar.gz https://github.com/multiarch/qemu-user-static/releases/download/$QEMU_VERSION/qemu-aarch64-static.tar.gz && tar xzf qemu-aarch64-static.tar.gz &&
+    pushd tmp
+    curl -L -o qemu-${QEMU_ARCH}-static.tar.gz "https://github.com/multiarch/qemu-user-static/releases/download/$QEMU_VERSION/qemu-${QEMU_ARCH}-static.tar.gz" && tar xzf qemu-${QEMU_ARCH}-static.tar.gz
     popd
 }
 
