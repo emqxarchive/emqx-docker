@@ -2,6 +2,20 @@
 
 set -o errexit
 
+# default globals
+TARGET="${TARGET:-emqx/emqx-edge}"
+EMQX_DELOPY="${EMQX_DELOPY:-edge}"
+BUILD_FROM="${BUILD_FROM:-amd64/erlang:21-alpine}"
+QEMU_ARCH="${QEMU_ARCH:-x86_64}"
+ARCH="${ARCH:-amd64}"
+QEMU_VERSION="${QEMU_VERSION:-v3.0.0}"
+
+# versioning
+GIT_DESCRIBE="$(git describe --tags --always)"
+TAG_VSN="$(echo "$GIT_DESCRIBE" | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?")"
+EMQX_VERSION="${EMQX_VERSION:-${TAG_VSN:-emqx30}}"
+BUILD_VERSION="${BUILD_VERSION:-${EMQX_VERSION}}"
+
 main() {
     case $1 in
         "prepare")
@@ -29,8 +43,16 @@ main() {
             docker_manifest_list
             ;;
         *)
-            echo "none of above!"
+            usage
+            exit 1
+            ;;
     esac
+}
+
+usage() {
+    echo "Usage:"
+    echo "$0 prepare"
+    echo "$0 build | test | tag | save | push | clear | manifest-list"
 }
 
 docker_prepare() {
@@ -53,10 +75,9 @@ docker_build() {
   echo "DOCKER BUILD: qemu arch - ${QEMU_ARCH}."
   echo "DOCKER BUILD: emqx delopy - ${EMQX_DELOPY}."
   echo "DOCKER BUILD: emqx version - ${EMQX_VERSION}."
-  echo "DOCKER BUILD: docker file - ${DOCKER_FILE}."
 
   docker build --no-cache \
-    --build-arg BUILD_REF=${TRAVIS_COMMIT} \
+    --build-arg BUILD_REF=${TRAVIS_COMMIT:-${GIT_DESCRIBE}} \
     --build-arg BUILD_DATE=$(date +"%Y-%m-%dT%H:%M:%SZ") \
     --build-arg BUILD_VERSION=${BUILD_VERSION} \
     --build-arg BUILD_FROM=${BUILD_FROM} \
@@ -64,7 +85,6 @@ docker_build() {
     --build-arg QEMU_ARCH=${QEMU_ARCH} \
     --build-arg EMQX_DELOPY=${EMQX_DELOPY} \
     --build-arg EMQX_VERSION=${EMQX_VERSION} \
-    --file ./${DOCKER_FILE} \
     --tag ${TARGET}:build-${OS}-${ARCH} .
 }
 

@@ -18,21 +18,20 @@ LABEL org.label-schema.build-date=${BUILD_DATE} \
     org.label-schema.name="emqx" \
     org.label-schema.version=${BUILD_VERSION} \
     org.label-schema.description="EMQ (Erlang MQTT Broker) is a distributed, massively scalable, highly extensible MQTT messaging broker written in Erlang/OTP." \
-    org.label-schema.url="http://emqtt.io" \
+    org.label-schema.url="http://emqx.io" \
     org.label-schema.vcs-ref=${BUILD_REF} \
     org.label-schema.vcs-type="Git" \
     org.label-schema.vcs-url="https://github.com/emqx/emqx-docker" \
     maintainer="Raymond M Mouthaan <raymondmmouthaan@gmail.com>, Huang Rui <vowstar@gmail.com>, EMQ X Team <support@emqx.io>"
 
-COPY tmp/qemu-$QEMU_ARCH-static /usr/bin/qemu-$QEMU_ARCH-static
+# tmp/qemu... is ignored if doesn't exist (valid for amd64 builds)
+COPY ./start.sh tmp/qemu-$QEMU_ARCH-stati* /usr/bin/
 
 # Copy ARCHs to ENVs to make them available at runtime
 ENV ARCH=$ARCH
 ENV DELOPY=$EMQX_DELOPY
 ENV EMQX_VERSION=$EMQX_VERSION
 ENV EMQX_DEPS_DEFAULT_VSN=$EMQX_VERSION
-
-COPY ./start.sh /start.sh
 
 RUN apk add --no-cache --virtual .build-deps \
                 dpkg-dev dpkg \
@@ -59,8 +58,6 @@ RUN apk add --no-cache --virtual .build-deps \
         && make \
         && mkdir -p /opt && mv /emqx/_rel/emqx /opt/emqx \
         && cd / && rm -rf /emqx \
-        && mv /start.sh /opt/emqx/start.sh \
-        && chmod +x /opt/emqx/start.sh \
         && ln -s /opt/emqx/bin/* /usr/local/bin/ \
         # removing fetch deps and build deps
 		&& apk --purge del .build-deps \
@@ -92,4 +89,4 @@ VOLUME ["/opt/emqx/log", "/opt/emqx/data", "/opt/emqx/lib", "/opt/emqx/etc"]
 EXPOSE 1883 8883 8083 8084 8080 18083 4369 5369 6369 6000-6999
 
 # start emqx and initial environments
-CMD ["/opt/emqx/start.sh"]
+CMD ["/usr/bin/start.sh"]
