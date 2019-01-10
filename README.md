@@ -1,7 +1,5 @@
 # EMQ X Docker
 
-TODO: ...
-
 *EMQ* (Erlang MQTT Broker) is a distributed, massively scalable, highly extensible MQTT messaging broker written in Erlang/OTP.
 
 Current docker image size: 37.1 MB
