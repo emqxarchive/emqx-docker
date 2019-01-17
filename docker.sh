@@ -68,7 +68,6 @@ docker_prepare() {
 }
 
 package_build() {
-  pkg=${EMQX_NAME}-alpine3.8-${ARCH}-${EMQX_VERSION}.zip
   rm -rf emqx-${ARCH}
   mkdir emqx-${ARCH}
   docker create --rm \
