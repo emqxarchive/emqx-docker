@@ -68,7 +68,7 @@ docker_prepare() {
 }
 
 package_build() {
-  $pkg=${EMQX_NAME}-${SYSTEM}-${EMQX_VERSION}.zip
+  $pkg=${EMQX_NAME}-alpine3.8-${ARCH}-${EMQX_VERSION}.zip
   docker create --rm \
     --name=${EMQX_NAME}-build-${ARCH} \
     -v "${BUILD_LOCATION}:${BUILD_LOCATION}" \
