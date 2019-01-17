@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -o errexit
+set -ex
 
 # default globals
 BUILD_LOCATION="${BUILD_LOCATION:-/opt/emq_package/enterprise}"
@@ -69,12 +69,13 @@ docker_prepare() {
 
 package_build() {
   pkg=${EMQX_NAME}-alpine3.8-${ARCH}-${EMQX_VERSION}.zip
+  rm -rf emqx-${ARCH}
+  mkdir emqx-${ARCH}
   docker create --rm \
     --name=${EMQX_NAME}-build-${ARCH} \
-    -v "${BUILD_LOCATION}:${BUILD_LOCATION}" \
+    -v "${PWD}/emqx-${ARCH}:/emqx-${ARCH}" \
     -e "SYSTEM=alpine3.8-${ARCH}" \
     -e "EMQX_VERSION=${EMQX_VERSION}" \
-    -e "BUILD_LOCATION=${BUILD_LOCATION}" \
     -e "BUILD_PROJECT=emqx" \
     -e "EMQX_NAME=${EMQX_NAME}" \
     -e "DEPLOY=${EMQX_DELOPY}" \
@@ -84,10 +85,8 @@ package_build() {
     && make distclean \
     && git checkout relx \
     && make \
-    && cd _rel \
-    && zip -rq $pkg emqx \
-    && mv $pkg ${BUILD_LOCATION}"
-    
+    && mv _rel/emqx/* /emqx-${ARCH}"
+
   docker start -i ${EMQX_NAME}-build-${ARCH}
 }
 
@@ -104,12 +103,14 @@ docker_build() {
 
   if [ ! -f ${BUILD_LOCATION}/${EMQX_NAME}-alpine3.8-${ARCH}-${EMQX_VERSION}.zip ]; then
     package_build
+  else
+    rm -rf ./emqx ./emqx-${ARCH}
+    zipname=`basename ${BUILD_LOCATION}/${EMQX_NAME}-alpine3.8-${ARCH}-${EMQX_VERSION}.zip`
+    unzip -o ${BUILD_LOCATION}/$zipname -d ./
+    mv `unzip -l ${BUILD_LOCATION}/$zipname | awk '{if(NR == 4){ print $4}}'` ./emqx-${ARCH}
   fi
 
-  rm -rf ./emqx ./emqx-${ARCH}
-  zipname=`basename ${BUILD_LOCATION}/${EMQX_NAME}-alpine3.8-${ARCH}-${EMQX_VERSION}.zip`
-  unzip -o ${BUILD_LOCATION}/$zipname -d ./
-  mv `unzip -l ${BUILD_LOCATION}/$zipname | awk '{if(NR == 4){ print $4}}'` ./emqx-${ARCH}
+  
 
   docker build --no-cache \
     --build-arg BUILD_REF=${TRAVIS_COMMIT:-${GIT_DESCRIBE}} \
