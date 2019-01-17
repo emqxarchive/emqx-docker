@@ -87,11 +87,7 @@ package_build() {
     && cd _rel \
     && zip -rq $pkg emqx \
     && mv $pkg ${BUILD_LOCATION}"
-
-  docker cp files/id_rsa ${EMQX_NAME}-build-${ARCH}:/root/.ssh/id_rsa
-  docker cp files/id_rsa.pub ${EMQX_NAME}-build-${ARCH}:/root/.ssh/id_rsa.pub
-  docker cp files/config ${EMQX_NAME}-build-${ARCH}:/root/.ssh/config
-  docker cp files/emqx_ci.sh ${EMQX_NAME}-build-${ARCH}:/emqx_ci.sh
+    
   docker start -i ${EMQX_NAME}-build-${ARCH}
 }
 
