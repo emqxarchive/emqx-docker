@@ -24,7 +24,7 @@ Execute some command under this docker image
 
 For example
 
-``docker run --rm -ti --name emqx -p 18083:18083 -p 1883:1883 emqx:latest``
+``docker run --rm -ti --name emqx -p 18083:18083 -p 1883:1883 emqx/emqx:latest``
 
 The emqx broker runs as linux user `emqx` in the docker container.
 
