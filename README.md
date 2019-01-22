@@ -6,7 +6,42 @@ TODO: ...
 
 Current docker image size: 37.1 MB
 
-### Get emqx
+### Build emqx from source
+
+```bash
+# Default globals
+export BUILD_LOCATION
+export EMQX_NAME
+export TARGET
+export EMQX_DELOPY
+export QEMU_ARCH
+export ARCH
+export QEMU_VERSION
+# Versioning
+export GIT_DESCRIBE
+export TAG_VSN
+export EMQX_VERSION
+export BUILD_VERSION
+# Before build
+./docker.sh prepare
+# Build Docker image
+./docker.sh build
+# Test Docker image
+./docker.sh test
+# Tag Docker image
+./docker.sh tag
+# Save Docker image 
+./docker.sh save
+# Push Docker image
+docker login
+./docker.sh push
+./docker.sh manifest-list
+docker logout
+# Clear Docker image
+./docker.sh clear
+```
+
+### Get emqx from the docker hub
 
 You can pull the image on the [docker hub](https://hub.docker.com/r/emqx/emqx).
 
@@ -198,5 +233,5 @@ docker run --rm -ti --name emqx -p 18083:18083 -p 1883:1883 -p 4369:4369 \
 
 ### Thanks
 
-@je-al https://github.com/emqx/emqx-docker/issues/2 The idea of variable names get mapped, dots get replaced by __.
-
++ [@je-al](https://github.com/emqx/emqx-docker/issues/2)
++ [@RaymondMouthaan](https://github.com/emqx/emqx-docker/pull/91)
