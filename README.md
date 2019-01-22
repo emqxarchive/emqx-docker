@@ -4,42 +4,41 @@ TODO: ...
 
 *EMQ* (Erlang MQTT Broker) is a distributed, massively scalable, highly extensible MQTT messaging broker written in Erlang/OTP.
 
-Current docker image size: 37.1 MB
+Current docker image size: 47 MB
 
 ### Build emqx from source
 
-```bash
-# Default globals
-export BUILD_LOCATION
-export EMQX_NAME
-export TARGET
-export EMQX_DELOPY
-export QEMU_ARCH
-export ARCH
-export QEMU_VERSION
-# Versioning
-export GIT_DESCRIBE
-export TAG_VSN
-export EMQX_VERSION
-export BUILD_VERSION
-# Before build
-./docker.sh prepare
-# Build Docker image
-./docker.sh build
-# Test Docker image
-./docker.sh test
-# Tag Docker image
-./docker.sh tag
-# Save Docker image 
-./docker.sh save
-# Push Docker image
-docker login
-./docker.sh push
-./docker.sh manifest-list
-docker logout
-# Clear Docker image
-./docker.sh clear
-```
+1. Update docker configuration to enable docker manifest command and prepare qemu to build images other then x86_64
+    ```bash
+    ./docker.sh prepare
+    ```
+2. Build Docker image
+    ```bash
+    ./docker.sh build
+    ```
+3. Test the docker image with paho
+    ```bash
+    ./docker.sh test 
+    ```
+4. Tag Docker image
+    ```bash
+    ./docker.sh tag 
+    ```
+5. Save the docker image as a zip file
+   ```bash
+    ./docker.sh save 
+    ``` 
+6. Push Docker image
+   ```bash
+    docker login
+    ./docker.sh push
+    ./docker.sh manifest-list
+    docker logout
+    ```
+7. Clean up the compiled image
+    ```bash
+    ./docker.sh clear
+    ```
 
 ### Get emqx from the docker hub
 
