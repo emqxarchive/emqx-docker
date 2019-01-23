@@ -1,10 +1,60 @@
-language: bash
-
-sudo: required
+sudo: 'required'
 
 services:
-  - docker
+  - 'docker'
+
+language:
+  - 'bash'
+
+env:
+  matrix:
+    - BUILD_FROM=amd64/erlang:21-alpine QEMU_ARCH=x86_64 ARCH=amd64
+    - BUILD_FROM=emqx/erlang:21.2-arm32v6-alpine QEMU_ARCH=arm ARCH=arm32v6
+    - BUILD_FROM=arm64v8/erlang:21-alpine QEMU_ARCH=aarch64 ARCH=arm64v8
+
+before_install:
+  - ./docker.sh prepare
+
+install: true
 
 script:
-  - sudo docker build -t emqx:latest .
+  # Build Docker image
+  - ./docker.sh build
 
+  # Test Docker image
+  - ./docker.sh test
+
+  # Push Docker image
+  - >
+    if [[ ! -z $(echo $EMQX_VERSION | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?") ]]; then
+      # Tag Docker image
+      ./docker.sh tag
+
+      # Docker Login
+      echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+
+      # Push Docker image
+      ./docker.sh push
+
+      # Docker Logout
+      docker logout
+    fi
+
+jobs:
+    include:
+        - stage: manifest
+          if: tag =~ ^v
+          script:
+              # Docker Login
+              - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+              # Create and Push Docker Manifest Lists to Docker Hub
+              - echo "Create manifest list for all docker images."
+              - ./docker.sh manifest-list
+
+              # Docker Logout
+              - docker logout
+
+# notify me when things fail
+notifications:
+    email: true
