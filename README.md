@@ -137,6 +137,7 @@ Default environment variable ``EMQX_LOADED_PLUGINS``, including
 # The default EMQX_LOADED_PLUGINS env
 EMQX_LOADED_PLUGINS="emqx_recon,emqx_retainer,emqx_management,emqx_dashboard"
 ```
+**When you need to customize the loaded plugin, ``emqx_mangement`` must be loaded in the first place.**
 
 For example, load ``emqx_auth_redis`` plugin, set it into ``EMQX_LOADED_PLUGINS`` and use any separator to separates it.
 
@@ -145,9 +146,9 @@ You can use comma, space or other separator that you want.
 All the plugin you defined in env ``EMQX_LOADED_PLUGINS`` will be loaded.
 
 ```bash
-EMQX_LOADED_PLUGINS="emqx_auth_redis,emqx_recon,emqx_retainer,emqx_dashboard"
-EMQX_LOADED_PLUGINS="emqx_auth_redis emqx_recon emqx_retainer emqx_dashboard"
-EMQX_LOADED_PLUGINS="emqx_auth_redis | emqx_recon | emqx_retainer | emqx_dashboard"
+EMQX_LOADED_PLUGINS="emqx_mangement,emqx_auth_redis,emqx_recon,emqx_retainer,emqx_dashboard"
+EMQX_LOADED_PLUGINS="emqx_mangement emqx_auth_redis emqx_recon emqx_retainer emqx_dashboard"
+EMQX_LOADED_PLUGINS="emqx_mangement | emqx_auth_redis | emqx_recon | emqx_retainer | emqx_dashboard"
 ```
 
 #### EMQ X Plugins Configuration
