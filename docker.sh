@@ -137,7 +137,7 @@ docker_test() {
   else
      emqx_ver=$(sudo docker exec test-${ARCH} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
      IDLE_TIME=0
-     while [[  -z $emqx_ver ]]
+     while [[  -z $emqx_ver || $emqx_ver=="" ]]
      do
      	if [[ $IDLE_TIME -gt 5 ]]
          then
