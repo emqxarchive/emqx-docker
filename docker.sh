@@ -125,7 +125,7 @@ docker_test() {
   echo "DOCKER TEST: Test Docker image."
   echo "DOCKER TEST: testing image -> ${TARGET}:build-${ARCH}."
 
-  docker run -d --rm \
+  docker run -d \
     -e EMQX_ZONE__EXTERNAL__SERVER_KEEPALIVE=60 \
     -e EMQX_MQTT__MAX_TOPIC_ALIAS=10 \
     --network=host \
@@ -136,9 +136,9 @@ docker_test() {
      exit 1
   else
      emqx_ver=$(sudo docker exec test-${ARCH} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
+     IDLE_TIME=0
      while [[  -z $emqx_ver ]]
      do
-      IDLE_TIME=0
      	if [[ $IDLE_TIME -gt 5 ]]
          then
          	  echo "DOCKER TEST: FAILED - Docker container test-${ARCH} failed to start."
