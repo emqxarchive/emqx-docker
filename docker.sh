@@ -201,14 +201,9 @@ docker_push() {
 
 docker_clear() {
   echo "DOCKER CLEAR: Clear Docker image."
-  [[ -n $(docker images -q ${TARGET}:build-amd64) ]] && docker rmi ${TARGET}:build-amd64 
-  [[ -n $(docker images -q ${TARGET}:build-arm32v6) ]] && docker rmi ${TARGET}:build-arm32v6
-  [[ -n $(docker images -q ${TARGET}:build-arm64v8) ]] && docker rmi ${TARGET}:build-arm64v8 
-  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-amd64) ]] && docker rmi ${TARGET}:${BUILD_VERSION}-amd64 
-  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v6) ]] && docker rmi ${TARGET}:${BUILD_VERSION}-arm32v6 
-  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]] && docker rmi ${TARGET}:${BUILD_VERSION}-arm64v8 
-  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}) ]] && docker rmi ${TARGET}:${BUILD_VERSION} 
-  [[ -n $(docker images -q ${TARGET}:lstest) ]] && docker rmi ${TARGET}: latest
+  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-amd64) ]] && docker rmi -f $(docker images -q ${TARGET}:${BUILD_VERSION}-amd64)
+  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v6) ]] && docker rmi -f $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v6) 
+  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]] && docker rmi -f $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) 
 }
 
 docker_manifest_list() {
