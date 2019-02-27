@@ -25,9 +25,7 @@ COPY start.sh tmp/qemu-$QEMU_ARCH-stati* /usr/bin/
 COPY emqx-${ARCH} /opt/emqx
 
 RUN ln -s /opt/emqx/bin/* /usr/local/bin/ 
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
-    && apk update \
-    && apk add --no-cache ncurses-libs openssl
+RUN apk add --no-cache ncurses-libs openssl
 
 WORKDIR /opt/emqx
 
