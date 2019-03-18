@@ -165,35 +165,30 @@ docker_test() {
 
 docker_tag() {
     echo "DOCKER TAG: Tag Docker image."
-    echo "DOCKER TAG: tagging image - ${TARGET}:${BUILD_VERSION}-${ARCH}."
-    docker tag ${TARGET}:build-${ARCH} ${TARGET}:${BUILD_VERSION}-${ARCH}
+    [[ -n  $(docker images -q ${TARGET}:build-arm64v8)]] &&  docker tag ${TARGET}:build-arm64v8 ${TARGET}:${BUILD_VERSION}-arm64v8
+    [[ -n  $(docker images -q ${TARGET}:build-arm32v6)]] &&  docker tag ${TARGET}:build-arm32v6 ${TARGET}:${BUILD_VERSION}-arm32v6
+    [[ -n  $(docker images -q ${TARGET}:build-amd64)]] &&  docker tag ${TARGET}:build-amd64 ${TARGET}:${BUILD_VERSION}-amd64 &&  docker tag ${TARGET}:build-amd64 ${TARGET}:${BUILD_VERSION} 
 }
 
 docker_save() {
     echo "DOCKER SAVE: Save Docker image."  
-    echo "DOCKER SAVE: saveing - ${TARGET}:${BUILD_VERSION}-${ARCH}." 
-    if [[ -z $(sudo docker images| grep ${BUILD_VERSION}-${ARCH}) ]]
-    then
-      echo "DOCKER TEST: FAILED - Docker no search images"
-      exit 1
-    fi
-    filename=${TARGET#"emqx/"}
-    docker save ${TARGET}:${BUILD_VERSION}-${ARCH} > ${filename}-docker-${BUILD_VERSION}-${ARCH}
-    zip -r -m ${filename}-docker-${BUILD_VERSION}-${ARCH}.zip ${filename}-docker-${BUILD_VERSION}-${ARCH} 
+    [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8)]] && docker save ${TARGET}:${BUILD_VERSION}-arm64v8 > ${filename}-docker-${BUILD_VERSION}-arm64v8 && zip -r -m ${filename}-docker-${BUILD_VERSION}-arm64v8.zip ${filename}-docker-${BUILD_VERSION}-arm64v8 
+    [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v6)]] && docker save ${TARGET}:${BUILD_VERSION}-arm32v6 > ${filename}-docker-${BUILD_VERSION}-arm32v6 && zip -r -m ${filename}-docker-${BUILD_VERSION}-arm32v6.zip ${filename}-docker-${BUILD_VERSION}-arm32v6
+    [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}-amd64)]] && docker save ${TARGET}:${BUILD_VERSION}-amd64 > ${filename}-docker-${BUILD_VERSION}-amd64 && zip -r -m ${filename}-docker-${BUILD_VERSION}-amd64.zip ${filename}-docker-${BUILD_VERSION}-amd64 
+    [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION})]] && docker save ${TARGET}:${BUILD_VERSION} > ${filename}-docker-${BUILD_VERSION} && zip -r -m ${filename}-docker-${BUILD_VERSION}.zip ${filename}-docker-${BUILD_VERSION}
+
 }
 
 docker_push() {
   echo "DOCKER PUSH: Push Docker image."
   echo "DOCKER PUSH: pushing - ${TARGET}:${BUILD_VERSION}."
-  [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]] && docker push ${TARGET}:${BUILD_VERSION}-arm64v8 
-  [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v6) ]] && docker push ${TARGET}:${BUILD_VERSION}-arm32v6 
-  
-  if [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-amd64) ]];then 
-    docker tag ${TARGET}:${BUILD_VERSION}-amd64 ${TARGET}:${BUILD_VERSION}
-    docker tag ${TARGET}:${BUILD_VERSION}-amd64 ${TARGET}:latest
-    
-    docker push ${TARGET}:${BUILD_VERSION}-amd64 
-    docker push ${TARGET}:${BUILD_VERSION} 
+  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]] && docker push ${TARGET}:${BUILD_VERSION}-arm64v8 
+  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v6) ]] && docker push ${TARGET}:${BUILD_VERSION}-arm32v6 
+  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-amd64) ]] && docker push ${TARGET}:${BUILD_VERSION}-amd64  
+  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}) ]] && docker push ${TARGET}:${BUILD_VERSION}
+
+  if [[ ! -z $(echo $BUILD_VERSION | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?") ]];then
+    docker tag ${TARGET}:${BUILD_VERSION} ${TARGET}:latest
     docker push ${TARGET}:latest
   fi
 }
