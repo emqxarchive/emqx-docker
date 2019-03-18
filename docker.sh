@@ -37,8 +37,8 @@ main() {
         "push")
             docker_push
             ;;
-        "clear")
-            docker_clear
+        "clean")
+            docker_clean
             ;;
         "manifest-list")
             docker_manifest_list
@@ -53,7 +53,7 @@ main() {
 usage() {
     echo "Usage:"
     echo "$0 prepare"
-    echo "$0 build | test | tag | save | push | clear | manifest-list"
+    echo "$0 build | test | tag | save | push | clean | manifest-list"
 }
 
 docker_prepare() {
@@ -165,17 +165,18 @@ docker_test() {
 
 docker_tag() {
     echo "DOCKER TAG: Tag Docker image."
-    [[ -n  $(docker images -q ${TARGET}:build-arm64v8)]] &&  docker tag ${TARGET}:build-arm64v8 ${TARGET}:${BUILD_VERSION}-arm64v8
-    [[ -n  $(docker images -q ${TARGET}:build-arm32v6)]] &&  docker tag ${TARGET}:build-arm32v6 ${TARGET}:${BUILD_VERSION}-arm32v6
-    [[ -n  $(docker images -q ${TARGET}:build-amd64)]] &&  docker tag ${TARGET}:build-amd64 ${TARGET}:${BUILD_VERSION}-amd64 &&  docker tag ${TARGET}:build-amd64 ${TARGET}:${BUILD_VERSION} 
+    [[ -n  $(docker images -q ${TARGET}:build-arm64v8) ]] && docker tag ${TARGET}:build-arm64v8 ${TARGET}:${BUILD_VERSION}-arm64v8
+    [[ -n  $(docker images -q ${TARGET}:build-arm32v6) ]] && docker tag ${TARGET}:build-arm32v6 ${TARGET}:${BUILD_VERSION}-arm32v6
+    [[ -n  $(docker images -q ${TARGET}:build-amd64) ]] &&  docker tag ${TARGET}:build-amd64 ${TARGET}:${BUILD_VERSION}-amd64 &&  docker tag ${TARGET}:build-amd64 ${TARGET}:${BUILD_VERSION} 
 }
 
 docker_save() {
     echo "DOCKER SAVE: Save Docker image."  
-    [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8)]] && docker save ${TARGET}:${BUILD_VERSION}-arm64v8 > ${filename}-docker-${BUILD_VERSION}-arm64v8 && zip -r -m ${filename}-docker-${BUILD_VERSION}-arm64v8.zip ${filename}-docker-${BUILD_VERSION}-arm64v8 
-    [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v6)]] && docker save ${TARGET}:${BUILD_VERSION}-arm32v6 > ${filename}-docker-${BUILD_VERSION}-arm32v6 && zip -r -m ${filename}-docker-${BUILD_VERSION}-arm32v6.zip ${filename}-docker-${BUILD_VERSION}-arm32v6
-    [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}-amd64)]] && docker save ${TARGET}:${BUILD_VERSION}-amd64 > ${filename}-docker-${BUILD_VERSION}-amd64 && zip -r -m ${filename}-docker-${BUILD_VERSION}-amd64.zip ${filename}-docker-${BUILD_VERSION}-amd64 
-    [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION})]] && docker save ${TARGET}:${BUILD_VERSION} > ${filename}-docker-${BUILD_VERSION} && zip -r -m ${filename}-docker-${BUILD_VERSION}.zip ${filename}-docker-${BUILD_VERSION}
+    filename=${TARGET#"emqx/"}
+    [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]] && docker save ${TARGET}:${BUILD_VERSION}-arm64v8 > ${filename}-docker-${BUILD_VERSION}-arm64v8 && zip -r -m ${filename}-docker-${BUILD_VERSION}-arm64v8.zip ${filename}-docker-${BUILD_VERSION}-arm64v8 
+    [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v6) ]] && docker save ${TARGET}:${BUILD_VERSION}-arm32v6 > ${filename}-docker-${BUILD_VERSION}-arm32v6 && zip -r -m ${filename}-docker-${BUILD_VERSION}-arm32v6.zip ${filename}-docker-${BUILD_VERSION}-arm32v6
+    [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}-amd64) ]] && docker save ${TARGET}:${BUILD_VERSION}-amd64 > ${filename}-docker-${BUILD_VERSION}-amd64 && zip -r -m ${filename}-docker-${BUILD_VERSION}-amd64.zip ${filename}-docker-${BUILD_VERSION}-amd64 
+    [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}) ]] && docker save ${TARGET}:${BUILD_VERSION} > ${filename}-docker-${BUILD_VERSION} && zip -r -m ${filename}-docker-${BUILD_VERSION}.zip ${filename}-docker-${BUILD_VERSION}
 
 }
 
@@ -194,8 +195,8 @@ docker_push() {
 }
 
 
-docker_clear() {
-  echo "DOCKER CLEAR: Clear Docker image."
+docker_clean() {
+  echo "DOCKER CLEAN: Clean Docker image."
   [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-amd64) ]] && docker rmi -f $(docker images -q ${TARGET}:${BUILD_VERSION}-amd64)
   [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v6) ]] && docker rmi -f $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v6) 
   [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]] && docker rmi -f $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) 
