@@ -160,7 +160,7 @@ echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqx start"
 # Run cluster script
 
 if [[ -x "./cluster.sh" ]]; then
-    ./cluster.sh &
+    sh ./cluster.sh &
 fi
 
 # Join an exist cluster
