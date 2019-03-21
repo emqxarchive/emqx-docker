@@ -135,7 +135,7 @@ fi
 
 # Start and run emqx, and when emqx crashed, this container will stop
 
-/opt/emqx/bin/emqx console
+/opt/emqx/bin/emqx foreground
 
 echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqx exit abnormally"
 exit 1

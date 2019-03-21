@@ -3,7 +3,7 @@
 set -ex
 
 # default globals
-BUILD_LOCATION="${BUILD_LOCATION:-/opt/emq_package/free}"
+BUILD_LOCATION="${BUILD_LOCATION:-/opt/emq_packages/free}"
 EMQX_NAME="${EMQX_NAME:-emqx}"
 TARGET="${TARGET:-emqx/emqx}"
 EMQX_DELOPY="${EMQX_DELOPY:-cloud}"
