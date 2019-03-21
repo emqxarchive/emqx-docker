@@ -97,7 +97,6 @@ These environment variables will ignore for configuration file.
 | EMQX_NAME                   | container name     | none                      | emqx node short name                   |
 | EMQX_HOST                   | container IP       | none                      | emqx node host, IP or FQDN             |
 | EMQX_WAIT_TIME              | 5                  | none                      | wait time in sec before timeout       |
-| EMQX_JOIN_CLUSTER           | none               | none                      | Initial cluster to join               |
 | EMQX_ADMIN_PASSWORD         | public             | none                      | emqx admin password                    |
 | PLATFORM_ETC_DIR            | /opt/emqx/etc      | {{ platform_etc_dir }}    | The etc directory                     |
 | PLATFORM_LOG_DIR            | /opt/emqx/log      | {{ platform_log_dir }}    | The log directory                     |

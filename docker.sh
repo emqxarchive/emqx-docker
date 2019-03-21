@@ -14,7 +14,7 @@ QEMU_VERSION="${QEMU_VERSION:-v3.0.0}"
 # versioning
 GIT_DESCRIBE="$(git describe --tags --always)"
 TAG_VSN="$(echo "$GIT_DESCRIBE" | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?")"
-EMQX_VERSION="${EMQX_VERSION:-${TAG_VSN:-emqx30}}"
+EMQX_VERSION="${EMQX_VERSION:-${TAG_VSN:-develop}}"
 BUILD_VERSION="${BUILD_VERSION:-${EMQX_VERSION}}"
 
 main() {

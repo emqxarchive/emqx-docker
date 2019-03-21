@@ -135,68 +135,7 @@ fi
 
 # Start and run emqx, and when emqx crashed, this container will stop
 
-/opt/emqx/bin/emqx start
-
-tail -f /opt/emqx/log/erlang.log.1 &
-
-# Wait and ensure emqx status is running
-WAIT_TIME=0
-while [[ -z "$(/opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $1}')" ]]
-do
-    sleep 1
-    echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:waiting emqx"
-    WAIT_TIME=$((WAIT_TIME+1))
-    if [[ $WAIT_TIME -gt $EMQX_WAIT_TIME ]]; then
-        echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:timeout error"
-        exit 1
-    fi
-done
-
-# Sleep 5 seconds to wait for the loaded plugins catch up.
-sleep 5
-
-echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqx start"
-
-# Run cluster script
-
-if [[ -x "./cluster.sh" ]]; then
-    ./cluster.sh &
-fi
-
-# Join an exist cluster
-
-if [[ ! -z "$EMQX_JOIN_CLUSTER" ]]; then
-    echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqx try join $EMQX_JOIN_CLUSTER"
-    /opt/emqx/bin/emqx_ctl cluster join $EMQX_JOIN_CLUSTER &
-fi
-
-# Change admin password
-
-if [[ ! -z "$EMQX_ADMIN_PASSWORD" ]]; then
-    echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:admin password changed to $EMQX_ADMIN_PASSWORD"
-    /opt/emqx/bin/emqx_ctl admins passwd admin $EMQX_ADMIN_PASSWORD &
-fi
-
-# monitor emqx is running, or the docker must stop to let docker PaaS know
-# warning: never use infinite loops such as `` while true; do sleep 1000; done`` here
-#          you must let user know emqx crashed and stop this container,
-#          and docker dispatching system can known and restart this container.
-IDLE_TIME=0
-while [[ $IDLE_TIME -lt 5 ]]
-do
-    IDLE_TIME=$((IDLE_TIME+1))
-    if [[ ! -z "$(/opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $1}')" ]]; then
-        IDLE_TIME=0
-    else
-        echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqx not running, waiting for recovery in $((25-IDLE_TIME*5)) seconds"
-    fi
-    sleep 5
-done
-
-# If running to here (the result 5 times not is running, thus in 25s emqx is not running), exit docker image
-# Then the high level PaaS, e.g. docker swarm mode, will know and alert, rebanlance this service
-
-# tail $(ls /opt/emqx/log/*)
+/opt/emqx/bin/emqx console
 
 echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqx exit abnormally"
 exit 1
