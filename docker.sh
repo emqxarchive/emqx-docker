@@ -3,7 +3,6 @@
 set -ex
 
 # default globals
-BUILD_LOCATION="${BUILD_LOCATION:-/opt/emq_packages/free}"
 EMQX_NAME="${EMQX_NAME:-emqx}"
 TARGET="${TARGET:-emqx/emqx}"
 EMQX_DELOPY="${EMQX_DELOPY:-cloud}"
@@ -12,10 +11,7 @@ ARCH="${ARCH:-amd64}"
 QEMU_VERSION="${QEMU_VERSION:-v3.0.0}"
 
 # versioning
-GIT_DESCRIBE="$(git describe --tags --always)"
-TAG_VSN="$(echo "$GIT_DESCRIBE" | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?")"
 EMQX_VERSION="${EMQX_VERSION:-${TAG_VSN:-develop}}"
-BUILD_VERSION="${BUILD_VERSION:-${EMQX_VERSION}}"
 
 main() {
     case $1 in
@@ -67,32 +63,9 @@ docker_prepare() {
     prepare_qemu
 }
 
-package_build() {
-  rm -rf emqx-${ARCH}
-  mkdir emqx-${ARCH}
-  docker create --rm \
-    --name=${EMQX_NAME}-build-${ARCH} \
-    -v "${PWD}/emqx-${ARCH}:/emqx-${ARCH}" \
-    -e "SYSTEM=alpine3.8-${ARCH}" \
-    -e "EMQX_VERSION=${EMQX_VERSION}" \
-    -e "BUILD_PROJECT=emqx" \
-    -e "EMQX_NAME=${EMQX_NAME}" \
-    -e "DEPLOY=${EMQX_DELOPY}" \
-    emqx/build-env:alpine3.8-${ARCH} \
-    /bin/bash -c "git clone -b $EMQX_VERSION https://github.com/emqx/emqx-rel.git /emqx_rel \
-    && cd /emqx_rel \
-    && make distclean \
-    && git checkout relx \
-    && make \
-    && mv _rel/emqx/* /emqx-${ARCH}"
-
-  docker start -i ${EMQX_NAME}-build-${ARCH}
-}
-
 docker_build() {
   # Build Docker image
   echo "DOCKER BUILD: Build Docker image."
-  echo "DOCKER BUILD: build version -> ${BUILD_VERSION}."
   echo "DOCKER BUILD: build from -> ${BUILD_FROM}."
   echo "DOCKER BUILD: arch - ${ARCH}."
   echo "DOCKER BUILD: qemu arch - ${QEMU_ARCH}."
@@ -100,21 +73,11 @@ docker_build() {
   echo "DOCKER BUILD: emqx delopy - ${EMQX_DELOPY}."
   echo "DOCKER BUILD: emqx version - ${EMQX_VERSION}."
 
-  if [ ! -f ${BUILD_LOCATION}/${EMQX_NAME}-alpine3.8-${ARCH}-${EMQX_VERSION}.zip ]; then
-    package_build
-  else
-    rm -rf ./emqx ./emqx-${ARCH}
-    zipname=`basename ${BUILD_LOCATION}/${EMQX_NAME}-alpine3.8-${ARCH}-${EMQX_VERSION}.zip`
-    unzip -o ${BUILD_LOCATION}/$zipname -d ./
-    mv `unzip -l ${BUILD_LOCATION}/$zipname | awk '{if(NR == 4){ print $4}}'` ./emqx-${ARCH}
-  fi
-
   docker build --no-cache \
-    --build-arg BUILD_REF=${TRAVIS_COMMIT:-${GIT_DESCRIBE}} \
-    --build-arg BUILD_DATE=$(date +"%Y-%m-%dT%H:%M:%SZ") \
-    --build-arg BUILD_VERSION=${BUILD_VERSION} \
-    --build-arg BUILD_FROM=${ARCH}/alpine:3.8 \
-    --build-arg ARCH=${ARCH} \
+    --build-arg EMQX_VERSION=${EMQX_VERSION} \
+    --build-arg BUILD_FROM=${ARCH}/erlang:21.3.6-alpine  \
+    --build-arg RUN_FROM=${ARCH}/alpine:3.9 \
+    --build-arg DELOPY=${EMQX_DELOPY}
     --build-arg QEMU_ARCH=${QEMU_ARCH} \
     --tag ${TARGET}:build-${ARCH} .
 }
@@ -193,7 +156,6 @@ docker_push() {
     docker push ${TARGET}:latest
   fi
 }
-
 
 docker_clean() {
   echo "DOCKER CLEAN: Clean Docker image."

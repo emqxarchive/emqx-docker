@@ -1,28 +1,48 @@
-ARG BUILD_FROM
+ARG BUILD_FROM=erlang:21.3.6-alpine 
+ARG RUN_FROM=alpine:3.9
+FROM ${BUILD_FROM} AS builder
 
-FROM $BUILD_FROM
+ARG EMQX_VERSION=develop
+ARG DEPLOY=cloud
+ARG QEMU_ARCH=x86_64
 
-ARG BUILD_DATE
-ARG BUILD_VERSION
-ARG BUILD_REF
-ARG ARCH
-ARG QEMU_ARCH
+COPY tmp/qemu-$QEMU_ARCH-stati* /usr/bin/
+
+ENV EMQX_DEPS_DEFAULT_VSN=${EMQX_VERSION}
+
+RUN apk add git \
+    curl \
+    gcc \
+    make \
+    perl \
+    ncurses-dev \
+    openssl-dev \
+    coreutils \
+    bsd-compat-headers \
+    libc-dev 
+
+RUN git clone -b ${EMQX_VERSION} https://github.com/emqx/emqx-rel.git /emqx_rel \
+    && cd /emqx_rel \
+    && make distclean \
+    && git checkout relx \
+    && make
+
+FROM $RUN_FROM
 
 # Basic build-time metadata as defined at http://label-schema.org
-LABEL org.label-schema.build-date=${BUILD_DATE} \
-    org.label-schema.docker.dockerfile="Dockerfile" \
+LABEL org.label-schema.docker.dockerfile="Dockerfile" \
     org.label-schema.license="GNU" \
     org.label-schema.name="emqx" \
-    org.label-schema.version=${BUILD_VERSION} \
+    org.label-schema.version=${EMQX_VERSION} \
     org.label-schema.description="EMQ (Erlang MQTT Broker) is a distributed, massively scalable, highly extensible MQTT messaging broker written in Erlang/OTP." \
     org.label-schema.url="http://emqx.io" \
-    org.label-schema.vcs-ref=${BUILD_REF} \
     org.label-schema.vcs-type="Git" \
     org.label-schema.vcs-url="https://github.com/emqx/emqx-docker" \
     maintainer="Raymond M Mouthaan <raymondmmouthaan@gmail.com>, Huang Rui <vowstar@gmail.com>, EMQ X Team <support@emqx.io>"
 
+ARG QEMU_ARCH=x86_64
 COPY start.sh tmp/qemu-$QEMU_ARCH-stati* /usr/bin/
-COPY emqx-${ARCH} /opt/emqx
+COPY --from=builder /emqx_rel/_rel/emqx /opt/emqx
 
 RUN ln -s /opt/emqx/bin/* /usr/local/bin/ 
 RUN apk add --no-cache ncurses-libs openssl
