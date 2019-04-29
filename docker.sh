@@ -5,10 +5,10 @@ set -ex
 # default globals
 EMQX_NAME="${EMQX_NAME:-emqx}"
 TARGET="${TARGET:-emqx/emqx}"
-EMQX_DELOPY="${EMQX_DELOPY:-cloud}"
+EMQX_DEPLOY="${EMQX_DEPLOY:-cloud}"
 QEMU_ARCH="${QEMU_ARCH:-x86_64}"
 ARCH="${ARCH:-amd64}"
-QEMU_VERSION="${QEMU_VERSION:-v3.0.0}"
+QEMU_VERSION="${QEMU_VERSION:-v3.1.0}"
 
 # versioning
 EMQX_VERSION="${EMQX_VERSION:-${TAG_VSN:-develop}}"
@@ -70,14 +70,14 @@ docker_build() {
   echo "DOCKER BUILD: arch - ${ARCH}."
   echo "DOCKER BUILD: qemu arch - ${QEMU_ARCH}."
   echo "DOCKER BUILD: docker repo - ${TARGET}. "
-  echo "DOCKER BUILD: emqx delopy - ${EMQX_DELOPY}."
+  echo "DOCKER BUILD: emqx deploy - ${EMQX_DEPLOY}."
   echo "DOCKER BUILD: emqx version - ${EMQX_VERSION}."
 
   docker build --no-cache \
-    --build-arg EMQX_VERSION=${EMQX_VERSION} \
+    --build-arg EMQX_DEPS_DEFAULT_VSN=${EMQX_VERSION} \
     --build-arg BUILD_FROM=${ARCH}/erlang:21.3.6-alpine  \
     --build-arg RUN_FROM=${ARCH}/alpine:3.9 \
-    --build-arg DELOPY=${EMQX_DELOPY}
+    --build-arg DEPLOY=${EMQX_DEPLOY} \
     --build-arg QEMU_ARCH=${QEMU_ARCH} \
     --tag ${TARGET}:build-${ARCH} .
 }

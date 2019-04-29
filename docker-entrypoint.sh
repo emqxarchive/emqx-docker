@@ -131,11 +131,4 @@ if [[ ! -z "$EMQX_LOADED_PLUGINS" ]]; then
     echo $(echo "$EMQX_LOADED_PLUGINS."|sed -e "s/^[^A-Za-z0-9_]\{1,\}//g"|sed -e "s/[^A-Za-z0-9_]\{1,\}/\. /g")|tr ' ' '\n' > /opt/emqx/data/loaded_plugins
 fi
 
-## EMQ Main script
-
-# Start and run emqx, and when emqx crashed, this container will stop
-
-/opt/emqx/bin/emqx foreground
-
-echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqx exit abnormally"
-exit 1
+exec "$@"
