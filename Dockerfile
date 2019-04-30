@@ -39,7 +39,7 @@ LABEL org.label-schema.docker.dockerfile="Dockerfile" \
     maintainer="Raymond M Mouthaan <raymondmmouthaan@gmail.com>, Huang Rui <vowstar@gmail.com>, EMQ X Team <support@emqx.io>"
 
 ARG QEMU_ARCH=x86_64
-COPY docker-entrypoint.sh tmp/qemu-$QEMU_ARCH-stati* /usr/bin/
+COPY docker-entrypoint.sh start.sh tmp/qemu-$QEMU_ARCH-stati* /usr/bin/
 COPY --from=builder /emqx_rel/_rel/emqx /opt/emqx
 
 RUN ln -s /opt/emqx/bin/* /usr/local/bin/ 
@@ -70,5 +70,4 @@ EXPOSE 1883 8883 8083 8084 8080 18083 4369 5369 6369 6000-6999
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 
-# CMD ["emqx", "foreground"]
-CMD emqx start && tail -f /opt/emqx/log/erlang.log.1
+CMD ["start.sh"]

@@ -8,7 +8,7 @@ TARGET="${TARGET:-emqx/emqx}"
 EMQX_DEPLOY="${EMQX_DEPLOY:-cloud}"
 QEMU_ARCH="${QEMU_ARCH:-x86_64}"
 ARCH="${ARCH:-amd64}"
-QEMU_VERSION="${QEMU_VERSION:-v3.1.0}"
+QEMU_VERSION="${QEMU_VERSION:-v3.0.0}"
 
 # versioning
 EMQX_VERSION="${EMQX_VERSION:-${TAG_VSN:-develop}}"
