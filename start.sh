@@ -6,6 +6,8 @@ set -e
 
 /opt/emqx/bin/emqx start
 
+tail -f /opt/emqx/log/erlang.log.1 &
+
 # Wait and ensure emqx status is running
 WAIT_TIME=0
 while [[ -z "$(/opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $1}')" ]]
@@ -28,7 +30,7 @@ echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqx start"
 # warning: never use infinite loops such as `` while true; do sleep 1000; done`` here
 #          you must let user know emqx crashed and stop this container,
 #          and docker dispatching system can known and restart this container.
-LOG_NUM=1
+NEW_LOG_NUM=2
 IDLE_TIME=0
 while [[ $IDLE_TIME -lt 5 ]]
 do  
@@ -36,10 +38,10 @@ do
     if [[ ! -z "$(/opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $1}')" ]]; then
         IDLE_TIME=0
         # Print the latest erlang.log
-        if [[ -f /opt/emqx/log/erlang.log.${LOG_NUM} ]];then
-            tail -f /opt/emqx/log/erlang.log.${LOG_NUM} &
-            [[ ! -z $(ps -ef |grep "tail -f /opt/emqx/log/erlang.log" | grep -vE "grep|erlang.log.${LOG_NUM}" | awk '{print $1}') ]] && kill $(ps -ef |grep "tail -f /opt/emqx/log/erlang.log" | grep -vE "grep|erlang.log.${LOG_NUM}" | awk '{print $1}') 
-            LOG_NUM=$((LOG_NUM+1)) 
+        if [[ -f /opt/emqx/log/erlang.log.${NEW_LOG_NUM} ]];then
+            tail -f /opt/emqx/log/erlang.log.${NEW_LOG_NUM} &
+            [[ ! -z $(ps -ef |grep "tail -f /opt/emqx/log/erlang.log" | grep -vE "grep|erlang.log.${NEW_LOG_NUM}" | awk '{print $1}') ]] && kill $(ps -ef |grep "tail -f /opt/emqx/log/erlang.log" | grep -vE "grep|erlang.log.${NEW_LOG_NUM}" | awk '{print $1}') 
+            NEW_LOG_NUM=$((NEW_LOG_NUM+1)) 
         fi
     else
         echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqx not running, waiting for recovery in $((25-IDLE_TIME*5)) seconds"
