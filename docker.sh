@@ -6,7 +6,7 @@ set -ex
 BUILD_LOCATION="${BUILD_LOCATION:-/opt/emq_packages/free}"
 EMQX_NAME="${EMQX_NAME:-emqx}"
 TARGET="${TARGET:-emqx/emqx}"
-EMQX_DELOPY="${EMQX_DELOPY:-cloud}"
+EMQX_DEPLOY="${EMQX_DEPLOY:-cloud}"
 QEMU_ARCH="${QEMU_ARCH:-x86_64}"
 ARCH="${ARCH:-amd64}"
 QEMU_VERSION="${QEMU_VERSION:-v3.0.0}"
@@ -77,7 +77,7 @@ package_build() {
     -e "EMQX_VERSION=${EMQX_VERSION}" \
     -e "BUILD_PROJECT=emqx" \
     -e "EMQX_NAME=${EMQX_NAME}" \
-    -e "DEPLOY=${EMQX_DELOPY}" \
+    -e "DEPLOY=${EMQX_DEPLOY}" \
     emqx/build-env:alpine3.8-${ARCH} \
     /bin/bash -c "git clone -b $EMQX_VERSION https://github.com/emqx/emqx-rel.git /emqx_rel \
     && cd /emqx_rel \
@@ -97,7 +97,7 @@ docker_build() {
   echo "DOCKER BUILD: arch - ${ARCH}."
   echo "DOCKER BUILD: qemu arch - ${QEMU_ARCH}."
   echo "DOCKER BUILD: docker repo - ${TARGET}. "
-  echo "DOCKER BUILD: emqx delopy - ${EMQX_DELOPY}."
+  echo "DOCKER BUILD: emqx delopy - ${EMQX_DEPLOY}."
   echo "DOCKER BUILD: emqx version - ${EMQX_VERSION}."
 
   if [ ! -f ${BUILD_LOCATION}/${EMQX_NAME}-alpine3.8-${ARCH}-${EMQX_VERSION}.zip ]; then
