@@ -58,9 +58,6 @@ docker_prepare() {
 
     # Update docker configuration to enable docker manifest command
     update_docker_configuration
-
-    # Prepare qemu to build images other then x86_64 on travis
-    prepare_qemu
 }
 
 docker_build() {
@@ -72,6 +69,9 @@ docker_build() {
   echo "DOCKER BUILD: docker repo - ${TARGET}. "
   echo "DOCKER BUILD: emqx deploy - ${EMQX_DEPLOY}."
   echo "DOCKER BUILD: emqx version - ${EMQX_VERSION}."
+
+  # Prepare qemu to build images other then x86_64 on travis
+  prepare_qemu
 
   docker build --no-cache \
     --build-arg EMQX_DEPS_DEFAULT_VSN=${EMQX_VERSION} \
@@ -304,9 +304,7 @@ prepare_qemu(){
     rm -rf tmp
     mkdir -p tmp
     pushd tmp &&
-    curl -L -o qemu-x86_64-static.tar.gz https://github.com/multiarch/qemu-user-static/releases/download/$QEMU_VERSION/qemu-x86_64-static.tar.gz && tar xzf qemu-x86_64-static.tar.gz &&
-    curl -L -o qemu-arm-static.tar.gz https://github.com/multiarch/qemu-user-static/releases/download/$QEMU_VERSION/qemu-arm-static.tar.gz && tar xzf qemu-arm-static.tar.gz &&
-    curl -L -o qemu-aarch64-static.tar.gz https://github.com/multiarch/qemu-user-static/releases/download/$QEMU_VERSION/qemu-aarch64-static.tar.gz && tar xzf qemu-aarch64-static.tar.gz &&
+    curl -L -o qemu-${QEMU_ARCH}-static.tar.gz https://github.com/multiarch/qemu-user-static/releases/download/$QEMU_VERSION/qemu-${QEMU_ARCH}-static.tar.gz && tar xzf qemu-${QEMU_ARCH}-static.tar.gz &&
     popd
 }
 
