@@ -6,7 +6,7 @@ set -e
 
 /opt/emqx/bin/emqx start
 
-tail -f /opt/emqx/log/erlang.log.1 &
+tail -f /opt/emqx/log/emqx.log.1 &
 
 # Wait and ensure emqx status is running
 WAIT_TIME=0
@@ -37,10 +37,10 @@ do
     IDLE_TIME=$((IDLE_TIME+1))
     if [[ ! -z "$(/opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $1}')" ]]; then
         IDLE_TIME=0
-        # Print the latest erlang.log
-        if [[ -f /opt/emqx/log/erlang.log.${NEW_LOG_NUM} ]];then
-            tail -f /opt/emqx/log/erlang.log.${NEW_LOG_NUM} &
-            [[ ! -z $(ps -ef |grep "tail -f /opt/emqx/log/erlang.log" | grep -vE "grep|erlang.log.${NEW_LOG_NUM}" | awk '{print $1}') ]] && kill $(ps -ef |grep "tail -f /opt/emqx/log/erlang.log" | grep -vE "grep|erlang.log.${NEW_LOG_NUM}" | awk '{print $1}') 
+        # Print the latest emqx.log
+        if [[ -f /opt/emqx/log/emqx.log.${NEW_LOG_NUM} ]];then
+            tail -f /opt/emqx/log/emqx.log.${NEW_LOG_NUM} &
+            [[ ! -z $(ps -ef |grep "tail -f /opt/emqx/log/emqx.log" | grep -vE "grep|emqx.log.${NEW_LOG_NUM}" | awk '{print $1}') ]] && kill $(ps -ef |grep "tail -f /opt/emqx/log/emqx.log" | grep -vE "grep|emqx.log.${NEW_LOG_NUM}" | awk '{print $1}') 
             NEW_LOG_NUM=$((NEW_LOG_NUM+1)) 
         fi
     else
