@@ -12,6 +12,7 @@ QEMU_VERSION="${QEMU_VERSION:-v3.0.0}"
 
 # versioning
 EMQX_VERSION="${EMQX_VERSION:-${TAG_VSN:-develop}}"
+BUILD_VERSION="${BUILD_VERSION:-${EMQX_VERSION}}"
 
 main() {
     case $1 in
@@ -145,7 +146,6 @@ docker_save() {
     [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v6) ]] && docker save ${TARGET}:${BUILD_VERSION}-arm32v6 > ${filename}-docker-${BUILD_VERSION}-arm32v6 && zip -r -m ${filename}-docker-${BUILD_VERSION}-arm32v6.zip ${filename}-docker-${BUILD_VERSION}-arm32v6
     [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}-amd64) ]] && docker save ${TARGET}:${BUILD_VERSION}-amd64 > ${filename}-docker-${BUILD_VERSION}-amd64 && zip -r -m ${filename}-docker-${BUILD_VERSION}-amd64.zip ${filename}-docker-${BUILD_VERSION}-amd64 
     [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}) ]] && docker save ${TARGET}:${BUILD_VERSION} > ${filename}-docker-${BUILD_VERSION} && zip -r -m ${filename}-docker-${BUILD_VERSION}.zip ${filename}-docker-${BUILD_VERSION}
-
 }
 
 docker_push() {
