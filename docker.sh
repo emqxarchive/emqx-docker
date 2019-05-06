@@ -86,43 +86,49 @@ docker_test() {
   echo "DOCKER TEST: Test Docker image."
   echo "DOCKER TEST: testing image -> ${TARGET}:build-${ARCH}."
 
+  name=test_emqx_docker_for_${ARCH}
+
+  docker network create emqx-net
+
   docker run -d \
     -e EMQX_ZONE__EXTERNAL__SERVER_KEEPALIVE=60 \
     -e EMQX_MQTT__MAX_TOPIC_ALIAS=10 \
-    --network=host \
-    --name=test-${ARCH} \
-    ${TARGET}:build-${ARCH}
-  if [ $? -ne 0 ]; then
-     echo "DOCKER TEST: FAILED - Docker container test-${ARCH} failed to start."
-     exit 1
-  else
-     emqx_ver=$(sudo docker exec test-${ARCH} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
-     IDLE_TIME=0
-     while [[ -z $emqx_ver ]]
-     do
-     	if [[ $IDLE_TIME -gt 10 ]]
-         then
-         	  echo "DOCKER TEST: FAILED - Docker container test-${ARCH} failed to start."
-            exit 1
-         fi
-         sleep 10
-         IDLE_TIME=$((IDLE_TIME+1))
-         emqx_ver=$(sudo docker exec test-${ARCH} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
-     done
-     if [[ ! -z $(echo $EMQX_VERSION | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?") && $EMQX_VERSION != $emqx_ver ]]
-     then
-         echo "DOCKER TEST: FAILED - Docker container test-${ARCH} version error."
-         exit 1 
-     fi
-     echo "DOCKER TEST: PASSED - Docker container test-${ARCH} succeeded to start."
-     # Paho test
-     docker run -i --rm --network=host  python:3.7.2-alpine3.8 \
-     sh -c "apk update && apk add git \
-     && git clone -b master https://github.com/emqx/paho.mqtt.testing.git \
-     && cd paho.mqtt.testing/ \
-     && python interoperability/client_test5.py"
-     docker rm -f test-${ARCH}
+    --network emqx-net \
+    --name ${name} \
+    ${TARGET}:build-${ARCH} \
+    sh -c "sed -i '/deny/'d /opt/emqx/etc/acl.conf \
+    && /usr/bin/start.sh"
+
+  [[ -z $(sudo docker exec ${name} sh -c "ls /opt/emqx/lib |grep emqx_storm") && ${EMQX_DEPLOY} == "edge" ]] && echo "emqx ${EMQX_DEPLOY} deploy error" && exit 1
+  [[ ! -z $(sudo docker exec ${name} sh -c "ls /opt/emqx/lib |grep emqx_storm") && ${EMQX_DEPLOY} == "cloud" ]] && echo "emqx ${EMQX_DEPLOY} deploy error" && exit 1
+
+  emqx_ver=$(sudo docker exec ${name} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
+  IDLE_TIME=0
+  while [[ -z $emqx_ver ]]
+  do
+  if [[ $IDLE_TIME -gt 10 ]]
+      then
+        echo "DOCKER TEST: FAILED - Docker container ${name} failed to start."
+        exit 1
+      fi
+      sleep 10
+      IDLE_TIME=$((IDLE_TIME+1))
+      emqx_ver=$(sudo docker exec ${name} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
+  done
+  if [[ ! -z $(echo $EMQX_VERSION | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?") && $EMQX_VERSION != $emqx_ver ]]
+  then
+      echo "DOCKER TEST: FAILED - Docker container ${name} version error."
+      exit 1 
   fi
+  echo "DOCKER TEST: PASSED - Docker container ${name} succeeded to start."
+  # Paho test
+  docker run -i --rm --network emqx-net python:3.7.2-alpine3.9 \
+  sh -c "apk update && apk add git \
+  && git clone -b master https://github.com/emqx/paho.mqtt.testing.git /paho.mqtt.testing \
+  && sed -i \"s/localhost/${name}/g\" /paho.mqtt.testing/interoperability/client_test5.py \
+  && python /paho.mqtt.testing/interoperability/client_test5.py"
+  docker rm -f ${name}
+  docker network rm emqx-net
 }
 
 docker_tag() {
