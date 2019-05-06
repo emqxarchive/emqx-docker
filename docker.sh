@@ -89,7 +89,7 @@ docker_test() {
 
   name=test_emqx_docker_for_${ARCH}
 
-  docker network create emqx-net
+  [[ -z $(docker network ls |grep emqx-net) ]] && docker network create emqx-net
 
   docker run -d \
     -e EMQX_ZONE__EXTERNAL__SERVER_KEEPALIVE=60 \
@@ -100,10 +100,10 @@ docker_test() {
     sh -c "sed -i '/deny/'d /opt/emqx/etc/acl.conf \
     && /usr/bin/start.sh"
 
-  [[ -z $(sudo docker exec ${name} sh -c "ls /opt/emqx/lib |grep emqx_storm") && ${EMQX_DEPLOY} == "edge" ]] && echo "emqx ${EMQX_DEPLOY} deploy error" && exit 1
-  [[ ! -z $(sudo docker exec ${name} sh -c "ls /opt/emqx/lib |grep emqx_storm") && ${EMQX_DEPLOY} == "cloud" ]] && echo "emqx ${EMQX_DEPLOY} deploy error" && exit 1
+  [[ -z $(docker exec ${name} sh -c "ls /opt/emqx/lib |grep emqx_storm") && ${EMQX_DEPLOY} == "edge" ]] && echo "emqx ${EMQX_DEPLOY} deploy error" && exit 1
+  [[ ! -z $(docker exec ${name} sh -c "ls /opt/emqx/lib |grep emqx_storm") && ${EMQX_DEPLOY} == "cloud" ]] && echo "emqx ${EMQX_DEPLOY} deploy error" && exit 1
 
-  emqx_ver=$(sudo docker exec ${name} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
+  emqx_ver=$(docker exec ${name} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
   IDLE_TIME=0
   while [[ -z $emqx_ver ]]
   do
@@ -114,7 +114,7 @@ docker_test() {
       fi
       sleep 10
       IDLE_TIME=$((IDLE_TIME+1))
-      emqx_ver=$(sudo docker exec ${name} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
+      emqx_ver=$(docker exec ${name} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
   done
   if [[ ! -z $(echo $EMQX_VERSION | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?") && $EMQX_VERSION != $emqx_ver ]]
   then
@@ -278,8 +278,8 @@ docker_manifest_list_version_os_arch() {
 setup_dependencies() {
   echo "PREPARE: Setting up dependencies."
 
-  sudo apt update -y
-  sudo apt install --only-upgrade docker-ce -y
+  apt update -y
+  apt install --only-upgrade docker-ce -y
 }
 
 update_docker_configuration() {
@@ -298,9 +298,9 @@ update_docker_configuration() {
     "storage-driver": "overlay2",
     "max-concurrent-downloads": 50,
     "max-concurrent-uploads": 50
-  }' | sudo tee /etc/docker/daemon.json
+  }' | tee /etc/docker/daemon.json
 
-  sudo service docker restart
+  service docker restart
 }
 
 prepare_qemu(){
