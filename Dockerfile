@@ -58,16 +58,17 @@ VOLUME ["/opt/emqx/log", "/opt/emqx/data", "/opt/emqx/lib", "/opt/emqx/etc"]
 
 # emqx will occupy these port:
 # - 1883 port for MQTT
-# - 8883 port for MQTT(SSL)
+# - 8080 for mgmt API
 # - 8083 for WebSocket/HTTP
 # - 8084 for WSS/HTTPS
-# - 8080 for mgmt API
+# - 8883 port for MQTT(SSL)
+# - 11883 port for internal MQTT/TCP
 # - 18083 for dashboard
 # - 4369 for port mapping
 # - 5369 for gen_rpc port mapping
 # - 6369 for distributed node
-EXPOSE 1883 8883 8083 8084 8080 18083 4369 5369 6369 6000-6999
+EXPOSE 1883 8080 8083 8084 8883 11883 18083 4369 5369 6369
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 
-CMD ["start.sh"]
+CMD ["/usr/bin/start.sh"]
