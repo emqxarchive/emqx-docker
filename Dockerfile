@@ -69,6 +69,6 @@ VOLUME ["/opt/emqx/log", "/opt/emqx/data", "/opt/emqx/lib", "/opt/emqx/etc"]
 # - 6369 for distributed node
 EXPOSE 1883 8080 8083 8084 8883 11883 18083 4369 5369 6369
 
-ENTRYPOINT ["docker-entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/docker-entrypoint.sh"]
 
 CMD ["/usr/bin/start.sh"]
