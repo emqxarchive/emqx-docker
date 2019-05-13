@@ -19,7 +19,7 @@ install: true
 
 script:
   # Build Docker image
-  - ./v3.2/docker.sh build
+  - pushd ./v3.2 && ./docker.sh build && popd
 
   # Test Docker image
   - ./v3.2/docker.sh test
