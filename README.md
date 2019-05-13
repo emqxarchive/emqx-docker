@@ -7,6 +7,10 @@ TODO: ...
 Current docker image size: 47 MB
 
 ### Build emqx from source
+0. Select the version to be created. If it is a version before 3.1, use the v3.1 directory, the version after 3.1, use the v3.2 directory.
+    ```bash
+    cd v3.2
+    ```
 
 1. Update docker configuration to enable docker manifest command and prepare qemu to build images other then x86_64
     ```bash
