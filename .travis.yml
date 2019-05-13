@@ -13,7 +13,7 @@ env:
     - BUILD_FROM=arm64v8/erlang:21-alpine QEMU_ARCH=aarch64 ARCH=arm64v8
 
 before_install:
-  - ./v3.2/docker.sh prepare
+  - sudo ./v3.2/docker.sh prepare
 
 install: true
 
