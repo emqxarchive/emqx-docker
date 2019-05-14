@@ -1,42 +1,80 @@
-# EMQ Docker
+# EMQ X Docker
 
-*EMQ* (Erlang MQTT Broker) is a distributed, massively scalable, highly extensible MQTT message broker written in Erlang/OTP.
+TODO: ...
 
-Current docker image size: 37.1 MB
+*EMQ* (Erlang MQTT Broker) is a distributed, massively scalable, highly extensible MQTT messaging broker written in Erlang/OTP.
 
-### Get emqttd
+Current docker image size: 47 MB
 
-You can build this docker image by yourself.
+### Build emqx from source
+0. Select the version to be created. If it is a version before 3.1, use the v3.1 directory, the version after 3.1, use the v3.2 directory.
+    ```bash
+    cd v3.1
+    ```
+
+1. Update docker configuration to enable docker manifest command and prepare qemu to build images other then x86_64
+    ```bash
+    ./docker.sh prepare
+    ```
+2. Build Docker image
+    ```bash
+    ./docker.sh build
+    ```
+3. Test the docker image with paho
+    ```bash
+    ./docker.sh test 
+    ```
+4. Tag Docker image
+    ```bash
+    ./docker.sh tag 
+    ```
+5. Save the docker image as a zip file
+   ```bash
+    ./docker.sh save 
+    ``` 
+6. Push Docker image
+   ```bash
+    docker login
+    ./docker.sh push
+    ./docker.sh manifest-list
+    docker logout
+    ```
+7. Clean up the compiled image
+    ```bash
+    ./docker.sh clear
+    ```
+
+### Get emqx from the docker hub
+
+You can pull the image on the [docker hub](https://hub.docker.com/r/emqx/emqx).
 
 ```bash
-git clone -b master https://github.com/emqtt/emq_docker.git
-cd emq_docker
-docker build -t emq:latest .
+docker pull emqx/emqx:latest
 ```
 
-### Run emqttd
+### Run emqx
 
 Execute some command under this docker image
 
-``docker run --rm -ti -v `pwd`:$(somewhere) emq/$(image) $(somecommand)``
+``docker run --rm -ti -v `pwd`:$(somewhere) emqx/emqx:$(tag) $(somecommand)``
 
 For example
 
-``docker run --rm -ti --name emq -p 18083:18083 -p 1883:1883 emq:latest``
+``docker run --rm -ti --name emqx -p 18083:18083 -p 1883:1883 emqx/emqx:latest``
 
-The emqtt erlang broker runs as linux user `emqtt` in the docker container.
+The emqx broker runs as linux user `emqx` in the docker container.
 
 ### Configuration
 
-Use the environment variable to configure the EMQ docker container
+Use the environment variable to configure the EMQ X docker container.
 
-The environment variables which with ``EMQ_`` prefix are mapped to configuration file, ``.`` get replaced by ``__``.
+The environment variables which with ``EMQX_`` prefix are mapped to configuration file, ``.`` get replaced by ``__``.
 
 Example:
 
 ```bash
-EMQ_LISTENER__SSL__EXTERNAL__ACCEPTORS <--> listener.ssl.external.acceptors
-EMQ_MQTT__MAX_PACKET_SIZE              <--> mqtt.max_packet_size
+EMQX_LISTENER__SSL__EXTERNAL__ACCEPTORS <--> listener.ssl.external.acceptors
+EMQX_MQTT__MAX_PACKET_SIZE              <--> mqtt.max_packet_size
 ```
 
 Also the environment variables which with ``PLATFORM_`` prefix are mapped to template string in configuration file.
@@ -48,102 +86,102 @@ PLATFORM_ETC_DIR                   <--> {{ platform_etc_dir }}
 Non mapped environment variables:
 
 ```bash
-EMQ_NAME
-EMQ_HOST
+EMQX_NAME
+EMQX_HOST
 ```
 
 These environment variables will ignore for configuration file.
 
-#### EMQ Configuration
+#### EMQ X Configuration
 
-> NOTE: All EMQ Configuration in [etc/emq.conf](https://github.com/emqtt/emqttd/blob/master/etc/emq.conf) could config by environment. The following list is just an example, not a complete configuration.
+> NOTE: All EMQ X Configuration in [etc/emqx.conf](https://github.com/emqx/emqx/blob/emqx30/etc/emqx.conf) could config by environment. The following list is just an example, not a complete configuration.
 
 | Options                    | Default            | Mapped                    | Description                           |
 | ---------------------------| ------------------ | ------------------------- | ------------------------------------- |
-| EMQ_NAME                   | container name     | none                      | emq node short name                   |
-| EMQ_HOST                   | container IP       | none                      | emq node host, IP or FQDN             |
-| EMQ_WAIT_TIME              | 5                  | none                      | wait time in sec before timeout       |
-| EMQ_JOIN_CLUSTER           | none               | none                      | Initial cluster to join               |
-| EMQ_ADMIN_PASSWORD         | public             | none                      | emq admin password                    |
-| PLATFORM_ETC_DIR           | /opt/emqtt/etc     | {{ platform_etc_dir }}    | The etc directory                     |
-| PLATFORM_LOG_DIR           | /opt/emqtt/log     | {{ platform_log_dir }}    | The log directory                     |
-| EMQ_NODE__NAME             | EMQ_NAME@EMQ_HOST  | node.name                 | Erlang node name, name@ipaddress/host |
-| EMQ_NODE__COOKIE           | emq_dist_cookie    | node.cookie               | cookie for cluster                    |
-| EMQ_LOG__CONSOLE           | console            | log.console               | log console output method             |
-| EMQ_MQTT__ALLOW_ANONYMOUS  | true               | mqtt.allow_anonymous      | allow mqtt anonymous login            |
-| EMQ_LISTENER__TCP__EXTERNAL| 1883               | listener.tcp.external     | MQTT TCP port                         |
-| EMQ_LISTENER__SSL__EXTERNAL| 8883               | listener.ssl.external     | MQTT TCP TLS/SSL port                 |
-| EMQ_LISTENER__WS__EXTERNAL | 8083               | listener.ws.external      | HTTP and WebSocket port               |
-| EMQ_LISTENER__WSS__EXTERNAL| 8084               | listener.wss.external     | HTTPS and WSS port                    |
-| EMQ_LISTENER__API__MGMT    | 8080               | listener.api.mgmt         | mgmt API  port                        |
-| EMQ_MQTT__MAX_PACKET_SIZE  | 64KB               | mqtt.max_packet_size      | Max Packet Size Allowed               |
+| EMQX_NAME                   | container name     | none                      | emqx node short name                   |
+| EMQX_HOST                   | container IP       | none                      | emqx node host, IP or FQDN             |
+| EMQX_WAIT_TIME              | 5                  | none                      | wait time in sec before timeout       |
+| EMQX_ADMIN_PASSWORD         | public             | none                      | emqx admin password                    |
+| PLATFORM_ETC_DIR            | /opt/emqx/etc      | {{ platform_etc_dir }}    | The etc directory                     |
+| PLATFORM_LOG_DIR            | /opt/emqx/log      | {{ platform_log_dir }}    | The log directory                     |
+| EMQX_NODE__NAME             | EMQX_NAME@EMQX_HOST| node.name                 | Erlang node name, name@ipaddress/host |
+| EMQX_NODE__COOKIE           | emqx_dist_cookie    | node.cookie               | cookie for cluster                    |
+| EMQX_LOG__CONSOLE           | console            | log.console               | log console output method             |
+| EMQX_ALLOW_ANONYMOUS        | true               | allow_anonymous           | allow mqtt anonymous login            |
+| EMQX_LISTENER__TCP__EXTERNAL| 1883               | listener.tcp.external     | MQTT TCP port                         |
+| EMQX_LISTENER__SSL__EXTERNAL| 8883               | listener.ssl.external     | MQTT TCP TLS/SSL port                 |
+| EMQX_LISTENER__WS__EXTERNAL | 8083               | listener.ws.external      | HTTP and WebSocket port               |
+| EMQX_LISTENER__WSS__EXTERNAL| 8084               | listener.wss.external     | HTTPS and WSS port                    |
+| EMQX_LISTENER__API__MGMT    | 8080               | listener.api.mgmt         | MGMT API  port                        |
+| EMQX_MQTT__MAX_PACKET_SIZE  | 64KB               | mqtt.max_packet_size      | Max Packet Size Allowed               |
 
-The list is incomplete and may changed with [etc/emq.conf](https://github.com/emqtt/emqttd/blob/master/etc/emq.conf) and plugin configuration files. But the mapping rule is similar.
+The list is incomplete and may changed with [etc/emqx.conf](https://github.com/emqx/emqx/blob/emqx30/etc/emqx.conf) and plugin configuration files. But the mapping rule is similar.
 
-If set ``EMQ_NAME`` and ``EMQ_HOST``, and unset ``EMQ_NODE__NAME``, ``EMQ_NODE__NAME=$EMQ_NAME@$EMQ_HOST``.
+If set ``EMQX_NAME`` and ``EMQX_HOST``, and unset ``EMQX_NODE__NAME``, ``EMQX_NODE__NAME=$EMQX_NAME@$EMQX_HOST``.
 
 For example, set mqtt tcp port to 1883
 
-``docker run --rm -ti --name emq -e EMQ_LISTENER__TCP__EXTERNAL=1883 -p 18083:18083 -p 1883:1883 emq:latest``
+``docker run --rm -ti --name emqx -e EMQX_LISTENER__TCP__EXTERNAL=1883 -p 18083:18083 -p 1883:1883 emqx/emqx:latest``
 
 #### EMQ Loaded Plugins Configuration
 
 | Oprtions                 | Default            | Description                           |
 | ------------------------ | ------------------ | ------------------------------------- |
-| EMQ_LOADED_PLUGINS       | see content below  | default plugins emq loaded            |
+| EMQX_LOADED_PLUGINS       | see content below  | default plugins emqx loaded            |
 
-Default environment variable ``EMQ_LOADED_PLUGINS``, including
+Default environment variable ``EMQX_LOADED_PLUGINS``, including
 
-- ``emq_recon``
-- ``emq_modules``
-- ``emq_retainer``
-- ``emq_dashboard``
+- ``emqx_recon``
+- ``emqx_retainer``
+- ``emqx_management``
+- ``emqx_dashboard``
 
 ```bash
-# The default EMQ_LOADED_PLUGINS env
-EMQ_LOADED_PLUGINS="emq_recon,emq_modules,emq_retainer,emq_dashboard"
+# The default EMQX_LOADED_PLUGINS env
+EMQX_LOADED_PLUGINS="emqx_recon,emqx_retainer,emqx_management,emqx_dashboard"
 ```
+**When you need to customize the loaded plugin, ``emqx_management`` must be loaded in the first place.**
 
-For example, load ``emq_auth_redis`` plugin, set it into ``EMQ_LOADED_PLUGINS`` and use any separator to separates it.
+For example, load ``emqx_auth_redis`` plugin, set it into ``EMQX_LOADED_PLUGINS`` and use any separator to separates it.
 
 You can use comma, space or other separator that you want.
 
-All the plugin you defined in env ``EMQ_LOADED_PLUGINS`` will be loaded.
+All the plugin you defined in env ``EMQX_LOADED_PLUGINS`` will be loaded.
 
 ```bash
-EMQ_LOADED_PLUGINS="emq_auth_redis,emq_recon,emq_modules,emq_retainer,emq_dashboard"
-EMQ_LOADED_PLUGINS="emq_auth_redis emq_recon emq_modules emq_retainer emq_dashboard"
-EMQ_LOADED_PLUGINS="emq_auth_redis | emq_recon | emq_modules | emq_retainer | emq_dashboard"
+EMQX_LOADED_PLUGINS="emqx_management,emqx_auth_redis,emqx_recon,emqx_retainer,emqx_dashboard"
+EMQX_LOADED_PLUGINS="emqx_management emqx_auth_redis emqx_recon emqx_retainer emqx_dashboard"
+EMQX_LOADED_PLUGINS="emqx_management | emqx_auth_redis | emqx_recon | emqx_retainer | emqx_dashboard"
 ```
 
-#### EMQ Plugin Configuration
+#### EMQ X Plugins Configuration
 
-The environment variables which with ``EMQ_`` prefix are mapped to all emq plugins' configuration file, ``.`` get replaced by ``__``.
+The environment variables which with ``EMQX_`` prefix are mapped to all emqx plugins' configuration file, ``.`` get replaced by ``__``.
 
 Example:
 
 ```bash
-EMQ_AUTH__REDIS__SERVER   <--> auth.redis.server
-EMQ_AUTH__REDIS__PASSWORD <--> auth.redis.password
+EMQX_AUTH__REDIS__SERVER   <--> auth.redis.server
+EMQX_AUTH__REDIS__PASSWORD <--> auth.redis.password
 ```
 
-Don't worry about where to find the configuration file of emq plugins, this docker image will find and config them automatically using some magic.
+Don't worry about where to find the configuration file of emqx plugins, this docker image will find and config them automatically using some magic.
 
-All plugin of emq project could config in this way, following the environment variables mapping rule above.
+All plugin of emqx project could config in this way, following the environment variables mapping rule above.
 
 Assume you are using redis auth plugin, for example:
 
 ```bash
-#EMQ_AUTH__REDIS__SERVER="redis.at.yourserver"
-#EMQ_AUTH__REDIS__PASSWORD="password_for_redis"
+#EMQX_AUTH__REDIS__SERVER="redis.at.yourserver"
+#EMQX_AUTH__REDIS__PASSWORD="password_for_redis"
 
-docker run --rm -ti --name emq -p 18083:18083 -p 1883:1883 -p 4369:4369 \
-    -e EMQ_LISTENER__TCP__EXTERNAL=1883 \
-    -e EMQ_LOADED_PLUGINS="emq_auth_redis,emq_recon,emq_modules,emq_retainer,emq_dashboard" \
-    -e EMQ_AUTH__REDIS__SERVER="your.redis.server:6379" \
-    -e EMQ_AUTH__REDIS__PASSWORD="password_for_redis" \
-    -e EMQ_AUTH__REDIS__PASSWORD_HASH=plain \
-    emq:latest
+docker run --rm -ti --name emqx -p 18083:18083 -p 1883:1883 -p 4369:4369 \
+    -e EMQX_LISTENER__TCP__EXTERNAL=1883 \
+    -e EMQX_LOADED_PLUGINS="emqx_auth_redis,emqx_recon,emqx_retainer,emqx_management,emqx_dashboard" \
+    -e EMQX_AUTH__REDIS__SERVER="your.redis.server:6379" \
+    -e EMQX_AUTH__REDIS__PASSWORD="password_for_redis" \
+    -e EMQX_AUTH__REDIS__PASSWORD_HASH=plain \
+    emqx/emqx:latest
 
 ```
 
@@ -151,18 +189,18 @@ docker run --rm -ti --name emq -p 18083:18083 -p 1883:1883 -p 4369:4369 \
 
 You can specify a initial cluster and join.
 
-> Note: You must publsh port 4369 and range of port 6000-6999 for EMQ Clustered.
+> Note: You must publsh port 4369, 5369 and range of port 6000-6999 for EMQ X Cluster.
 
 For example, using 6000-6100 for cluster.
 
 ```bash
 
-docker run --rm -ti --name emq -p 18083:18083 -p 1883:1883 -p 4369:4369 -p 6000-6100:6000-6100 \
-    -e EMQ_NAME="emq" \
-    -e EMQ_HOST="s2.emqtt.io" \
-    -e EMQ_LISTENER__TCP__EXTERNAL=1883 \
-    -e EMQ_JOIN_CLUSTER="emq@s1.emqtt.io" \
-    emq:latest
+docker run --rm -ti --name emqx -p 18083:18083 -p 1883:1883 -p 4369:4369 -p 6000-6100:6000-6100 \
+    -e EMQX_NAME="emqx" \
+    -e EMQX_HOST="t.emqx.io" \
+    -e EMQX_LISTENER__TCP__EXTERNAL=1883 \
+    -e EMQX_JOIN_CLUSTER="emqx@t.emqx.io" \
+    emqx/emqx:latest
 
 ```
 
@@ -174,7 +212,7 @@ If you want tune linux kernel by docker, you must ensure your docker is latest v
 
 ```bash
 
-docker run --rm -ti --name emq -p 18083:18083 -p 1883:1883 -p 4369:4369 \
+docker run --rm -ti --name emqx -p 18083:18083 -p 1883:1883 -p 4369:4369 \
     --sysctl fs.file-max=2097152 \
     --sysctl fs.nr_open=2097152 \
     --sysctl net.core.somaxconn=32768 \
@@ -190,12 +228,13 @@ docker run --rm -ti --name emq -p 18083:18083 -p 1883:1883 -p 4369:4369 \
     --sysctl net.ipv4.tcp_wmem=1024 4096 16777216 \
     --sysctl net.ipv4.tcp_max_tw_buckets=1048576 \
     --sysctl net.ipv4.tcp_fin_timeout=15 \
-    emq:latest
+    emqx/emqx:latest
 
 ```
 
-> REMEMBER: DO NOT RUN EMQ DOCKER PRIVILEGED OR MOUNT SYSTEM PROC IN CONTAINER TO TUNE LINUX KERNEL, IT IS UNSAFE.
+> REMEMBER: DO NOT RUN EMQ X DOCKER PRIVILEGED OR MOUNT SYSTEM PROC IN CONTAINER TO TUNE LINUX KERNEL, IT IS UNSAFE.
 
 ### Thanks
 
-@je-al https://github.com/emqtt/emq-docker/issues/2 The idea of variable names get mapped, dots get replaced by __.
++ [@je-al](https://github.com/emqx/emqx-docker/issues/2)
++ [@RaymondMouthaan](https://github.com/emqx/emqx-docker/pull/91)
