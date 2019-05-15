@@ -133,16 +133,18 @@ docker_test() {
 
 docker_tag() {
     echo "DOCKER TAG: Tag Docker image."
+    [[ -n  $(docker images -q ${TARGET}:build-i386) ]] && docker tag ${TARGET}:build-i386 ${TARGET}:${BUILD_VERSION}-i386
+    [[ -n  $(docker images -q ${TARGET}:build-arm32v7) ]] && docker tag ${TARGET}:build-arm32v7 ${TARGET}:${BUILD_VERSION}-arm32v7
     [[ -n  $(docker images -q ${TARGET}:build-arm64v8) ]] && docker tag ${TARGET}:build-arm64v8 ${TARGET}:${BUILD_VERSION}-arm64v8
-    [[ -n  $(docker images -q ${TARGET}:build-arm32v6) ]] && docker tag ${TARGET}:build-arm32v6 ${TARGET}:${BUILD_VERSION}-arm32v6
     [[ -n  $(docker images -q ${TARGET}:build-amd64) ]] &&  docker tag ${TARGET}:build-amd64 ${TARGET}:${BUILD_VERSION}-amd64 &&  docker tag ${TARGET}:build-amd64 ${TARGET}:${BUILD_VERSION} 
 }
 
 docker_save() {
     echo "DOCKER SAVE: Save Docker image."  
     filename=${TARGET#"emqx/"}
+    [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}-i386) ]] && docker save ${TARGET}:${BUILD_VERSION}-i386 > ${filename}-docker-${BUILD_VERSION}-i386 && zip -r -m ${filename}-docker-${BUILD_VERSION}-i386.zip ${filename}-docker-${BUILD_VERSION}-i386
+    [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v7) ]] && docker save ${TARGET}:${BUILD_VERSION}-arm32v7 > ${filename}-docker-${BUILD_VERSION}-arm32v7 && zip -r -m ${filename}-docker-${BUILD_VERSION}-arm32v7.zip ${filename}-docker-${BUILD_VERSION}-arm32v7
     [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]] && docker save ${TARGET}:${BUILD_VERSION}-arm64v8 > ${filename}-docker-${BUILD_VERSION}-arm64v8 && zip -r -m ${filename}-docker-${BUILD_VERSION}-arm64v8.zip ${filename}-docker-${BUILD_VERSION}-arm64v8 
-    [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v6) ]] && docker save ${TARGET}:${BUILD_VERSION}-arm32v6 > ${filename}-docker-${BUILD_VERSION}-arm32v6 && zip -r -m ${filename}-docker-${BUILD_VERSION}-arm32v6.zip ${filename}-docker-${BUILD_VERSION}-arm32v6
     [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}-amd64) ]] && docker save ${TARGET}:${BUILD_VERSION}-amd64 > ${filename}-docker-${BUILD_VERSION}-amd64 && zip -r -m ${filename}-docker-${BUILD_VERSION}-amd64.zip ${filename}-docker-${BUILD_VERSION}-amd64 
     [[ -n  $(docker images -q ${TARGET}:${BUILD_VERSION}) ]] && docker save ${TARGET}:${BUILD_VERSION} > ${filename}-docker-${BUILD_VERSION} && zip -r -m ${filename}-docker-${BUILD_VERSION}.zip ${filename}-docker-${BUILD_VERSION}
 }
@@ -150,8 +152,9 @@ docker_save() {
 docker_push() {
   echo "DOCKER PUSH: Push Docker image."
   echo "DOCKER PUSH: pushing - ${TARGET}:${BUILD_VERSION}."
+  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-i386) ]] && docker push ${TARGET}:${BUILD_VERSION}-i386 
+  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v7) ]] && docker push ${TARGET}:${BUILD_VERSION}-arm32v7 
   [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]] && docker push ${TARGET}:${BUILD_VERSION}-arm64v8 
-  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v6) ]] && docker push ${TARGET}:${BUILD_VERSION}-arm32v6 
   [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-amd64) ]] && docker push ${TARGET}:${BUILD_VERSION}-amd64  
   [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}) ]] && docker push ${TARGET}:${BUILD_VERSION}
 
@@ -163,9 +166,10 @@ docker_push() {
 
 docker_clean() {
   echo "DOCKER CLEAN: Clean Docker image."
-  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-amd64) ]] && docker rmi -f $(docker images -q ${TARGET}:${BUILD_VERSION}-amd64)
-  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v6) ]] && docker rmi -f $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v6) 
+  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-i386) ]] && docker rmi -f $(docker images -q ${TARGET}:${BUILD_VERSION}-i386) 
+  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v7) ]] && docker rmi -f $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v7) 
   [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]] && docker rmi -f $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) 
+  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-amd64) ]] && docker rmi -f $(docker images -q ${TARGET}:${BUILD_VERSION}-amd64)
 }
 
 docker_manifest_list() {
@@ -188,10 +192,16 @@ docker_manifest_list() {
 docker_manifest_list_version() {
   # Manifest Create BUILD_VERSION
   echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${BUILD_VERSION}."
-  if [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v6) ]] && [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]];then
+  if [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-i386) ]] && [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v7) ]] && [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]];then
     docker manifest create --amend ${TARGET}:${BUILD_VERSION} \
       ${TARGET}:${BUILD_VERSION}-amd64 \
-      ${TARGET}:${BUILD_VERSION}-arm32v6 \
+      ${TARGET}:${BUILD_VERSION}-arm32v7 \
+      ${TARGET}:${BUILD_VERSION}-arm64v8 \
+      ${TARGET}:${BUILD_VERSION}-i386
+  elif [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v7) ]] && [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]];then
+    docker manifest create --amend ${TARGET}:${BUILD_VERSION} \
+      ${TARGET}:${BUILD_VERSION}-amd64 \
+      ${TARGET}:${BUILD_VERSION}-arm32v7 \
       ${TARGET}:${BUILD_VERSION}-arm64v8
   elif [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]];then
     docker manifest create --amend ${TARGET}:${BUILD_VERSION} \
@@ -203,7 +213,8 @@ docker_manifest_list_version() {
   fi
 
   # Manifest Annotate BUILD_VERSION
-  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v6) ]] && docker manifest annotate ${TARGET}:${BUILD_VERSION} ${TARGET}:${BUILD_VERSION}-arm32v6 --os=linux --arch=arm --variant=v6
+  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-i386) ]] && docker manifest annotate ${TARGET}:${BUILD_VERSION} ${TARGET}:${BUILD_VERSION}-i386 --os=linux --arch=i386
+  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v7) ]] && docker manifest annotate ${TARGET}:${BUILD_VERSION} ${TARGET}:${BUILD_VERSION}-arm32v7 --os=linux --arch=arm --variant=v7
   [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]] && docker manifest annotate ${TARGET}:${BUILD_VERSION} ${TARGET}:${BUILD_VERSION}-arm64v8 --os=linux --arch=arm64 --variant=v8
 
   # Manifest Push BUILD_VERSION
@@ -213,10 +224,16 @@ docker_manifest_list_version() {
 docker_manifest_list_latest() {
   # Manifest Create latest
   echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:latest."
-  if [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v6) ]] && [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]];then
+  if [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-i386) ]] && [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v7) ]] && [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]];then
     docker manifest create --amend ${TARGET}:latest \
       ${TARGET}:${BUILD_VERSION}-amd64 \
-      ${TARGET}:${BUILD_VERSION}-arm32v6 \
+      ${TARGET}:${BUILD_VERSION}-arm32v7 \
+      ${TARGET}:${BUILD_VERSION}-arm64v8 \
+      ${TARGET}:${BUILD_VERSION}-i386
+  elif [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v7) ]] && [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]];then
+    docker manifest create --amend ${TARGET}:latest \
+      ${TARGET}:${BUILD_VERSION}-amd64 \
+      ${TARGET}:${BUILD_VERSION}-arm32v7 \
       ${TARGET}:${BUILD_VERSION}-arm64v8
   elif [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]];then
     docker manifest create --amend ${TARGET}:latest \
@@ -226,10 +243,10 @@ docker_manifest_list_latest() {
     docker manifest create --amend ${TARGET}:latest \
     ${TARGET}:${BUILD_VERSION}-amd64 
   fi
-  
 
   # Manifest Annotate BUILD_VERSION
-  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v6) ]] && docker manifest annotate ${TARGET}:latest ${TARGET}:${BUILD_VERSION}-arm32v6 --os=linux --arch=arm --variant=v6
+  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-i386) ]] && docker manifest annotate ${TARGET}:latest ${TARGET}:${BUILD_VERSION}-i386 --os=linux --arch=i386
+  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v7) ]] && docker manifest annotate ${TARGET}:latest ${TARGET}:${BUILD_VERSION}-arm32v7 --os=linux --arch=arm --variant=v7
   [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]] && docker manifest annotate ${TARGET}:latest ${TARGET}:${BUILD_VERSION}-arm64v8 --os=linux --arch=arm64 --variant=v8
 
   # Manifest Push BUILD_VERSION
@@ -247,17 +264,17 @@ docker_manifest_list_version_os_arch() {
     docker manifest push ${TARGET}:${BUILD_VERSION}-amd64
   fi
 
-  if [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v6) ]];then
-    # Manifest Create alpine-arm32v6
-    echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${BUILD_VERSION}-arm32v6."
-    docker manifest create --amend ${TARGET}:${BUILD_VERSION}-arm32v6 \
-      ${TARGET}:${BUILD_VERSION}-arm32v6
+  if [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v7) ]];then
+    # Manifest Create alpine-arm32v7
+    echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${BUILD_VERSION}-arm32v7."
+    docker manifest create --amend ${TARGET}:${BUILD_VERSION}-arm32v7 \
+      ${TARGET}:${BUILD_VERSION}-arm32v7
 
-    # Manifest Annotate alpine-arm32v6
-    docker manifest annotate ${TARGET}:${BUILD_VERSION}-arm32v6 ${TARGET}:${BUILD_VERSION}-arm32v6 --os=linux --arch=arm --variant=v6
+    # Manifest Annotate alpine-arm32v7
+    docker manifest annotate ${TARGET}:${BUILD_VERSION}-arm32v7 ${TARGET}:${BUILD_VERSION}-arm32v7 --os=linux --arch=arm --variant=v7
 
-    # Manifest Push alpine-arm32v6
-    docker manifest push ${TARGET}:${BUILD_VERSION}-arm32v6
+    # Manifest Push alpine-arm32v7
+    docker manifest push ${TARGET}:${BUILD_VERSION}-arm32v7
   fi
 
   if [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]];then
@@ -271,6 +288,16 @@ docker_manifest_list_version_os_arch() {
 
     # Manifest Push alpine-arm64v8
     docker manifest push ${TARGET}:${BUILD_VERSION}-arm64v8
+  fi
+
+  if [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-i386) ]];then
+    # Manifest Create alpine-i386
+    echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${BUILD_VERSION}-i386."
+    docker manifest create --amend ${TARGET}:${BUILD_VERSION}-i386 \
+      ${TARGET}:${BUILD_VERSION}-i386
+
+    # Manifest Push alpine-i386
+    docker manifest push ${TARGET}:${BUILD_VERSION}-i386
   fi
 }
 
