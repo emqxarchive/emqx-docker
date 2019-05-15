@@ -213,7 +213,7 @@ docker_manifest_list_version() {
   fi
 
   # Manifest Annotate BUILD_VERSION
-  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-i386) ]] && docker manifest annotate ${TARGET}:${BUILD_VERSION} ${TARGET}:${BUILD_VERSION}-i386 --os=linux --arch=i386
+  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-i386) ]] && docker manifest annotate ${TARGET}:${BUILD_VERSION} ${TARGET}:${BUILD_VERSION}-i386 --os=linux --arch=386
   [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v7) ]] && docker manifest annotate ${TARGET}:${BUILD_VERSION} ${TARGET}:${BUILD_VERSION}-arm32v7 --os=linux --arch=arm --variant=v7
   [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]] && docker manifest annotate ${TARGET}:${BUILD_VERSION} ${TARGET}:${BUILD_VERSION}-arm64v8 --os=linux --arch=arm64 --variant=v8
 
@@ -245,7 +245,7 @@ docker_manifest_list_latest() {
   fi
 
   # Manifest Annotate BUILD_VERSION
-  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-i386) ]] && docker manifest annotate ${TARGET}:latest ${TARGET}:${BUILD_VERSION}-i386 --os=linux --arch=i386
+  [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-i386) ]] && docker manifest annotate ${TARGET}:latest ${TARGET}:${BUILD_VERSION}-i386 --os=linux --arch=386
   [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm32v7) ]] && docker manifest annotate ${TARGET}:latest ${TARGET}:${BUILD_VERSION}-arm32v7 --os=linux --arch=arm --variant=v7
   [[ -n $(docker images -q ${TARGET}:${BUILD_VERSION}-arm64v8) ]] && docker manifest annotate ${TARGET}:latest ${TARGET}:${BUILD_VERSION}-arm64v8 --os=linux --arch=arm64 --variant=v8
 
