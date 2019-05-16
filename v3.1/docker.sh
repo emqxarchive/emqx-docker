@@ -86,7 +86,7 @@ docker_test() {
 
   name=test_emqx_docker_for_${ARCH}
 
-  [[ -z $(docker network ls |grep emqx-net) ]] && docker network create emqx-net
+  [ -z $(docker network ls |grep emqx-net) ] && docker network create emqx-net
 
   docker run -d \
     -e EMQX_ZONE__EXTERNAL__SERVER_KEEPALIVE=60 \
@@ -97,14 +97,14 @@ docker_test() {
     sh -c "sed -i '/deny/'d /opt/emqx/etc/acl.conf \
     && /usr/bin/start.sh"
 
-  [[ -z $(docker exec ${name} sh -c "ls /opt/emqx/lib |grep emqx_storm") && ${EMQX_DEPLOY} == "edge" ]] && echo "emqx ${EMQX_DEPLOY} deploy error" && exit 1
-  [[ ! -z $(docker exec ${name} sh -c "ls /opt/emqx/lib |grep emqx_storm") && ${EMQX_DEPLOY} == "cloud" ]] && echo "emqx ${EMQX_DEPLOY} deploy error" && exit 1
+  [ -z $(docker exec ${name} sh -c "ls /opt/emqx/lib |grep emqx_storm") && ${EMQX_DEPLOY} == "edge" ] && echo "emqx ${EMQX_DEPLOY} deploy error" && exit 1
+  [ ! -z $(docker exec ${name} sh -c "ls /opt/emqx/lib |grep emqx_storm") && ${EMQX_DEPLOY} == "cloud" ] && echo "emqx ${EMQX_DEPLOY} deploy error" && exit 1
 
   emqx_ver=$(docker exec ${name} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
   IDLE_TIME=0
-  while [[ -z $emqx_ver ]]
+  while [ -z $emqx_ver ]
   do
-  if [[ $IDLE_TIME -gt 10 ]]
+  if [ $IDLE_TIME -gt 10 ]
       then
         echo "DOCKER TEST: FAILED - Docker container ${name} failed to start."
         exit 1
@@ -113,7 +113,7 @@ docker_test() {
       IDLE_TIME=$((IDLE_TIME+1))
       emqx_ver=$(docker exec ${name} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
   done
-  if [[ ! -z $(echo $EMQX_VERSION | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?") && $EMQX_VERSION != $emqx_ver ]]
+  if [ ! -z $(echo $EMQX_VERSION | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?") && $EMQX_VERSION != $emqx_ver ]
   then
       echo "DOCKER TEST: FAILED - Docker container ${name} version error."
       exit 1 
@@ -131,35 +131,35 @@ docker_test() {
 
 docker_tag() {
     echo "DOCKER TAG: Tag Docker image."
-    [[ -n  $(docker images -q ${TARGET}:build-s390x) ]] && docker tag ${TARGET}:build-s390x ${TARGET}:${EMQX_VERSION}-s390x
-    [[ -n  $(docker images -q ${TARGET}:build-i386) ]] && docker tag ${TARGET}:build-i386 ${TARGET}:${EMQX_VERSION}-i386
-    [[ -n  $(docker images -q ${TARGET}:build-arm32v7) ]] && docker tag ${TARGET}:build-arm32v7 ${TARGET}:${EMQX_VERSION}-arm32v7
-    [[ -n  $(docker images -q ${TARGET}:build-arm64v8) ]] && docker tag ${TARGET}:build-arm64v8 ${TARGET}:${EMQX_VERSION}-arm64v8
-    [[ -n  $(docker images -q ${TARGET}:build-amd64) ]] &&  docker tag ${TARGET}:build-amd64 ${TARGET}:${EMQX_VERSION}-amd64 &&  docker tag ${TARGET}:build-amd64 ${TARGET}:${EMQX_VERSION} 
+    [ -n  $(docker images -q ${TARGET}:build-s390x) ] && docker tag ${TARGET}:build-s390x ${TARGET}:${EMQX_VERSION}-s390x
+    [ -n  $(docker images -q ${TARGET}:build-i386) ] && docker tag ${TARGET}:build-i386 ${TARGET}:${EMQX_VERSION}-i386
+    [ -n  $(docker images -q ${TARGET}:build-arm32v7) ] && docker tag ${TARGET}:build-arm32v7 ${TARGET}:${EMQX_VERSION}-arm32v7
+    [ -n  $(docker images -q ${TARGET}:build-arm64v8) ] && docker tag ${TARGET}:build-arm64v8 ${TARGET}:${EMQX_VERSION}-arm64v8
+    [ -n  $(docker images -q ${TARGET}:build-amd64) ] &&  docker tag ${TARGET}:build-amd64 ${TARGET}:${EMQX_VERSION}-amd64 &&  docker tag ${TARGET}:build-amd64 ${TARGET}:${EMQX_VERSION} 
 }
 
 docker_save() {
     echo "DOCKER SAVE: Save Docker image."  
     filename=${TARGET#"emqx/"}
-    [[ -n  $(docker images -q ${TARGET}:${EMQX_VERSION}-s390x) ]] && docker save ${TARGET}:${EMQX_VERSION}-s390x > ${filename}-docker-${EMQX_VERSION}-s390x && zip -r -m ${filename}-docker-${EMQX_VERSION}-s390x.zip ${filename}-docker-${EMQX_VERSION}-s390x
-    [[ -n  $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ]] && docker save ${TARGET}:${EMQX_VERSION}-i386 > ${filename}-docker-${EMQX_VERSION}-i386 && zip -r -m ${filename}-docker-${EMQX_VERSION}-i386.zip ${filename}-docker-${EMQX_VERSION}-i386
-    [[ -n  $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ]] && docker save ${TARGET}:${EMQX_VERSION}-arm32v7 > ${filename}-docker-${EMQX_VERSION}-arm32v7 && zip -r -m ${filename}-docker-${EMQX_VERSION}-arm32v7.zip ${filename}-docker-${EMQX_VERSION}-arm32v7
-    [[ -n  $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ]] && docker save ${TARGET}:${EMQX_VERSION}-arm64v8 > ${filename}-docker-${EMQX_VERSION}-arm64v8 && zip -r -m ${filename}-docker-${EMQX_VERSION}-arm64v8.zip ${filename}-docker-${EMQX_VERSION}-arm64v8 
-    [[ -n  $(docker images -q ${TARGET}:${EMQX_VERSION}-amd64) ]] && docker save ${TARGET}:${EMQX_VERSION}-amd64 > ${filename}-docker-${EMQX_VERSION}-amd64 && zip -r -m ${filename}-docker-${EMQX_VERSION}-amd64.zip ${filename}-docker-${EMQX_VERSION}-amd64 
-    [[ -n  $(docker images -q ${TARGET}:${EMQX_VERSION}) ]] && docker save ${TARGET}:${EMQX_VERSION} > ${filename}-docker-${EMQX_VERSION} && zip -r -m ${filename}-docker-${EMQX_VERSION}.zip ${filename}-docker-${EMQX_VERSION}
+    [ -n  $(docker images -q ${TARGET}:${EMQX_VERSION}-s390x) ] && docker save ${TARGET}:${EMQX_VERSION}-s390x > ${filename}-docker-${EMQX_VERSION}-s390x && zip -r -m ${filename}-docker-${EMQX_VERSION}-s390x.zip ${filename}-docker-${EMQX_VERSION}-s390x
+    [ -n  $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ] && docker save ${TARGET}:${EMQX_VERSION}-i386 > ${filename}-docker-${EMQX_VERSION}-i386 && zip -r -m ${filename}-docker-${EMQX_VERSION}-i386.zip ${filename}-docker-${EMQX_VERSION}-i386
+    [ -n  $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ] && docker save ${TARGET}:${EMQX_VERSION}-arm32v7 > ${filename}-docker-${EMQX_VERSION}-arm32v7 && zip -r -m ${filename}-docker-${EMQX_VERSION}-arm32v7.zip ${filename}-docker-${EMQX_VERSION}-arm32v7
+    [ -n  $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ] && docker save ${TARGET}:${EMQX_VERSION}-arm64v8 > ${filename}-docker-${EMQX_VERSION}-arm64v8 && zip -r -m ${filename}-docker-${EMQX_VERSION}-arm64v8.zip ${filename}-docker-${EMQX_VERSION}-arm64v8 
+    [ -n  $(docker images -q ${TARGET}:${EMQX_VERSION}-amd64) ] && docker save ${TARGET}:${EMQX_VERSION}-amd64 > ${filename}-docker-${EMQX_VERSION}-amd64 && zip -r -m ${filename}-docker-${EMQX_VERSION}-amd64.zip ${filename}-docker-${EMQX_VERSION}-amd64 
+    [ -n  $(docker images -q ${TARGET}:${EMQX_VERSION}) ] && docker save ${TARGET}:${EMQX_VERSION} > ${filename}-docker-${EMQX_VERSION} && zip -r -m ${filename}-docker-${EMQX_VERSION}.zip ${filename}-docker-${EMQX_VERSION}
 }
 
 docker_push() {
   echo "DOCKER PUSH: Push Docker image."
   echo "DOCKER PUSH: pushing - ${TARGET}:${EMQX_VERSION}."
-  [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-s390x) ]] && docker push ${TARGET}:${EMQX_VERSION}-s390x 
-  [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ]] && docker push ${TARGET}:${EMQX_VERSION}-i386 
-  [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ]] && docker push ${TARGET}:${EMQX_VERSION}-arm32v7 
-  [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ]] && docker push ${TARGET}:${EMQX_VERSION}-arm64v8 
-  [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-amd64) ]] && docker push ${TARGET}:${EMQX_VERSION}-amd64  
-  [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}) ]] && docker push ${TARGET}:${EMQX_VERSION}
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-s390x) ] && docker push ${TARGET}:${EMQX_VERSION}-s390x 
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ] && docker push ${TARGET}:${EMQX_VERSION}-i386 
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ] && docker push ${TARGET}:${EMQX_VERSION}-arm32v7 
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ] && docker push ${TARGET}:${EMQX_VERSION}-arm64v8 
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-amd64) ] && docker push ${TARGET}:${EMQX_VERSION}-amd64  
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}) ] && docker push ${TARGET}:${EMQX_VERSION}
 
-  if [[ ! -z $(echo $EMQX_VERSION | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?") ]];then
+  if [ ! -z $(echo $EMQX_VERSION | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?") ];then
     docker tag ${TARGET}:${EMQX_VERSION} ${TARGET}:latest
     docker push ${TARGET}:latest
   fi
@@ -167,18 +167,18 @@ docker_push() {
 
 docker_clean() {
   echo "DOCKER CLEAN: Clean Docker image."
-  [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ]] && docker rmi -f $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) 
-  [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ]] && docker rmi -f $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) 
-  [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ]] && docker rmi -f $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) 
-  [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ]] && docker rmi -f $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) 
-  [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-amd64) ]] && docker rmi -f $(docker images -q ${TARGET}:${EMQX_VERSION}-amd64)
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ] && docker rmi -f $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) 
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ] && docker rmi -f $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) 
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ] && docker rmi -f $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) 
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ] && docker rmi -f $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) 
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-amd64) ] && docker rmi -f $(docker images -q ${TARGET}:${EMQX_VERSION}-amd64)
 }
 
 docker_manifest_list() {
   echo "DOCKER BUILD: target -> ${TARGET}."
   echo "DOCKER BUILD: build version -> ${EMQX_VERSION}."
 
-  [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-amd64) ]] || { echo "${TARGET}:${EMQX_VERSION}-amd64 does not exist."; exit 1; } 
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-amd64) ] || { echo "${TARGET}:${EMQX_VERSION}-amd64 does not exist."; exit 1; } 
 
   # Create and push manifest lists, displayed as FIFO
   echo "DOCKER MANIFEST: Create and Push docker manifest lists."
@@ -194,25 +194,25 @@ docker_manifest_list() {
 docker_manifest_list_version() {
   # Manifest Create EMQX_VERSION
   echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${EMQX_VERSION}."
-  if [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-s390x) ]] && [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ]] && [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ]] && [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ]];then
+  if [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-s390x) ] && [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ] && [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ] && [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ];then
     docker manifest create --amend ${TARGET}:${EMQX_VERSION} \
       ${TARGET}:${EMQX_VERSION}-amd64 \
       ${TARGET}:${EMQX_VERSION}-arm32v7 \
       ${TARGET}:${EMQX_VERSION}-arm64v8 \
       ${TARGET}:${EMQX_VERSION}-i386 \
       ${TARGET}:${EMQX_VERSION}-s390x 
-  elif [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ]] && [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ]] && [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ]];then
+  elif [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ] && [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ] && [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ];then
     docker manifest create --amend ${TARGET}:${EMQX_VERSION} \
       ${TARGET}:${EMQX_VERSION}-amd64 \
       ${TARGET}:${EMQX_VERSION}-arm32v7 \
       ${TARGET}:${EMQX_VERSION}-arm64v8 \
       ${TARGET}:${EMQX_VERSION}-i386
-  elif [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ]] && [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ]];then
+  elif [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ] && [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ];then
     docker manifest create --amend ${TARGET}:${EMQX_VERSION} \
       ${TARGET}:${EMQX_VERSION}-amd64 \
       ${TARGET}:${EMQX_VERSION}-arm32v7 \
       ${TARGET}:${EMQX_VERSION}-arm64v8
-  elif [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ]];then
+  elif [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ];then
     docker manifest create --amend ${TARGET}:${EMQX_VERSION} \
       ${TARGET}:${EMQX_VERSION}-amd64 \
       ${TARGET}:${EMQX_VERSION}-arm64v8
@@ -222,10 +222,10 @@ docker_manifest_list_version() {
   fi
 
   # Manifest Annotate EMQX_VERSION
-  [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-s390x) ]] && docker manifest annotate ${TARGET}:${EMQX_VERSION} ${TARGET}:${EMQX_VERSION}-s390x --os=linux --arch=s390x
-  [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ]] && docker manifest annotate ${TARGET}:${EMQX_VERSION} ${TARGET}:${EMQX_VERSION}-i386 --os=linux --arch=386
-  [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ]] && docker manifest annotate ${TARGET}:${EMQX_VERSION} ${TARGET}:${EMQX_VERSION}-arm32v7 --os=linux --arch=arm --variant=v7
-  [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ]] && docker manifest annotate ${TARGET}:${EMQX_VERSION} ${TARGET}:${EMQX_VERSION}-arm64v8 --os=linux --arch=arm64 --variant=v8
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-s390x) ] && docker manifest annotate ${TARGET}:${EMQX_VERSION} ${TARGET}:${EMQX_VERSION}-s390x --os=linux --arch=s390x
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ] && docker manifest annotate ${TARGET}:${EMQX_VERSION} ${TARGET}:${EMQX_VERSION}-i386 --os=linux --arch=386
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ] && docker manifest annotate ${TARGET}:${EMQX_VERSION} ${TARGET}:${EMQX_VERSION}-arm32v7 --os=linux --arch=arm --variant=v7
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ] && docker manifest annotate ${TARGET}:${EMQX_VERSION} ${TARGET}:${EMQX_VERSION}-arm64v8 --os=linux --arch=arm64 --variant=v8
 
   # Manifest Push EMQX_VERSION
   docker manifest push ${TARGET}:${EMQX_VERSION}
@@ -234,25 +234,25 @@ docker_manifest_list_version() {
 docker_manifest_list_latest() {
   # Manifest Create latest
   echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:latest."
-  if [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-s390x) ]] && [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ]] && [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ]] && [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ]];then
+  if [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-s390x) ] && [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ] && [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ] && [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ];then
     docker manifest create --amend ${TARGET}:latest \
       ${TARGET}:${EMQX_VERSION}-amd64 \
       ${TARGET}:${EMQX_VERSION}-arm32v7 \
       ${TARGET}:${EMQX_VERSION}-arm64v8 \
       ${TARGET}:${EMQX_VERSION}-i386 \
       ${TARGET}:${EMQX_VERSION}-s390x 
-  elif [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ]] && [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ]] && [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ]];then
+  elif [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ] && [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ] && [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ];then
     docker manifest create --amend ${TARGET}:latest \
       ${TARGET}:${EMQX_VERSION}-amd64 \
       ${TARGET}:${EMQX_VERSION}-arm32v7 \
       ${TARGET}:${EMQX_VERSION}-arm64v8 \
       ${TARGET}:${EMQX_VERSION}-i386
-  elif [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ]] && [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ]];then
+  elif [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ] && [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ];then
     docker manifest create --amend ${TARGET}:latest \
       ${TARGET}:${EMQX_VERSION}-amd64 \
       ${TARGET}:${EMQX_VERSION}-arm32v7 \
       ${TARGET}:${EMQX_VERSION}-arm64v8
-  elif [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ]];then
+  elif [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ];then
     docker manifest create --amend ${TARGET}:latest \
       ${TARGET}:${EMQX_VERSION}-amd64 \
       ${TARGET}:${EMQX_VERSION}-arm64v8
@@ -262,17 +262,17 @@ docker_manifest_list_latest() {
   fi
 
   # Manifest Annotate EMQX_VERSION
-  [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-s390x) ]] && docker manifest annotate ${TARGET}:latest ${TARGET}:${EMQX_VERSION}-s390x --os=linux --arch=s390x
-  [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ]] && docker manifest annotate ${TARGET}:latest ${TARGET}:${EMQX_VERSION}-i386 --os=linux --arch=386
-  [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ]] && docker manifest annotate ${TARGET}:latest ${TARGET}:${EMQX_VERSION}-arm32v7 --os=linux --arch=arm --variant=v7
-  [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ]] && docker manifest annotate ${TARGET}:latest ${TARGET}:${EMQX_VERSION}-arm64v8 --os=linux --arch=arm64 --variant=v8
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-s390x) ] && docker manifest annotate ${TARGET}:latest ${TARGET}:${EMQX_VERSION}-s390x --os=linux --arch=s390x
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ] && docker manifest annotate ${TARGET}:latest ${TARGET}:${EMQX_VERSION}-i386 --os=linux --arch=386
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ] && docker manifest annotate ${TARGET}:latest ${TARGET}:${EMQX_VERSION}-arm32v7 --os=linux --arch=arm --variant=v7
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ] && docker manifest annotate ${TARGET}:latest ${TARGET}:${EMQX_VERSION}-arm64v8 --os=linux --arch=arm64 --variant=v8
 
   # Manifest Push EMQX_VERSION
   docker manifest push ${TARGET}:latest
 }
 
 docker_manifest_list_version_os_arch() {
-  if [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-amd64) ]];then
+  if [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-amd64) ];then
     # Manifest Create alpine-amd64
     echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${EMQX_VERSION}-amd64."
     docker manifest create --amend ${TARGET}:${EMQX_VERSION}-amd64 \
@@ -282,7 +282,7 @@ docker_manifest_list_version_os_arch() {
     docker manifest push ${TARGET}:${EMQX_VERSION}-amd64
   fi
 
-  if [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ]];then
+  if [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ];then
     # Manifest Create alpine-arm32v7
     echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${EMQX_VERSION}-arm32v7."
     docker manifest create --amend ${TARGET}:${EMQX_VERSION}-arm32v7 \
@@ -295,7 +295,7 @@ docker_manifest_list_version_os_arch() {
     docker manifest push ${TARGET}:${EMQX_VERSION}-arm32v7
   fi
 
-  if [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ]];then
+  if [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ];then
     # Manifest Create alpine-arm64v8
     echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${EMQX_VERSION}-arm64v8."
     docker manifest create --amend ${TARGET}:${EMQX_VERSION}-arm64v8 \
@@ -308,7 +308,7 @@ docker_manifest_list_version_os_arch() {
     docker manifest push ${TARGET}:${EMQX_VERSION}-arm64v8
   fi
 
-  if [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ]];then
+  if [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ];then
     # Manifest Create alpine-i386
     echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${EMQX_VERSION}-i386."
     docker manifest create --amend ${TARGET}:${EMQX_VERSION}-i386 \
@@ -317,7 +317,7 @@ docker_manifest_list_version_os_arch() {
     # Manifest Push alpine-i386
     docker manifest push ${TARGET}:${EMQX_VERSION}-i386
   fi
-  if [[ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-s390x) ]];then
+  if [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-s390x) ];then
     # Manifest Create alpine-s390x
     echo "DOCKER MANIFEST: Create and Push docker manifest list - ${TARGET}:${EMQX_VERSION}-s390x."
     docker manifest create --amend ${TARGET}:${EMQX_VERSION}-s390x \
