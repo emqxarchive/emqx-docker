@@ -166,7 +166,7 @@ docker_push() {
 
 docker_clean() {
   echo "DOCKER CLEAN: Clean Docker image."
-  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ] && docker rmi -f $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) 
+  [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-s390x) ] && docker rmi -f $(docker images -q ${TARGET}:${EMQX_VERSION}-s390x) 
   [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) ] && docker rmi -f $(docker images -q ${TARGET}:${EMQX_VERSION}-i386) 
   [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) ] && docker rmi -f $(docker images -q ${TARGET}:${EMQX_VERSION}-arm32v7) 
   [ -n $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) ] && docker rmi -f $(docker images -q ${TARGET}:${EMQX_VERSION}-arm64v8) 
