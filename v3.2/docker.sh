@@ -85,21 +85,54 @@ docker_test() {
   echo "DOCKER TEST: Test Docker image."
   echo "DOCKER TEST: testing image -> ${TARGET}:build-${ARCH}."
 
-  name=test_emqx_docker_for_${ARCH}
+  aclient_name=test_emqx_docker_for_${ARCH}_aclient
+  bclient_name=test_emqx_docker_for_${ARCH}_bclient
 
-  [ -z $(docker network ls |grep emqx-net) ] && docker network create emqx-net
+  create_emqx_container ${aclient_name}
+  create_emqx_container ${bclient_name}
+
+  # create cluster
+  aclient_ip=$(docker inspect -f '{{ .NetworkSettings.Networks.emqxBridge.IPAddress}}' ${aclient_name})
+  bclient_ip=$(docker inspect -f '{{ .NetworkSettings.Networks.emqxBridge.IPAddress}}' ${bclient_name})
+  docker exec -i ${bclient_name} sh -c "emqx_ctl cluster join emqx@${aclient_ip}"
+
+  cluster=$(docker exec -i ${bclient_name} sh -c "emqx_ctl cluster status")
+  nodes=$(echo ${cluster} | grep -P 'emqx@((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])' -o)
+
+  if [ -z $(echo ${nodes} | grep "emqx@${aclient_ip}" -o) ] || [ -z $(echo ${nodes} | grep "emqx@${bclient_ip}" -o) ];then
+    echo "DOCKER TEST: FAILED - Create cluster failed"
+    exit 1
+  fi
+
+  # Paho test
+  docker run -i --rm --network emqxBridge python:3.7.2-alpine3.9 \
+  sh -c "apk update && apk add git \
+  && git clone -b master https://github.com/emqx/paho.mqtt.testing.git /paho.mqtt.testing \
+  && sed -i '/host = \"localhost\"/c \ \ host = \"${aclient_name}\"' /paho.mqtt.testing/interoperability/client_test5.py \
+  && sed -i '/aclientHost = \"localhost\"/c \ \ aclientHost = \"${aclient_name}\"' /paho.mqtt.testing/interoperability/client_test5.py \
+  && sed -i '/bclientHost = \"localhost\"/c \ \ bclientHost = \"${bclient_name}\"' /paho.mqtt.testing/interoperability/client_test5.py \
+  && python /paho.mqtt.testing/interoperability/client_test5.py"
+
+  docker rm -f ${aclient_name} ${bclient_name}
+}
+
+create_emqx_container() {
+  name=$1
+
+  [ -z $(docker network ls | grep emqxBridge | awk '{print $2}') ] && docker network create emqxBridge
 
   docker run -d \
     -e EMQX_ZONE__EXTERNAL__SERVER_KEEPALIVE=60 \
     -e EMQX_MQTT__MAX_TOPIC_ALIAS=10 \
-    --network emqx-net \
+    -e EMQX_NAME=emqx \
+    --network emqxBridge \
     --name ${name} \
     ${TARGET}:build-${ARCH} \
     sh -c "sed -i '/deny/'d /opt/emqx/etc/acl.conf \
     && /usr/bin/start.sh"
 
-  [ -z $(docker exec ${name} sh -c "ls /opt/emqx/lib |grep emqx_cube") && ${EMQX_DEPLOY} == "edge" ] && echo "emqx ${EMQX_DEPLOY} deploy error" && exit 1
-  [ ! -z $(docker exec ${name} sh -c "ls /opt/emqx/lib |grep emqx_cube") && ${EMQX_DEPLOY} == "cloud" ] && echo "emqx ${EMQX_DEPLOY} deploy error" && exit 1
+  [ -z $(docker exec -i ${name} sh -c "ls /opt/emqx/lib |grep emqx_cube") && ${EMQX_DEPLOY} == "edge" ] && echo "emqx ${EMQX_DEPLOY} deploy error" && exit 1
+  [ ! -z $(docker exec -i ${name} sh -c "ls /opt/emqx/lib |grep emqx_cube") && ${EMQX_DEPLOY} == "cloud" ] && echo "emqx ${EMQX_DEPLOY} deploy error" && exit 1
 
   emqx_ver=$(docker exec ${name} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
   IDLE_TIME=0
@@ -114,19 +147,11 @@ docker_test() {
       IDLE_TIME=$((IDLE_TIME+1))
       emqx_ver=$(docker exec ${name} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
   done
-  if [ ! -z $(echo $EMQX_VERSION | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?") && $EMQX_VERSION != $emqx_ver ]
-  then
+  if [ ! -z $(echo $EMQX_VERSION | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?") ] && [ $EMQX_VERSION != $emqx_ver ]; then
       echo "DOCKER TEST: FAILED - Docker container ${name} version error."
       exit 1 
   fi
   echo "DOCKER TEST: PASSED - Docker container ${name} succeeded to start."
-  # Paho test
-  docker run -i --rm --network emqx-net python:3.7.2-alpine3.9 \
-  sh -c "apk update && apk add git \
-  && git clone -b master https://github.com/emqx/paho.mqtt.testing.git /paho.mqtt.testing \
-  && sed -i \"s/localhost/${name}/g\" /paho.mqtt.testing/interoperability/client_test5.py \
-  && python /paho.mqtt.testing/interoperability/client_test5.py"
-  docker rm -f ${name}
 }
 
 docker_tag() {
