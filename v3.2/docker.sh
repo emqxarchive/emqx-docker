@@ -62,6 +62,7 @@ docker_prepare() {
 docker_build() {
   # Build Docker image
   echo "DOCKER BUILD: Build Docker image."
+  echo "DOCKER BUILD: build version -> ${BUILD_VERSION}."
   echo "DOCKER BUILD: build from -> ${BUILD_FROM}."
   echo "DOCKER BUILD: arch - ${ARCH}."
   echo "DOCKER BUILD: qemu arch - ${QEMU_ARCH}."
@@ -147,7 +148,7 @@ create_emqx_container() {
       IDLE_TIME=$((IDLE_TIME+1))
       emqx_ver=$(docker exec ${name} /opt/emqx/bin/emqx_ctl status |grep 'is running'|awk '{print $2}')
   done
-  if [ ! -z $(echo $EMQX_VERSION | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?") ] && [ $EMQX_VERSION != $emqx_ver ]; then
+  if [ ! -z $(echo $EMQX_VERSION | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?") ] && [ ${EMQX_VERSION#v} != $emqx_ver ]; then
       echo "DOCKER TEST: FAILED - Docker container ${name} version error."
       exit 1 
   fi
