@@ -85,9 +85,11 @@ docker_build() {
 docker_test() {
   echo "DOCKER TEST: Test Docker image."
   echo "DOCKER TEST: testing image -> ${TARGET}:build-${ARCH}."
+  
+  key=$RANDOM
 
-  aclient_name=test_emqx_docker_for_${ARCH}_aclient
-  bclient_name=test_emqx_docker_for_${ARCH}_bclient
+  aclient_name=test_${key}_${TARGET#"emqx/"}_docker_for_${EMQX_VERSION}_${ARCH}_aclient
+  bclient_name=test_${key}_${TARGET#"emqx/"}_docker_for_${EMQX_VERSION}_${ARCH}_bclient
 
   create_emqx_container ${aclient_name}
   create_emqx_container ${bclient_name}
