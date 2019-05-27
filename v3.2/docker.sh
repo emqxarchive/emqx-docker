@@ -88,8 +88,8 @@ docker_test() {
   
   key=$RANDOM
 
-  aclient_name=test_${key}_${TARGET#"emqx/"}_docker_for_${EMQX_VERSION}_${ARCH}_aclient
-  bclient_name=test_${key}_${TARGET#"emqx/"}_docker_for_${EMQX_VERSION}_${ARCH}_bclient
+  aclient_name="test-${key}-${TARGET#'emqx/'}-docker-for-${EMQX_VERSION}-${ARCH}-aclient"
+  bclient_name="test-${key}-${TARGET#'emqx/'}-docker-for-${EMQX_VERSION}-${ARCH}-bclient"
 
   create_emqx_container ${aclient_name}
   create_emqx_container ${bclient_name}
