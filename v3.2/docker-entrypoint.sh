@@ -31,7 +31,12 @@ if [[ -z "$EMQX_NAME" ]]; then
 fi
 
 if [[ -z "$EMQX_HOST" ]]; then
-    export EMQX_HOST="$LOCAL_IP"
+    if [[ "$EMQX_CLUSTER__K8S__ADDRESS_TYPE" == "dns" ]] && [[ ! -z "$EMQX_CLUSTER__K8S__NAMESPACE" ]];then
+        DNSAddress="${LOCAL_IP//./-}.${EMQX_CLUSTER__K8S__NAMESPACE}.pod.cluster.local"
+        export EMQX_HOST="$DNSAddress"
+    else
+        export EMQX_HOST="$LOCAL_IP"
+    fi
 fi
 
 if [[ -z "$EMQX_WAIT_TIME" ]]; then
