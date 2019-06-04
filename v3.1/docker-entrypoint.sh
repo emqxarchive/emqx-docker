@@ -31,7 +31,12 @@ if [[ -z "$EMQX_NAME" ]]; then
 fi
 
 if [[ -z "$EMQX_HOST" ]]; then
-    export EMQX_HOST="$LOCAL_IP"
+    if [[ "$EMQX_CLUSTER__K8S__ADDRESS_TYPE" == "dns" ]] && [[ ! -z "$EMQX_CLUSTER__K8S__NAMESPACE" ]];then
+        DNSAddress="${LOCAL_IP//./-}.${EMQX_CLUSTER__K8S__NAMESPACE}.pod.cluster.local"
+        export EMQX_HOST="$DNSAddress"
+    else
+        export EMQX_HOST="$LOCAL_IP"
+    fi
 fi
 
 if [[ -z "$EMQX_WAIT_TIME" ]]; then
@@ -108,10 +113,10 @@ do
             echo "$(sed -r "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $CONFIG)" > $CONFIG   
         fi
         # Config in plugins/*
-        CONFIG_PLUGIN_FILE=$(echo $VAR |  sed -r "s/__/\_/g"  | sed -r "s/(EMQX_[A-Z]*_[A-Z]*)_.*/\1/g" | sed 's/$/&\.conf/g' | tr '[:upper:]' '[:lower:]')
-        if [[ -f "$CONFIG_PLUGINS/$CONFIG_PLUGIN_FILE" ]]; then
+        CONFIG_PLUGIN_FILE=$(echo $VAR |  sed -r -e "s/__/\_/g" -e "s/(EMQX_[A-Z]*_[A-Z]*)_.*/\1/g" -e 's/$/&\.conf/g'  -e "s:^:$CONFIG_PLUGINS&:g"  | tr '[:upper:]' '[:lower:]')
+        if [[ -f "$CONFIG_PLUGIN_FILE" ]]; then
             echo "$VAR_NAME=$(eval echo \$$VAR_FULL_NAME)"
-            echo "$(sed -r "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $CONFIG_PLUGINS/$CONFIG_PLUGIN_FILE)" > $CONFIG_PLUGINS/$CONFIG_PLUGIN_FILE
+            echo "$(sed -r "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $CONFIG_PLUGIN_FILE)" > $CONFIG_PLUGIN_FILE
         fi
     fi
     # Config template such like {{ platform_etc_dir }}
