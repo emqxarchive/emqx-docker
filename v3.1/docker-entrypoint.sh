@@ -100,7 +100,6 @@ fi
 
 # Catch all EMQX_ prefix environment variable and match it in configure file
 CONFIG="${_EMQX_HOME}/etc/emqx.conf"
-CONFIG_PLUGINS="${_EMQX_HOME}/etc/plugins"
 for VAR in $(env)
 do
     # Config normal keys such like node.name = emqx@127.0.0.1
@@ -113,7 +112,7 @@ do
             echo "$(sed -r "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $CONFIG)" > $CONFIG   
         fi
         # Config in plugins/*
-        CONFIG_PLUGIN_FILE=$(echo $VAR |  sed -r -e "s/__/\_/g" -e "s/(EMQX_[A-Z]*_[A-Z]*)_.*/\1/g" -e 's/$/&\.conf/g'  -e "s:^:$CONFIG_PLUGINS&:g"  | tr '[:upper:]' '[:lower:]')
+        CONFIG_PLUGIN_FILE=$(echo $VAR |  sed -r -e "s/__/\_/g" -e "s/(EMQX_[A-Z]*_[A-Z]*)_.*/\1/g" -e 's/$/&\.conf/g'  -e "s:^:$_EMQX_HOME/etc/plugins/&:g"  | tr '[:upper:]' '[:lower:]')
         if [[ -f "$CONFIG_PLUGIN_FILE" ]]; then
             echo "$VAR_NAME=$(eval echo \$$VAR_FULL_NAME)"
             echo "$(sed -r "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $CONFIG_PLUGIN_FILE)" > $CONFIG_PLUGIN_FILE
