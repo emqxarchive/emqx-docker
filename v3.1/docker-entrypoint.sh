@@ -94,8 +94,8 @@ if [[ ! -z "$EMQX_ADMIN_PASSWORD" ]]; then
 fi
 
 # Catch all EMQX_ prefix environment variable and match it in configure file
-CONFIG=/opt/emqx/etc/emqx.conf
-CONFIG_PLUGINS=/opt/emqx/etc/plugins
+CONFIG="${_EMQX_HOME}/etc/emqx.conf"
+CONFIG_PLUGINS="${_EMQX_HOME}/etc/plugins"
 for VAR in $(env)
 do
     # Config normal keys such like node.name = emqx@127.0.0.1
@@ -105,19 +105,20 @@ do
         # Config in emq.conf
         if [[ ! -z "$(cat $CONFIG |grep -E "^(^|^#*|^#*\s*)$VAR_NAME")" ]]; then
             echo "$VAR_NAME=$(eval echo \$$VAR_FULL_NAME)"
-            sed -r -i "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $CONFIG
+            echo "$(sed -r "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $CONFIG)" > $CONFIG   
         fi
         # Config in plugins/*
-        if [[ ! -z "$(cat $CONFIG_PLUGINS/* |grep -E "^(^|^#*|^#*\s*)$VAR_NAME")" ]]; then
+        CONFIG_PLUGIN_FILE=$(echo $VAR |  sed -r "s/__/\_/g"  | sed -r "s/(EMQX_[A-Z]*_[A-Z]*)_.*/\1/g" | sed 's/$/&\.conf/g' | tr '[:upper:]' '[:lower:]')
+        if [[ -f "$CONFIG_PLUGINS/$CONFIG_PLUGIN_FILE" ]]; then
             echo "$VAR_NAME=$(eval echo \$$VAR_FULL_NAME)"
-            sed -r -i "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $(ls $CONFIG_PLUGINS/*)
+            echo "$(sed -r "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $CONFIG_PLUGINS/$CONFIG_PLUGIN_FILE)" > $CONFIG_PLUGINS/$CONFIG_PLUGIN_FILE
         fi
     fi
     # Config template such like {{ platform_etc_dir }}
     if [[ ! -z "$(echo $VAR | grep -E '^PLATFORM_')" ]]; then
         VAR_NAME=$(echo "$VAR" | sed -r "s/([^=]*)=.*/\1/g"| tr '[:upper:]' '[:lower:]')
         VAR_FULL_NAME=$(echo "$VAR" | sed -r "s/([^=]*)=.*/\1/g")
-        sed -r -i "s@\{\{\s*$VAR_NAME\s*\}\}@$(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')@g" $CONFIG
+        echo "$(sed -r "s@\{\{\s*$VAR_NAME\s*\}\}@$(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')@g" $CONFIG)" > $CONFIG
     fi
 done
 
