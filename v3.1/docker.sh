@@ -85,7 +85,8 @@ docker_test() {
   echo "DOCKER TEST: Test Docker image."
   echo "DOCKER TEST: testing image -> ${TARGET}:build-${ARCH}."
 
-  name=test_emqx_docker_for_${ARCH}
+  key=$(date +%s)
+  name=test-${key}-${TARGET#emqx\/}-docker-for-${EMQX_VERSION}-${ARCH}
 
   [ -z $(docker network ls |grep emqx-net) ] && docker network create emqx-net
 
