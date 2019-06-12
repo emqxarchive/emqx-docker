@@ -112,11 +112,12 @@ do
             echo "$(sed -r "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $CONFIG)" > $CONFIG   
         fi
         # Config in plugins/*
-        CONFIG_PLUGIN_FILE=$(echo $VAR |  sed -r -e "s/__/\_/g" -e "s/(EMQX_[A-Z]*_[A-Z]*)_.*/\1/g" -e 's/$/&\.conf/g'  -e "s:^:$_EMQX_HOME/etc/plugins/&:g"  | tr '[:upper:]' '[:lower:]')
-        if [[ -f "$CONFIG_PLUGIN_FILE" ]]; then
-            echo "$VAR_NAME=$(eval echo \$$VAR_FULL_NAME)"
-            echo "$(sed -r "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $CONFIG_PLUGIN_FILE)" > $CONFIG_PLUGIN_FILE
-        fi
+        for CONFIG_PLUGINS_FILE in $(ls $CONFIG_PLUGINS); do
+            if [[ ! -z "$(cat $CONFIG_PLUGINS/$CONFIG_PLUGINS_FILE |grep -E "^(^|^#*|^#*\s*)$VAR_NAME")" ]]; then
+                echo "$VAR_NAME=$(eval echo \$$VAR_FULL_NAME)"
+                echo "$(sed -r "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $CONFIG_PLUGINS/$CONFIG_PLUGINS_FILE)" > $CONFIG_PLUGINS/$CONFIG_PLUGINS_FILE
+            fi 
+        done
     fi
     # Config template such like {{ platform_etc_dir }}
     if [[ ! -z "$(echo $VAR | grep -E '^PLATFORM_')" ]]; then
