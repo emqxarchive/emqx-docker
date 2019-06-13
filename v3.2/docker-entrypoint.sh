@@ -6,6 +6,8 @@
 ## Shell setting
 if [[ ! -z "$DEBUG" ]]; then
     set -ex
+else
+    set -e
 fi
 
 ## Local IP address setting
@@ -100,6 +102,7 @@ fi
 
 # Catch all EMQX_ prefix environment variable and match it in configure file
 CONFIG="${_EMQX_HOME}/etc/emqx.conf"
+CONFIG_PLUGINS="${_EMQX_HOME}/etc/plugins"
 for VAR in $(env)
 do
     # Config normal keys such like node.name = emqx@127.0.0.1
