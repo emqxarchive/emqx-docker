@@ -42,11 +42,12 @@ COPY docker-entrypoint.sh start.sh tmp/qemu-$QEMU_ARCH-stati* /usr/bin/
 COPY --from=builder /emqx_rel/_build/emqx*/rel/emqx /opt/emqx
 
 RUN ln -s /opt/emqx/bin/* /usr/local/bin/ 
-RUN apk add --no-cache ncurses-libs openssl
+RUN apk add --no-cache ncurses-libs openssl sudo
 
 WORKDIR /opt/emqx
 
-RUN adduser -D -u 1000 emqx
+RUN adduser -D -u 1000 emqx \
+    && echo "emqx ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers
 
 RUN chgrp -Rf emqx /opt/emqx && chmod -Rf g+w /opt/emqx \
       && chown -Rf emqx /opt/emqx
