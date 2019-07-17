@@ -56,11 +56,11 @@ docker pull emqx/emqx:latest
 
 Execute some command under this docker image
 
-``docker run --rm -ti -v `pwd`:$(somewhere) emqx/emqx:$(tag) $(somecommand)``
+``docker run -d -v `pwd`:$(somewhere) emqx/emqx:$(tag) $(somecommand)``
 
 For example
 
-``docker run --rm -ti --name emqx -p 18083:18083 -p 1883:1883 emqx/emqx:latest``
+``docker run -d --name emqx -p 18083:18083 -p 1883:1883 emqx/emqx:latest``
 
 The emqx broker runs as linux user `emqx` in the docker container.
 
@@ -101,7 +101,6 @@ These environment variables will ignore for configuration file.
 | EMQX_NAME                   | container name     | none                      | emqx node short name                   |
 | EMQX_HOST                   | container IP       | none                      | emqx node host, IP or FQDN             |
 | EMQX_WAIT_TIME              | 5                  | none                      | wait time in sec before timeout       |
-| EMQX_ADMIN_PASSWORD         | public             | none                      | emqx admin password                    |
 | PLATFORM_ETC_DIR            | /opt/emqx/etc      | {{ platform_etc_dir }}    | The etc directory                     |
 | PLATFORM_LOG_DIR            | /opt/emqx/log      | {{ platform_log_dir }}    | The log directory                     |
 | EMQX_NODE__NAME             | EMQX_NAME@EMQX_HOST| node.name                 | Erlang node name, name@ipaddress/host |
@@ -121,7 +120,7 @@ If set ``EMQX_NAME`` and ``EMQX_HOST``, and unset ``EMQX_NODE__NAME``, ``EMQX_NO
 
 For example, set mqtt tcp port to 1883
 
-``docker run --rm -ti --name emqx -e EMQX_LISTENER__TCP__EXTERNAL=1883 -p 18083:18083 -p 1883:1883 emqx/emqx:latest``
+``docker run -d --name emqx -e EMQX_LISTENER__TCP__EXTERNAL=1883 -p 18083:18083 -p 1883:1883 emqx/emqx:latest``
 
 #### EMQ Loaded Plugins Configuration
 
@@ -175,7 +174,7 @@ Assume you are using redis auth plugin, for example:
 #EMQX_AUTH__REDIS__SERVER="redis.at.yourserver"
 #EMQX_AUTH__REDIS__PASSWORD="password_for_redis"
 
-docker run --rm -ti --name emqx -p 18083:18083 -p 1883:1883 -p 4369:4369 \
+docker run -d --name emqx -p 18083:18083 -p 1883:1883 -p 4369:4369 \
     -e EMQX_LISTENER__TCP__EXTERNAL=1883 \
     -e EMQX_LOADED_PLUGINS="emqx_auth_redis,emqx_recon,emqx_retainer,emqx_management,emqx_dashboard" \
     -e EMQX_AUTH__REDIS__SERVER="your.redis.server:6379" \
@@ -195,7 +194,7 @@ For example, using 6000-6100 for cluster.
 
 ```bash
 
-docker run --rm -ti --name emqx -p 18083:18083 -p 1883:1883 -p 4369:4369 -p 6000-6100:6000-6100 \
+docker run -d --name emqx -p 18083:18083 -p 1883:1883 -p 4369:4369 -p 6000-6100:6000-6100 \
     -e EMQX_NAME="emqx" \
     -e EMQX_HOST="t.emqx.io" \
     -e EMQX_LISTENER__TCP__EXTERNAL=1883 \
@@ -212,7 +211,7 @@ If you want tune linux kernel by docker, you must ensure your docker is latest v
 
 ```bash
 
-docker run --rm -ti --name emqx -p 18083:18083 -p 1883:1883 -p 4369:4369 \
+docker run -d --name emqx -p 18083:18083 -p 1883:1883 -p 4369:4369 \
     --sysctl fs.file-max=2097152 \
     --sysctl fs.nr_open=2097152 \
     --sysctl net.core.somaxconn=32768 \

@@ -6,6 +6,8 @@
 ## Shell setting
 if [[ ! -z "$DEBUG" ]]; then
     set -ex
+else
+    set -e
 fi
 
 ## Local IP address setting
@@ -31,7 +33,13 @@ if [[ -z "$EMQX_NAME" ]]; then
 fi
 
 if [[ -z "$EMQX_HOST" ]]; then
-    export EMQX_HOST="$LOCAL_IP"
+    if [[ "$EMQX_CLUSTER__K8S__ADDRESS_TYPE" == "dns" ]] && [[ ! -z "$EMQX_CLUSTER__K8S__NAMESPACE" ]];then
+        # DNSAddress=$(sed -n "/^${LOCAL_IP}/"p /etc/hosts | grep -e "$(hostname).*.${EMQX_CLUSTER__K8S__NAMESPACE}.svc.cluster.local" -o)
+        DNSAddress="${LOCAL_IP//./-}.${EMQX_CLUSTER__K8S__NAMESPACE}.pod.cluster.local"
+        export EMQX_HOST="$DNSAddress"
+    else
+        export EMQX_HOST="$LOCAL_IP"
+    fi
 fi
 
 if [[ -z "$EMQX_WAIT_TIME" ]]; then
@@ -94,8 +102,8 @@ if [[ ! -z "$EMQX_ADMIN_PASSWORD" ]]; then
 fi
 
 # Catch all EMQX_ prefix environment variable and match it in configure file
-CONFIG=/opt/emqx/etc/emqx.conf
-CONFIG_PLUGINS=/opt/emqx/etc/plugins
+CONFIG="${_EMQX_HOME}/etc/emqx.conf"
+CONFIG_PLUGINS="${_EMQX_HOME}/etc/plugins"
 for VAR in $(env)
 do
     # Config normal keys such like node.name = emqx@127.0.0.1
@@ -105,19 +113,21 @@ do
         # Config in emq.conf
         if [[ ! -z "$(cat $CONFIG |grep -E "^(^|^#*|^#*\s*)$VAR_NAME")" ]]; then
             echo "$VAR_NAME=$(eval echo \$$VAR_FULL_NAME)"
-            sed -r -i "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $CONFIG
+            echo "$(sed -r "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $CONFIG)" > $CONFIG   
         fi
         # Config in plugins/*
-        if [[ ! -z "$(cat $CONFIG_PLUGINS/* |grep -E "^(^|^#*|^#*\s*)$VAR_NAME")" ]]; then
-            echo "$VAR_NAME=$(eval echo \$$VAR_FULL_NAME)"
-            sed -r -i "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $(ls $CONFIG_PLUGINS/*)
-        fi
+        for CONFIG_PLUGINS_FILE in $(ls $CONFIG_PLUGINS); do
+            if [[ ! -z "$(cat $CONFIG_PLUGINS/$CONFIG_PLUGINS_FILE |grep -E "^(^|^#*|^#*\s*)$VAR_NAME")" ]]; then
+                echo "$VAR_NAME=$(eval echo \$$VAR_FULL_NAME)"
+                echo "$(sed -r "s/(^#*\s*)($VAR_NAME)\s*=\s*(.*)/\2 = $(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')/g" $CONFIG_PLUGINS/$CONFIG_PLUGINS_FILE)" > $CONFIG_PLUGINS/$CONFIG_PLUGINS_FILE
+            fi 
+        done
     fi
     # Config template such like {{ platform_etc_dir }}
     if [[ ! -z "$(echo $VAR | grep -E '^PLATFORM_')" ]]; then
         VAR_NAME=$(echo "$VAR" | sed -r "s/([^=]*)=.*/\1/g"| tr '[:upper:]' '[:lower:]')
         VAR_FULL_NAME=$(echo "$VAR" | sed -r "s/([^=]*)=.*/\1/g")
-        sed -r -i "s@\{\{\s*$VAR_NAME\s*\}\}@$(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')@g" $CONFIG
+        echo "$(sed -r "s@\{\{\s*$VAR_NAME\s*\}\}@$(eval echo \$$VAR_FULL_NAME|sed -e 's/\//\\\//g')@g" $CONFIG)" > $CONFIG
     fi
 done
 
