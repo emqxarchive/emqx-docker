@@ -132,8 +132,8 @@ test:
 tag:
 	@echo "DOCKER TAG: Tag Docker image."
 	@for arch in $(ARCH_LIST); do \
-		if [ -n  "$$(docker images -q $(TARGET):build$${arch})" ]; then \
-			docker tag $(TARGET):build$${arch}  $(TARGET):$(BUILD_VERSION)-$${arch}; \
+		if [ -n  "$$(docker images -q $(TARGET):build-$${arch})" ]; then \
+			docker tag $(TARGET):build-$${arch}  $(TARGET):$(BUILD_VERSION)-$${arch}; \
 			echo "DOCKER TAG: $(TARGET):$(BUILD_VERSION)-$${arch}"; \
 			if [ $${arch} = amd64 ]; then \
 				docker tag $(TARGET):$(BUILD_VERSION)-amd64 $(TARGET):$(BUILD_VERSION); \
@@ -177,7 +177,7 @@ push:
 
 .PHONY: manifest_list
 manifest_list:
-	@if [ ! -z $$(echo $(EMQX_VERSION) | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?") ] &&  [ -n  "$$(docker images -q  $(TARGET):$(BUILD_VERSION)" ] &&  [ -n  "$$(docker images -q  $(TARGET):latest" ];then \
+	@if [ ! -z $$(echo $(EMQX_VERSION) | grep -oE "v[0-9]+\.[0-9]+(\.[0-9]+)?") ] &&  [ -n  "$$(docker images -q  $(TARGET):$(BUILD_VERSION))" ] &&  [ -n  "$$(docker images -q  $(TARGET):latest)" ];then \
 		version="docker manifest create --amend $(TARGET):$(BUILD_VERSION)"; \
 		latest="docker manifest create --amend $(TARGET):latest"; \
 		for arch in $(ARCH_LIST); do \
@@ -216,7 +216,7 @@ manifest_list:
 					docker manifest annotate $(TARGET):latest $(TARGET):$(BUILD_VERSION)-s390x --os=linux --arch=s390x; \
 					;; \
 			esac; \
-			docker manifest push $(TARGET):$(BUILD_VERSION)-$${arch}
+			docker manifest push $(TARGET):$(BUILD_VERSION)-$${arch}; \
 		done; \
 		eval $$version; \
 		eval $$latest; \
