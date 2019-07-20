@@ -1,10 +1,17 @@
 #!/bin/sh
 set -e
+
+tail_erlang_log(){
+    erlang_log=$(echo $(ls -t /opt/emqx/log/erlang.log.*) | awk '{print $1}')
+    num=$(sed -n -e '/LOGGING STARTED/=' ${erlang_log} | tail -1)
+    tail -n +$((num-2)) ${erlang_log}
+}
+
 ## EMQ Main script
 
 # Start and run emqx, and when emqx crashed, this container will stop
 
-/opt/emqx/bin/emqx start
+/opt/emqx/bin/emqx start || tail_erlang_log
 
 tail -f /opt/emqx/log/emqx.log.1 &
 
@@ -16,6 +23,7 @@ do
     echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:waiting emqx"
     WAIT_TIME=$((WAIT_TIME+1))
     if [[ $WAIT_TIME -gt $EMQX_WAIT_TIME ]]; then
+        tail_erlang_log
         echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:timeout error"
         exit 1
     fi
@@ -51,7 +59,8 @@ done
 # If running to here (the result 5 times not is running, thus in 25s emqx is not running), exit docker image
 # Then the high level PaaS, e.g. docker swarm mode, will know and alert, rebanlance this service
 
-# tail $(ls /opt/emqx/log/*)
+# tail erlang.log.*
+tail_erlang_log
 
 echo "['$(date -u +"%Y-%m-%dT%H:%M:%SZ")']:emqx exit abnormally"
 exit 1
