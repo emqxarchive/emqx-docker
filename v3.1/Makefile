@@ -183,45 +183,39 @@ manifest_list:
 		for arch in $(ARCH_LIST); do \
 			version="$${version} $(TARGET):$(BUILD_VERSION)-$${arch} "; \
 			latest="$${latest} $(TARGET):$(BUILD_VERSION)-$${arch} "; \
+		done; \
+		eval $$version; \
+		eval $$latest; 
+
+		for arch in $(ARCH_LIST); do \
 			case $${arch} in \
 				"amd64") \
-					docker manifest create --amend $(TARGET):$(BUILD_VERSION)-amd64 $(TARGET):$(BUILD_VERSION)-amd64; \
-					docker manifest annotate $(TARGET):$(BUILD_VERSION)-amd64 $(TARGET):$(BUILD_VERSION)-amd64 --os=linux --arch=x86_64; \
 					docker manifest annotate $(TARGET):$(BUILD_VERSION) $(TARGET):$(BUILD_VERSION)-amd64 --os=linux --arch=x86_64; \
 					docker manifest annotate $(TARGET):latest $(TARGET):$(BUILD_VERSION)-amd64 --os=linux --arch=x86_64; \
-					docker manifest create --amend $(TARGET):$(BUILD_VERSION)-amd64 $(TARGET):$(BUILD_VERSION)-amd64; \
 					;; \
 				"arm64v8") \
-					docker manifest create --amend $(TARGET):$(BUILD_VERSION)-arm64v8 $(TARGET):$(BUILD_VERSION)-arm64v8; \
-					docker manifest annotate $(TARGET):$(BUILD_VERSION)-arm64v8 $(TARGET):$(BUILD_VERSION)-arm64v8 --os=linux --arch=arm64 --variant=v8; \
 					docker manifest annotate $(TARGET):$(BUILD_VERSION) $(TARGET):$(BUILD_VERSION)-arm64v8 --os=linux --arch=arm64 --variant=v8; \
 					docker manifest annotate $(TARGET):latest $(TARGET):$(BUILD_VERSION)-arm64v8 --os=linux --arch=arm64 --variant=v8; \
 					;; \
 				"arm32v7") \
-					docker manifest create --amend $(TARGET):$(BUILD_VERSION)-arm32v7 $(TARGET):$(BUILD_VERSION)-arm32v7; \
-					docker manifest annotate $(TARGET):$(BUILD_VERSION)-arm32v7 $(TARGET):$(BUILD_VERSION)-arm32v7 --os=linux --arch=arm --variant=v7; \
 					docker manifest annotate $(TARGET):$(BUILD_VERSION) $(TARGET):$(BUILD_VERSION)-arm32v7 --os=linux --arch=arm --variant=v7; \
 					docker manifest annotate $(TARGET):latest $(TARGET):$(BUILD_VERSION)-arm32v7 --os=linux --arch=arm --variant=v7; \
 					;; \
 				"i386") \
-					docker manifest create --amend $(TARGET):$(BUILD_VERSION)-i386 $(TARGET):$(BUILD_VERSION)-i386; \
-					docker manifest annotate $(TARGET):$(BUILD_VERSION)-i386 $(TARGET):$(BUILD_VERSION)-i386 --os=linux --arch=386; \
 					docker manifest annotate $(TARGET):$(BUILD_VERSION) $(TARGET):$(BUILD_VERSION)-i386 --os=linux --arch=386; \
 					docker manifest annotate $(TARGET):latest $(TARGET):$(BUILD_VERSION)-i386 --os=linux --arch=386; \
 					;; \
 				"s390x") \
-					docker manifest create --amend $(TARGET):$(BUILD_VERSION)-s390x $(TARGET):$(BUILD_VERSION)-s390x; \
-					docker manifest annotate $(TARGET):$(BUILD_VERSION)-s390x $(TARGET):$(BUILD_VERSION)-s390x --os=linux --arch=s390x; \
 					docker manifest annotate $(TARGET):$(BUILD_VERSION) $(TARGET):$(BUILD_VERSION)-s390x --os=linux --arch=s390x; \
 					docker manifest annotate $(TARGET):latest $(TARGET):$(BUILD_VERSION)-s390x --os=linux --arch=s390x; \
 					;; \
 			esac; \
-			docker manifest push $(TARGET):$(BUILD_VERSION)-$${arch}; \
-		done; \
-		eval $$version; \
-		eval $$latest; \
-		docker manifest push $(TARGET):$(BUILD_VERSION); \
-		docker manifest push $(TARGET):latest; \
+		done; 
+
+		docker manifest inspect $(TARGET):$(BUILD_VERSION)
+		docker manifest push $(TARGET):$(BUILD_VERSION); 
+		docker manifest inspect $(TARGET):latest
+		docker manifest push $(TARGET):latest;
 	fi
 
 .PHONY: clean
