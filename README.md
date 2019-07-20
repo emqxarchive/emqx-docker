@@ -14,34 +14,34 @@ Current docker image size: 47 MB
 
 1. Update docker configuration to enable docker manifest command and prepare qemu to build images other then x86_64
     ```bash
-    ./docker.sh prepare
+    make prepare
     ```
 2. Build Docker image
     ```bash
-    ./docker.sh build
+    make build
     ```
 3. Test the docker image with paho
     ```bash
-    ./docker.sh test 
+    make test 
     ```
 4. Tag Docker image
     ```bash
-    ./docker.sh tag 
+    make tag 
     ```
 5. Save the docker image as a zip file
    ```bash
-    ./docker.sh save 
+    make save 
     ``` 
 6. Push Docker image
    ```bash
     docker login
-    ./docker.sh push
-    ./docker.sh manifest-list
+    make push
+    make manifest-list
     docker logout
     ```
 7. Clean up the compiled image
     ```bash
-    ./docker.sh clear
+    make clear
     ```
 
 ### Get emqx from the docker hub
