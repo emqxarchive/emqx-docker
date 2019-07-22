@@ -63,9 +63,9 @@ build:
 		--tag $(TARGET):build-$(ARCH) .
 
 
-key = $(shell date +%s)
-aclient_name = "test-$(key)-$(BROKER)-docker-for-$(EMQX_VERSION)-$(ARCH)-aclient"
-bclient_name = "test-$(key)-$(BROKER)-docker-for-$(EMQX_VERSION)-$(ARCH)-bclient"
+key := $(shell date +%s)
+aclient_name := "test-$(key)-$(BROKER)-docker-for-$(EMQX_VERSION)-$(ARCH)-aclient"
+bclient_name := "test-$(key)-$(BROKER)-docker-for-$(EMQX_VERSION)-$(ARCH)-bclient"
 
 define create_emqx_container
 	if [ -z $$(docker network ls | grep emqxBridge | awk '{print $$2}') ]; then docker network create emqxBridge; fi
