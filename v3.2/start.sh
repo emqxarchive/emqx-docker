@@ -62,4 +62,4 @@ done
 # If running to here (the result 5 times not is running, thus in 25s emqx is not running), exit docker image
 # Then the high level PaaS, e.g. docker swarm mode, will know and alert, rebanlance this service
 
-emqx_exi
+emqx_exit
