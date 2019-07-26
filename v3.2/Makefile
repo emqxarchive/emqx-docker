@@ -192,8 +192,8 @@ manifest_list:
 		case $${arch} in \
 			"amd64") \
 				if [ -n "$$(docker images -q  $(TARGET):$(BUILD_VERSION)-$${arch})" ]; then \
-					docker manifest annotate $(TARGET):$(BUILD_VERSION) $(TARGET):$(BUILD_VERSION)-amd64 --os=linux --arch=x86_64; \
-					docker manifest annotate $(TARGET):latest $(TARGET):$(BUILD_VERSION)-amd64 --os=linux --arch=x86_64; \
+					docker manifest annotate $(TARGET):$(BUILD_VERSION) $(TARGET):$(BUILD_VERSION)-amd64 --os=linux --arch=amd64; \
+					docker manifest annotate $(TARGET):latest $(TARGET):$(BUILD_VERSION)-amd64 --os=linux --arch=amd64; \
 				fi; \
 				;; \
 			"arm64v8") \
